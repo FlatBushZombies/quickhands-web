@@ -8,33 +8,69 @@ import Image from "next/image"
 const categories = [
   {
     title: "Tutors",
-    count: 221_331,
+    count: 221_434,
     items: ["English language", "Mathematics", "Russian language", "Primary school", "Music"],
     services: 1900,
   },
   {
     title: "Repairmen",
-    count: 185_383,
+    count: 185_281,
     items: ["Plumbers", "Electricians", "Tilers", "Plasterers", "Turnkey repairs"],
     services: 1992,
   },
   {
     title: "Beauty masters",
-    count: 76_441,
+    count: 76_458,
     items: ["Makeup", "Manicure", "Hairstyles", "Epilation", "Stylists"],
     services: 1988,
   },
   {
     title: "Freelancers",
-    count: 116_345,
-    items: ["Designers", "Copywriting", "Marketing", "System administrators", "IT outsourcing"],
+    count: 116_336,
+    items: ["Designers", "Working with texts", "Marketing", "System administrators", "IT outsourcing"],
     services: 1083,
   },
   {
-    title: "Accountants & Lawyers",
-    count: 46_399,
+    title: "Accountants and lawyers",
+    count: 46_390,
     items: ["Lawyers", "Accountants", "Realtors", "Business consultants", "Business coaches"],
     services: 1028,
+  },
+  {
+    title: "Sports trainers",
+    count: 25_397,
+    items: ["Fitness", "Yoga", "Pilates", "Stretching", "Aerobics"],
+    services: 730,
+  },
+  {
+    title: "Artists",
+    count: 36_772,
+    items: ["Musicians", "Dancers", "Leading", "Magicians", "Clowns"],
+    services: 1079,
+  },
+  {
+    title: "Domestic staff",
+    count: 44_504,
+    items: ["Housekeepers", "Drivers", "Dog walking", "Nurses", "Housekeeper"],
+    services: 390,
+  },
+  {
+    title: "Veterinarians",
+    count: 6_386,
+    items: ["Animal boarding", "Pet grooming", "Veterinary care", "Pet sitting", "Dog training"],
+    services: 284,
+  },
+  {
+    title: "Driving instructors",
+    count: 2_542,
+    items: [
+      "Driving (manual transmission)",
+      "Driving (automatic)",
+      "Motorcycle lessons",
+      "Theory classes",
+      "Exam preparation",
+    ],
+    services: 156,
   },
 ]
 
@@ -44,12 +80,11 @@ export default function Marketplace() {
       <div className="container mx-auto px-6">
         {/* Header */}
         <div className="mx-auto mb-16 max-w-3xl text-center">
-          <h2 className="font-sans text-4xl font-bold tracking-tight text-foreground">
-            Trusted specialists near you
-          </h2>
+          <h2 className="font-sans text-4xl font-bold tracking-tight text-foreground">Trusted specialists near you</h2>
           <p className="font-sans mt-4 text-muted-foreground leading-relaxed">
-            Choose from <span className="text-primary font-semibold">200,000+ local specialists</span>or 
-            <span className="text-primary font-semibold">2,600+ remote professionals </span>, all ready to help when you need them.
+            Choose from <span className="text-primary font-semibold">200,000+ local specialists </span>or
+            <span className="text-primary font-semibold"> 2,600+ remote professionals </span>, all ready to help when
+            you need them.
           </p>
         </div>
 
@@ -91,7 +126,9 @@ export default function Marketplace() {
         <div className="relative mt-24 overflow-hidden rounded-xl border border-border bg-card">
           <div className="grid gap-8 p-10 md:grid-cols-2 md:items-center">
             <div>
-              <h3 className="font-sans text-3xl font-bold text-foreground">The Quickhands app is launching in January</h3>
+              <h3 className="font-sans text-3xl font-bold text-foreground">
+                The Quickhands app is launching in January
+              </h3>
               <p className="font-sans mt-3 max-w-md text-muted-foreground leading-relaxed">
                 Be the first to get access by joining
                 <span className="text-primary font-medium"> Waitlist </span>

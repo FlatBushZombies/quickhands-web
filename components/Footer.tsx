@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function Footer() {
   return (
     <footer className="border-t border-border/40 py-12">
@@ -5,7 +7,12 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-4">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="h-8 w-8 rounded-lg bg-primary" />
+              <Image
+              src="/quickhands.png"
+              alt="Quickhands Logo"
+              width={24}
+              height={24}
+              />
               <span className="font-sans text-lg font-bold">Quickhands</span>
             </div>
             <p className="font-sans text-sm text-muted-foreground leading-relaxed">

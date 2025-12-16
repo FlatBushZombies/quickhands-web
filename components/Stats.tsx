@@ -2,7 +2,7 @@ export function Stats() {
   const stats = [
     { value: "2M+", label: "Active specialists" },
     { value: "500K+", label: "Projects completed" },
-    { value: "$1B+", label: "Paid to freelancers" },
+    { value: "$1B+", label: "Paid to specialists" },
     { value: "150+", label: "Countries served" },
   ]
 
