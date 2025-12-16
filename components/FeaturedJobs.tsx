@@ -76,8 +76,10 @@ export function FeaturedJobs() {
     <section id="jobs" className="border-b border-border/40 py-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-bold tracking-tight">Featured Projects</h2>
-          <p className="mt-4 text-lg text-muted-foreground">Discover opportunities from companies around the world</p>
+          <h2 className="font-sans text-4xl font-bold tracking-tight">Featured Projects</h2>
+          <p className="font-sans mt-4 text-lg text-muted-foreground">
+            Discover opportunities from companies around the world
+          </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -89,20 +91,20 @@ export function FeaturedJobs() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle className="text-xl">{job.title}</CardTitle>
-                    <CardDescription className="mt-1">{job.company}</CardDescription>
+                    <CardTitle className="font-sans text-xl">{job.title}</CardTitle>
+                    <CardDescription className="font-sans mt-1">{job.company}</CardDescription>
                   </div>
-                  <Badge variant="secondary" className="shrink-0">
+                  <Badge variant="secondary" className="font-sans shrink-0">
                     {job.type}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground">{job.description}</p>
+                <p className="font-sans text-sm text-muted-foreground leading-relaxed">{job.description}</p>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   {job.skills.map((skill) => (
-                    <Badge key={skill} variant="outline" className="border-primary/20 text-xs">
+                    <Badge key={skill} variant="outline" className="font-mono border-primary/20 text-xs">
                       {skill}
                     </Badge>
                   ))}
@@ -111,11 +113,11 @@ export function FeaturedJobs() {
                 <div className="mt-6 flex items-center justify-between text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
                     <DollarSign className="h-4 w-4" />
-                    <span>{job.budget}</span>
+                    <span className="font-mono tabular-nums">{job.budget}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
-                    <span>{job.posted}</span>
+                    <span className="font-sans">{job.posted}</span>
                   </div>
                 </div>
               </CardContent>

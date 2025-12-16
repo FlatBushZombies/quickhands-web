@@ -29,8 +29,8 @@ export function HowItWorks() {
     <section id="how" className="py-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
-          <h2 className="text-4xl font-bold tracking-tight">How It Works</h2>
-          <p className="mt-4 text-lg text-muted-foreground">Get started in minutes with our simple process</p>
+          <h2 className="font-sans text-4xl font-bold tracking-tight">How It Works</h2>
+          <p className="font-sans mt-4 text-lg text-muted-foreground">Get started in minutes with our simple process</p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
@@ -44,10 +44,10 @@ export function HowItWorks() {
                       <Icon className="h-6 w-6 text-primary" />
                     </div>
                     <div className="absolute -top-3 left-6 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                      {index + 1}
+                      <span className="font-mono">{index + 1}</span>
                     </div>
-                    <h3 className="mb-2 text-xl font-semibold">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                    <h3 className="font-sans mb-2 text-xl font-semibold">{step.title}</h3>
+                    <p className="font-sans text-sm text-muted-foreground leading-relaxed">{step.description}</p>
                   </CardContent>
                 </Card>
               </div>

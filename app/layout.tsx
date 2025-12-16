@@ -1,36 +1,45 @@
-import type { Metadata } from "next";
-import { Schibsted_Grotesk, Martian_Mono } from "next/font/google";
-import "./globals.css";
+import type React from "react"
+import type { Metadata } from "next"
+import { Schibsted_Grotesk, Martian_Mono } from "next/font/google"
+import "./globals.css"
 
 const schibstedGrotesk = Schibsted_Grotesk({
   variable: "--font-schibsted-grotesk",
   subsets: ["latin"],
-});
+  display: "swap",
+})
 
 const martianMono = Martian_Mono({
   variable: "--font-martian-mono",
   subsets: ["latin"],
-});
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "Quickhands Platform",
-  description: "Freelance platform for Africae",
-};
+  description: "Freelance platform for Africa",
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
       <body
-        className={`${schibstedGrotesk.variable} ${martianMono.variable} min-h-screen antialiased bg-white`}
+        className={`
+          ${schibstedGrotesk.variable}
+          ${martianMono.variable}
+          font-sans
+          min-h-screen
+          antialiased
+          bg-background
+          text-foreground
+        `}
       >
-        <main>
-        {children}
-        </main>
+        <main>{children}</main>
       </body>
     </html>
-  );
+  )
 }
