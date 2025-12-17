@@ -84,8 +84,7 @@ export default async function ProfilePage({
                     <h2 className="font-sans text-3xl font-bold tracking-tight mb-4">Mobile App Coming Soon</h2>
 
                     <p className="font-sans text-lg text-muted-foreground mb-6 leading-relaxed max-w-2xl mx-auto">
-                      We're excited to announce that the Coonect mobile app will be launching in January 2025. Connect
-                      and collaborate on the go, anytime and anywhere.
+                      We're excited to announce that the quickhands mobile app will be launching in January 2025.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-8">
