@@ -16,11 +16,8 @@ export default function Home() {
       <HeroSection />
       <Features />
       <Stats />
-      <FeaturedJobs />
       <HowItWorks />
       <Marketplace />
-      <PricingPlans />
-      <Faq />
       <Footer />
     </>
   )

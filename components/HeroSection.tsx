@@ -12,7 +12,7 @@ export function HeroSection() {
       <div className="container relative mx-auto px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <h1 className="font-sans text-balance text-5xl font-bold leading-tight tracking-tight text-foreground sm:text-7xl sm:leading-tight">
-            The complete platform to <span className="text-primary">Specialists</span>
+          Quickly find the right  <span className="text-primary">Specialists</span> for your tasks.
           </h1>
           <p className="font-sans mt-6 text-balance text-lg leading-relaxed text-muted-foreground sm:text-xl">
             Quickly find the right specialist for your task. 100 clients have already connected with trusted professionals on our platform.
