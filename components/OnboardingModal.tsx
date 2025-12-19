@@ -79,7 +79,7 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Welcome to Coonect</DialogTitle>
+          <DialogTitle className="text-2xl">Welcome to Quickhands</DialogTitle>
           <DialogDescription>
             Complete your profile to get started. We'll personalize your experience based on this information.
           </DialogDescription>

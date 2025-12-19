@@ -14,6 +14,7 @@ import {
 import {  FaqSection } from "@/components/FAQ"
 import { PricingPlans } from "@/components/PricingPlans"
 import { OnboardingModal } from "@/components/OnboardingModal"
+import { ProfessionalsHeader } from "@/components/ProffesionalsHeader"
 
 const steps = [
   {
@@ -67,43 +68,73 @@ export default function ProfessionalsPage() {
 
   return (
     <>
-      <Header />
+      <ProfessionalsHeader />
 
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-border/40 bg-background">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#11182720_1px,transparent_1px),linear-gradient(to_bottom,#11182720_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+  {/* Background grid */}
+  <div className="absolute inset-0 
+    bg-[linear-gradient(to_right,#11182720_1px,transparent_1px),
+        linear-gradient(to_bottom,#11182720_1px,transparent_1px)]
+    bg-[size:4rem_4rem]
+    [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]
+  " />
 
-        <div className="container relative mx-auto px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
-          <div className="mx-auto max-w-4xl text-center">
-           
-            <h1 className="font-sans text-balance text-5xl font-bold leading-tight tracking-tight sm:text-7xl">
-              Earn money doing what you are great at
-            </h1>
+  <div className="container relative mx-auto px-4 py-24 sm:px-6 sm:py-32 lg:px-8">
+    <div className="mx-auto max-w-4xl text-center">
 
-            <p className="font-sans mt-6 text-balance text-lg leading-relaxed text-muted-foreground sm:text-xl">
-              Access over 50,000 new orders every month in your country
-            </p>
+      {/* Headline */}
+      <h1 className="font-sans text-balance text-5xl font-bold leading-tight tracking-tight sm:text-7xl">
+        Earn money doing what you are great at
+      </h1>
 
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <OnboardingModal>
-                <Button
-                  size="lg"
-                  className="h-14 bg-secondary px-8 font-sans font-medium text-secondary-foreground hover:bg-secondary/90"
-                >
-                  Register with your email
-                </Button>
-              </OnboardingModal>
-            </div>
-
-            <p className="font-sans mt-6 text-sm text-muted-foreground">
-              We'll send you a confirmation code — no spam, no advertising.
-            </p>
-            <p className="font-sans mt-2 text-sm text-muted-foreground">
-              By signing up, you'll be automatically notified when the app launches in January.
-            </p>
-          </div>
+      {/* Image cards */}
+      <div className="mt-10 flex flex-col items-center justify-center gap-6 sm:flex-row">
+        <div className="relative h-48 w-48 sm:h-56 sm:w-56 overflow-hidden rounded-2xl border border-border/50 bg-background shadow-lg">
+          <img
+            src="/trader.jpg"
+            alt="Professional focused on their work"
+            className="h-full w-full object-cover"
+          />
         </div>
-      </section>
+
+        <div className="relative h-48 w-48 sm:h-56 sm:w-56 overflow-hidden rounded-2xl border border-border/50 bg-background shadow-lg">
+          <img
+            src="/factory-worker.jpg"
+            alt="Skilled worker doing their job"
+            className="h-full w-full object-cover"
+          />
+        </div>
+      </div>
+
+      {/* Subheading */}
+      <p className="font-sans mt-6 text-balance text-lg leading-relaxed text-muted-foreground sm:text-xl">
+        Access over 50,000 new orders every month in your country
+      </p>
+
+      {/* CTA */}
+      <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+        <OnboardingModal>
+          <Button
+            size="lg"
+            className="h-14 bg-secondary px-8 font-sans font-medium text-secondary-foreground hover:bg-secondary/90"
+          >
+            Register with your email
+          </Button>
+        </OnboardingModal>
+      </div>
+
+      {/* Footer text */}
+      <p className="font-sans mt-6 text-sm text-muted-foreground">
+        We'll send you a confirmation code — no spam, no advertising.
+      </p>
+      <p className="font-sans mt-2 text-sm text-muted-foreground">
+        By signing up, you'll be automatically notified when the app launches in January.
+      </p>
+    </div>
+  </div>
+</section>
+
 
       {/* How It Works */}
       <section id="how" className="py-20">
