@@ -40,43 +40,51 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="py-20">
+    <section
+      id="features"
+      className="relative overflow-hidden py-24"
+    >
+      {/* Soft premium background */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#FFF6EB] via-white to-white" />
+
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => {
             const Icon = feature.icon
 
             return (
               <Card
                 key={feature.title}
-                className="group relative h-full overflow-hidden border-border bg-card transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                className="group relative h-full overflow-hidden rounded-3xl border border-black/5 bg-white/80 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)]"
               >
-                {/* Subtle gradient overlay for premium feel */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                {/* Subtle glow */}
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-                <CardContent className="relative pt-6 flex flex-col h-full">
+                <CardContent className="relative flex h-full flex-col px-8 pt-10 pb-8">
                   {/* Illustration */}
-                  <div className="mb-6 flex w-full justify-center h-[220px] items-center">
+                  <div className="mb-8 flex h-[220px] items-center justify-center">
                     <Image
                       src={feature.illustration}
                       alt={feature.title}
-                      width={200}
-                      height={200}
+                      width={220}
+                      height={220}
                       className="object-contain"
                       priority={index < 2}
                     />
                   </div>
 
-                  {/* Icon */}
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                  {/* Icon badge */}
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
                     <Icon className="h-6 w-6 text-primary" aria-hidden />
                   </div>
 
-                  <h3 className="font-sans mb-2 text-xl font-semibold min-h-[56px]">
+                  {/* Title */}
+                  <h3 className="mb-3 text-xl font-semibold tracking-tight text-foreground">
                     {feature.title}
                   </h3>
 
-                  <p className="font-sans mt-auto text-sm leading-relaxed text-muted-foreground">
+                  {/* Description */}
+                  <p className="mt-auto text-sm leading-relaxed text-muted-foreground">
                     {feature.description}
                   </p>
                 </CardContent>
