@@ -266,8 +266,9 @@ export default function Marketplace() {
       {/* Text content */}
       <div className="text-white">
         <h3 className="text-4xl font-extrabold leading-tight md:text-5xl">
-          Your work deserves
-          <span className="block text-emerald-100"> better tools.</span>
+          Try the 
+          <span className="block text-emerald-100">Quickhands</span>
+          app.
         </h3>
 
         <p className="mt-4 max-w-lg text-lg text-emerald-50/90">

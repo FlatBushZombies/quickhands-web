@@ -19,87 +19,91 @@ export function Header() {
     { label: "Find Work", href: "#jobs" },
     { label: "Find Talent", href: "#talent" },
     { label: "How It Works", href: "#how" },
-    { label: "Website for Professionals", href: "/professionals" },
+    { label: "For Professionals", href: "/professionals" },
   ]
 
   return (
     <>
       <header
         className={cn(
-          "sticky top-5 z-50",
-          "mx-auto w-full max-w-5xl rounded-lg border shadow",
-          "bg-background/95 supports-[backdrop-filter]:bg-background/80 backdrop-blur-lg"
+          "sticky top-6 z-50",
+          "mx-auto w-full max-w-6xl",
+          "rounded-2xl border bg-background/80 backdrop-blur-xl",
+          "shadow-[0_10px_30px_-12px_rgba(0,0,0,0.25)]"
         )}
       >
-        <nav className="mx-auto flex items-center justify-between p-1.5">
-          <div className="hover:bg-accent flex cursor-pointer items-center gap-2 rounded-md px-2 py-1 duration-100">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="relative">
-                <Image
-                  src="/quickhands.png"
-                  height={32}
-                  width={32}
-                  alt="Quickhands Logo"
-                  className="transition-transform duration-200 group-hover:scale-105"
-                />
-              </div>
-              <span className="font-sans text-xl font-bold tracking-tight text-foreground transition-colors duration-200 group-hover:text-primary">
-                Quickhands
-              </span>
-            </Link>
-          </div>
+        <nav className="flex items-center justify-between px-4 py-2">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative h-9 w-9 overflow-hidden rounded-xl border bg-muted">
+              <Image
+                src="/quickhands.png"
+                alt="Quickhands"
+                fill
+                className="object-contain p-1 transition-transform duration-200 group-hover:scale-110"
+              />
+            </div>
+            <span className="text-lg font-semibold tracking-tight">
+              Quickhands
+            </span>
+          </Link>
 
-          <div className="hidden items-center gap-1 lg:flex">
+          {/* Desktop nav + primary action */}
+          <div className="hidden lg:flex items-center gap-1">
             {links.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className={buttonVariants({ variant: "ghost", size: "sm" })}
+                className={buttonVariants({
+                  variant: "ghost",
+                  size: "sm",
+                  className: "rounded-xl",
+                })}
               >
                 {link.label}
               </Link>
             ))}
-          </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              onClick={() => setShowLogin(true)}
-              className="lg:block hidden"
-            >
-              Login
-            </Button>
-
+            {/* Inline auth CTA */}
             <ClientLogin>
               <Button
                 size="sm"
-                className="h-10 px-6"
+                className="ml-2 rounded-xl px-5"
               >
-                Register
+                Login / Register
               </Button>
             </ClientLogin>
+          </div>
 
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            
+
+            {/* Mobile menu */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="lg:hidden">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="lg:hidden rounded-xl"
+                >
                   <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
 
               <SheetContent
                 side="left"
-                className="bg-background/95 supports-[backdrop-filter]:bg-background/80 gap-0 backdrop-blur-lg"
+                className="flex flex-col bg-background/90 backdrop-blur-xl"
                 showClose={false}
               >
-                <div className="grid gap-y-2 overflow-y-auto px-4 pt-12 pb-5">
+                <div className="pt-10 space-y-1">
                   {links.map((link) => (
                     <Link
                       key={link.label}
                       href={link.href}
                       className={buttonVariants({
                         variant: "ghost",
-                        className: "justify-start",
+                        className: "w-full justify-start rounded-xl",
                       })}
                     >
                       {link.label}
@@ -107,11 +111,18 @@ export function Header() {
                   ))}
                 </div>
 
-                <div className="mt-auto flex flex-col gap-2 p-4 bg-muted/30 border-t">
-                  <Button variant="outline" onClick={() => setShowLogin(true)}>
+                <div className="mt-auto space-y-2 border-t pt-4">
+                  <Button
+                    variant="outline"
+                    className="w-full rounded-xl"
+                    onClick={() => setShowLogin(true)}
+                  >
                     Sign In
                   </Button>
-                  <Button onClick={() => setShowSignup(true)}>
+                  <Button
+                    className="w-full rounded-xl"
+                    onClick={() => setShowSignup(true)}
+                  >
                     Get Started
                   </Button>
                 </div>
@@ -121,6 +132,7 @@ export function Header() {
         </nav>
       </header>
 
+      {/* Auth modals */}
       <LoginModal
         open={showLogin}
         onOpenChange={setShowLogin}
