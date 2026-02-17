@@ -4,6 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import Image from "next/image"
 import { Button } from "./ui/button"
 import { OnboardingModal } from "./OnboardingModal"
+import { MessageCircle, ArrowRight } from "lucide-react"
 
 const faqs = [
   {
@@ -50,62 +51,110 @@ const faqs = [
 
 export function FaqSection() {
   return (
-    <section className="py-24 border-t border-neutral-700 bg-neutral-900">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-          <div className="lg:sticky lg:top-8">
-            <h2 className="font-sans text-4xl font-bold tracking-tight mb-4 text-balance text-white">
+    <section className="relative py-28 bg-zinc-950 overflow-hidden">
+      {/* Background accents */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-600/8 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-emerald-900/20 rounded-full blur-3xl pointer-events-none" />
+
+      {/* Dot grid */}
+      <div
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage: `radial-gradient(circle, #ffffff 1px, transparent 1px)`,
+          backgroundSize: "32px 32px",
+        }}
+      />
+
+      <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-[1fr_1.4fr] gap-16 lg:gap-24 items-start">
+          {/* Left column — sticky */}
+          <div className="lg:sticky lg:top-24">
+            {/* Label */}
+            <div className="inline-flex items-center gap-2 rounded-full border border-zinc-700/60 bg-zinc-900 px-4 py-1.5 mb-7">
+              <MessageCircle className="h-3.5 w-3.5 text-emerald-500" />
+              <span
+                className="text-xs font-semibold text-zinc-400 tracking-widest uppercase"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              >
+                Help Center
+              </span>
+            </div>
+
+            <h2
+              className="text-5xl font-black leading-[1.05] tracking-tight text-white mb-5 text-balance"
+              style={{ fontFamily: "'DM Sans', 'Plus Jakarta Sans', sans-serif", letterSpacing: "-0.03em" }}
+            >
               Frequently Asked Questions
             </h2>
 
-            <p className="font-sans text-lg text-neutral-300 leading-relaxed mb-8 text-pretty">
+            <p className="text-base text-zinc-400 leading-relaxed mb-10 text-pretty max-w-sm" style={{ fontFamily: "'DM Sans', sans-serif" }}>
               Everything you need to know about working on Quickhands. Can't find what you're looking for? Contact our
               support team.
             </p>
 
-            <div className="relative w-full max-w-md mt-12 mx-auto lg:mx-0">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-600/20 via-green-600/10 to-transparent rounded-3xl blur-3xl opacity-60" />
-              <div className="relative bg-gradient-to-br from-neutral-800/80 to-neutral-800/60 backdrop-blur-sm rounded-2xl p-8 border border-neutral-700">
+            {/* CTA */}
+            <OnboardingModal>
+              <Button
+                size="lg"
+                className="h-12 px-6 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-900/40 hover:shadow-emerald-700/40 transition-all duration-200 group"
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              >
+                Sign Up
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+              </Button>
+            </OnboardingModal>
+
+            {/* Illustration card */}
+            <div className="relative mt-14 max-w-xs">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/30 via-teal-600/20 to-transparent rounded-3xl blur-2xl" />
+              <div className="relative rounded-2xl overflow-hidden border border-zinc-700/50 bg-zinc-900/80 backdrop-blur-sm p-6">
                 <Image
                   src="/illustrations/undraw_questions.svg"
                   alt="Frequently asked questions"
-                  width={400}
-                  height={320}
-                  className="relative drop-shadow-xl w-full h-auto"
+                  width={320}
+                  height={260}
+                  className="w-full h-auto opacity-90 drop-shadow-xl"
                 />
               </div>
             </div>
           </div>
 
+          {/* Right column — accordion */}
           <div>
-            <Accordion type="single" collapsible className="space-y-4">
+            <Accordion type="single" collapsible className="space-y-2.5">
               {faqs.map((faq, index) => (
                 <AccordionItem
                   key={index}
                   value={`item-${index}`}
-                  className="border border-neutral-700 bg-neutral-800/50 rounded-lg px-6 data-[state=open]:bg-neutral-800/80 data-[state=open]:border-green-600/40 transition-all shadow-md hover:shadow-lg hover:border-green-600/30"
+                  className="group border border-zinc-800 bg-zinc-900/60 rounded-xl px-6 
+                    data-[state=open]:bg-zinc-900 data-[state=open]:border-emerald-600/40 
+                    transition-all duration-200 hover:border-zinc-700"
                 >
-                  <AccordionTrigger className="font-sans text-left text-base font-semibold text-white hover:text-green-500 hover:no-underline py-5">
+                  <AccordionTrigger
+                    className="py-5 text-left text-[15px] font-semibold text-zinc-200 
+                      hover:text-white hover:no-underline transition-colors duration-150"
+                    style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  >
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="font-sans text-neutral-300 leading-relaxed pb-5">
+                  <AccordionContent
+                    className="text-sm text-zinc-400 leading-relaxed pb-5"
+                    style={{ fontFamily: "'DM Sans', sans-serif" }}
+                  >
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
-          </div>
-        </div>
 
-        <div className="mt-16 flex justify-center">
-          <OnboardingModal>
-            <Button
-              size="lg"
-              className="h-14 px-8 font-sans font-medium bg-green-600 text-white hover:bg-green-700 shadow-lg hover:shadow-xl transition-shadow"
-            >
-              Sign Up
-            </Button>
-          </OnboardingModal>
+            {/* Bottom helper text */}
+            <p className="mt-8 text-sm text-zinc-500 text-center" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+              Still have questions?{" "}
+              <a href="mailto:support@quickhands.com" className="text-emerald-500 hover:text-emerald-400 transition-colors underline underline-offset-2">
+                Contact our support team →
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </section>
