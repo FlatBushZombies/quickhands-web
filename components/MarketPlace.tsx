@@ -273,7 +273,7 @@ export default function Marketplace() {
 
         <p className="mt-4 max-w-lg text-lg text-emerald-50/90">
           The <span className="font-semibold">Quickhands</span> app launches in
-          January. Join the waitlist and be the first to experience faster,
+          February. Join the waitlist and be the first to experience faster,
           smarter workflows.
         </p>
 
