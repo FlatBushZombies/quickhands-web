@@ -16,10 +16,11 @@ const martianMono = Martian_Mono({
   display: "swap",
 })
 
-export const metadata: Metadata = {
-  title: "Quickhands Platform",
-  description: "Freelance platform for Africa",
-}
+export const metadata = {
+  title: "QuickHands – Find Trusted Service Specialists in Harare",
+  description:
+    "Book reliable plumbing, electrical, cleaning, beauty and home service specialists in Harare. Compare prices, chat on WhatsApp and get jobs done fast with QuickHands.",
+};
 
 export default function RootLayout({
   children,
