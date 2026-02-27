@@ -75,8 +75,10 @@
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
-  --font-mono: "Geist Mono", "Geist Mono Fallback";
+  /* ✅ Changed: now points to your Next.js font variables */
+  --font-sans: var(--font-schibsted-grotesk), sans-serif;
+  --font-mono: var(--font-martian-mono), monospace;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
