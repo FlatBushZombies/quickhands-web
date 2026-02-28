@@ -182,7 +182,7 @@ export default function QuickHandsHero() {
                             px-3 py-[6px] mb-7">
               <span className="qhh-dot w-2 h-2 rounded-full bg-green-500 shrink-0" />
               <span className="text-green-700 text-[13px] font-semibold tracking-wide">
-                Now hiring in your area
+                Now available in your area
               </span>
             </div>
 
@@ -235,7 +235,7 @@ export default function QuickHandsHero() {
                            hover:-translate-y-0.5 hover:bg-green-600
                            hover:shadow-[0_14px_36px_rgba(34,197,94,.4)]"
               >
-                Earn money as a specialist
+                Register as a specialist
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center
                                  rounded-full bg-white/20
                                  transition-transform duration-200
@@ -252,7 +252,7 @@ export default function QuickHandsHero() {
                 We'll send you a confirmation code — no spam, no advertising.
               </p>
               <p className="font-sans mt-2 text-sm text-neutral-600 m-0">
-                By signing up, you'll be automatically notified when the app launches in January.
+                By signing up, you'll be automatically notified when the app launches soon.
               </p>
             </div>
           </div>

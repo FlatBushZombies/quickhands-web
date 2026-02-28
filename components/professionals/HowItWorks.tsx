@@ -329,7 +329,7 @@ export default function HowItWorks() {
               Ready to get started?
             </p>
             <h3 className="font-sans text-2xl lg:text-3xl font-bold text-white mb-6">
-              Join thousands of Taskers already earning on QuickHands
+              Join thousands of specialists and start earning.
             </h3>
             <a
               href="#"
