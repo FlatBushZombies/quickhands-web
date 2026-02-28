@@ -17,7 +17,7 @@ const martianMono = Martian_Mono({
 })
 
 export const metadata = {
-  title: "QuickHands – Find Trusted Service Specialists in Harare",
+  title: "QuickHands – Find Trusted Service Specialists in Africa",
   description:
     "Book reliable plumbing, electrical, cleaning, beauty and home service specialists in Harare. Compare prices, chat on WhatsApp and get jobs done fast with QuickHands.",
 };
