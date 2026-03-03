@@ -44,7 +44,7 @@ export function ProfessionalsHeader() {
               />
             </div>
             <span className="text-lg font-semibold tracking-tight">
-              Quickhands
+              Quickhands Africa
             </span>
           </Link>
 

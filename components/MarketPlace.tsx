@@ -144,10 +144,10 @@ export default function Marketplace() {
 
             <div className="stats-row">
               {[
-                { n: "11K+", l: "Specialists" },
-                { n: "11",   l: "Categories" },
-                { n: "4.9★", l: "Avg Rating" },
-                { n: "50+",  l: "Cities" },
+                { n: "", l: "" },
+                { n: "",   l: "" },
+                { n: "", l: "" },
+                { n: "",  l: "" },
               ].map((s) => (
                 <div className="stat-cell" key={s.l}>
                   <span className="stat-n">{s.n}</span>

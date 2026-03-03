@@ -18,7 +18,7 @@ const martianMono = Martian_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "QuickHands | Find Trusted Freelance Specialists in Africa",
+    default: "QuickHands | Find Trusted  Specialists in Africa",
     template: "%s | QuickHands",
   },
   description:
@@ -43,23 +43,23 @@ export const metadata: Metadata = {
     type: "website",
     url: "https://quickhandsafrica.com",
     siteName: "QuickHands",
-    title: "QuickHands | Trusted Freelance Specialists in Africa",
+    title: "QuickHands | Trusted  Specialists in Africa",
     description:
-      "Book reliable freelance specialists for home, beauty and trade services across Africa. Fast, simple and trusted.",
+      "Book reliable specialists for home, beauty and trade services across Africa. Fast, simple and trusted.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "QuickHands – Freelance Specialists in Africa",
+        alt: "QuickHands – Hire Specialists in Africa",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "QuickHands | Freelance Specialists in Africa",
+    title: "QuickHands | Hire Specialists in Africa",
     description:
-      "Find and book trusted freelance specialists in Harare and across Africa. Compare prices and get jobs done fast.",
+      "Find and book trusted  specialists in Harare and across Africa. Compare prices and get jobs done fast.",
     images: ["/og-image.png"],
   },
   icons: {
