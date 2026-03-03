@@ -274,7 +274,7 @@ export default function Marketplace() {
         <p className="mt-4 max-w-lg text-lg text-emerald-50/90">
   <span className="font-semibold">Quickhands</span> is almost here — built to
   connect you with trusted specialists, faster. Be the first in when
-  we go live.Launchung soon.
+  we go live. Launching soon.
 </p>
 
         {/* Store buttons */}
