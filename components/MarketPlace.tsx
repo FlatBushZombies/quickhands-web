@@ -272,10 +272,10 @@ export default function Marketplace() {
         </h3>
 
         <p className="mt-4 max-w-lg text-lg text-emerald-50/90">
-          The <span className="font-semibold">Quickhands</span> app launches in
-          February. Join the waitlist and be the first to experience faster,
-          smarter workflows.
-        </p>
+  <span className="font-semibold">Quickhands</span> is almost here — built to
+  connect you with trusted specialists, faster. Be the first in when
+  we go live.Launchung soon.
+</p>
 
         {/* Store buttons */}
         <div className="mt-8 flex flex-wrap gap-4">
