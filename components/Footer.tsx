@@ -52,7 +52,7 @@ export function Footer() {
           <div className="flex flex-col gap-5 max-w-xs">
             <Link href="/" className="flex items-center gap-2">
               <Image src="/quickhands.png" alt="Quickhands Logo" width={32} height={32} />
-              <span className="text-xl font-bold text-foreground font-sans">Quickhands</span>
+              <span className="text-xl font-bold text-foreground font-sans">Quickhands Africa</span>
             </Link>
             <p className="text-sm text-muted-foreground font-sans leading-relaxed">
               The complete platform for clients and specialists to connect, collaborate, and get work done.
