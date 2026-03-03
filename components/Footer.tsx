@@ -68,7 +68,7 @@ export function Footer() {
                 <TikTokIcon />
               </Link>
               <Link
-                href="https://www.instagram.com/quickhands.app"
+                href="https://www.instagram.com/quickhandsafrica"
                 target="_blank"
                 aria-label="Instagram"
                 className="text-muted-foreground hover:text-foreground transition-colors"
