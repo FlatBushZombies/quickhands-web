@@ -16,6 +16,7 @@
 
 import { useState } from "react";
 import { OnboardingModal } from "./OnboardingModal";
+import ProfessionalCounter from "./professionals/ProfessionalsCounter";
 
 /* ── Icons ───────────────────────────────────────────────── */
 const CheckIcon = () => (
@@ -254,6 +255,9 @@ export default function QuickHandsHero() {
               <p className="font-sans mt-2 text-sm text-neutral-600 m-0">
                 By signing up, you'll be automatically notified when the app launches soon.
               </p>
+                <div className="mt-5 pt-5 border-t border-gray-100">
+                 <ProfessionalCounter />
+                </div>
             </div>
           </div>
 

@@ -5,6 +5,7 @@ import { Search, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import UserCounter from "./professionals/ClientCounter"
 
 interface ServiceCard {
   image: string
@@ -78,9 +79,7 @@ export function HeroSection() {
           </h1>
 
           {/* Subtitle */}
-          <p className="font-sans text-balance text-lg sm:text-xl leading-relaxed text-[#4a5568] max-w-2xl">
-            0 clients have already connected with trusted professionals on our platform.
-          </p>
+          <UserCounter />
 
           {/* Search Bar */}
           <motion.div

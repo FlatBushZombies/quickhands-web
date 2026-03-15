@@ -29,3 +29,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Failed to create user profile" }, { status: 500 })
   }
 }
+
+export async function GET() {
+  try {
+    const result = await sql`SELECT COUNT(*) as count FROM users`
+    return NextResponse.json({ count: parseInt(result[0].count) })
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch count" }, { status: 500 })
+  }
+}
