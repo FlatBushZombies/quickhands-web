@@ -84,7 +84,7 @@ export default async function ProfilePage({
                     <h2 className="font-sans text-3xl font-bold tracking-tight mb-4">Mobile App Coming Soon</h2>
 
                     <p className="font-sans text-lg text-muted-foreground mb-6 leading-relaxed max-w-2xl mx-auto">
-                      We're excited to announce that the quickhands mobile app will be launching in January 2025.
+                      We're excited to announce that the quickhands mobile app will be launching soon.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-8">
@@ -92,7 +92,7 @@ export default async function ProfilePage({
                         <Calendar className="h-5 w-5 text-primary" />
                         <div className="text-left">
                           <p className="text-xs text-muted-foreground font-medium">Launch Date</p>
-                          <p className="font-sans text-sm font-semibold">January 2026</p>
+                          <p className="font-sans text-sm font-semibold">April 2026</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 px-6 py-3 rounded-lg bg-background/50 border border-border/50">
