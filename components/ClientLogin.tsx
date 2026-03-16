@@ -34,6 +34,20 @@ export function ClientLogin({ children }: ClientLoginProps) {
     phone: "",
   })
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen)
+
+    if (!nextOpen) {
+      setError("")
+      setSuccess(false)
+      setFormData({
+        firstName: "",
+        lastName: "",
+        phone: "",
+      })
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -69,6 +83,9 @@ export function ClientLogin({ children }: ClientLoginProps) {
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (error) setError("")
+    if (success) setSuccess(false)
+
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -76,7 +93,7 @@ export function ClientLogin({ children }: ClientLoginProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
