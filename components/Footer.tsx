@@ -6,12 +6,10 @@ import Link from "next/link"
 const footerLinks = {
   forClients: [
     { title: "Post a Project", href: "#" },
-    { title: "Find Talent", href: "#" },
     { title: "How to Hire", href: "#" },
     { title: "Enterprise", href: "#" },
   ],
   forSpecialists: [
-    { title: "Find Work", href: "#" },
     { title: "Create Profile", href: "#" },
     { title: "How to Win Jobs", href: "#" },
     { title: "Success Stories", href: "#" },

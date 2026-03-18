@@ -16,8 +16,6 @@ export function ProfessionalsHeader() {
   const [showSignup, setShowSignup] = useState(false)
 
   const links = [
-    { label: "Find Work", href: "#jobs" },
-    { label: "Find Talent", href: "#talent" },
     { label: "How It Works", href: "#how" },
     { label: "For Clients", href: "/" },
   ]
