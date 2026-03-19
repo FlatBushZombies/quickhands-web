@@ -1,20 +1,48 @@
 import { neon } from "@neondatabase/serverless"
 import { NextResponse } from "next/server"
 
-const sql = neon(process.env.DATABASE_URL!)
+const databaseUrl = process.env.DATABASE_URL
+
+if (!databaseUrl) {
+  throw new Error("Missing DATABASE_URL")
+}
+
+const sql = neon(databaseUrl)
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { firstName, lastName, email, phone, profession, relevantInfo } = body
 
-    // Validate required fields
+    const clean = (v: string) => v.trim()
+
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      profession,
+      relevantInfo,
+    } = {
+      firstName: clean(body.firstName),
+      lastName: clean(body.lastName),
+      email: clean(body.email),
+      phone: clean(body.phone),
+      profession: clean(body.profession),
+      relevantInfo: clean(body.relevantInfo),
+    }
+
+    // Validation
     if (!firstName || !lastName || !email || !phone || !profession || !relevantInfo) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 })
     }
 
-    // Insert user into database
-    const result = await sql`
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: "Invalid email format" }, { status: 400 })
+    }
+
+    // Insert user
+    const [user] = await sql`
       INSERT INTO users (first_name, last_name, email, phone, profession, relevant_info, created_at)
       VALUES (${firstName}, ${lastName}, ${email}, ${phone}, ${profession}, ${relevantInfo}, NOW())
       RETURNING id, first_name, last_name, email, phone, profession, relevant_info
@@ -22,19 +50,37 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      user: result[0],
+      user,
     })
-  } catch (error) {
-    console.error("[v0] Onboarding error:", error)
-    return NextResponse.json({ error: "Failed to create user profile" }, { status: 500 })
+  } catch (error: any) {
+    console.error("[Onboarding error]:", error)
+
+    // Handle duplicate email
+    if (error.code === "23505") {
+      return NextResponse.json(
+        { error: "This email is already registered" },
+        { status: 409 }
+      )
+    }
+
+    return NextResponse.json(
+      { error: "Failed to create user profile" },
+      { status: 500 }
+    )
   }
 }
 
 export async function GET() {
   try {
-    const result = await sql`SELECT COUNT(*) as count FROM users`
-    return NextResponse.json({ count: parseInt(result[0].count) })
+    const [result] = await sql`SELECT COUNT(*) as count FROM users`
+
+    return NextResponse.json({
+      count: parseInt(result.count),
+    })
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch count" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to fetch count" },
+      { status: 500 }
+    )
   }
 }

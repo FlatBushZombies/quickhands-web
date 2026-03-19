@@ -28,6 +28,7 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
 
   const router = useRouter()
 
@@ -51,6 +52,9 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (loading) return // prevent double submit
+
     setLoading(true)
     setError("")
 
@@ -63,11 +67,13 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
         body: JSON.stringify(formData),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to submit onboarding")
+        throw new Error(data.error || "Failed to submit onboarding")
       }
 
+      setUserId(data.user.id)
       setSuccess(true)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong")
@@ -78,7 +84,11 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
 
   const handleContinue = () => {
     setOpen(false)
-    router.push(`/profile/${formData.firstName.toLowerCase()}`)
+
+    // Use USER ID instead of first name
+    if (userId) {
+      router.push(`/profile/${userId}`)
+    }
   }
 
   return (
@@ -88,7 +98,6 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
       <DialogContent className="sm:max-w-[520px]">
         {!success ? (
           <>
-            {/* ---------------- FORM VIEW ---------------- */}
             <DialogHeader>
               <DialogTitle className="text-2xl">
                 Welcome to QuickHands
@@ -101,9 +110,8 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
             <form onSubmit={handleSubmit} className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label>First Name</Label>
                   <Input
-                    id="firstName"
                     name="firstName"
                     value={formData.firstName}
                     onChange={handleChange}
@@ -112,9 +120,8 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label>Last Name</Label>
                   <Input
-                    id="lastName"
                     name="lastName"
                     value={formData.lastName}
                     onChange={handleChange}
@@ -124,11 +131,10 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label>Email</Label>
                 <Input
-                  id="email"
-                  name="email"
                   type="email"
+                  name="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -136,9 +142,8 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
+                <Label>Phone Number</Label>
                 <Input
-                  id="phone"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
@@ -147,9 +152,8 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="profession">Profession</Label>
+                <Label>Profession</Label>
                 <Input
-                  id="profession"
                   name="profession"
                   value={formData.profession}
                   onChange={handleChange}
@@ -158,27 +162,20 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="relevantInfo">Relevant Information</Label>
+                <Label>Relevant Information</Label>
                 <textarea
-                  id="relevantInfo"
                   name="relevantInfo"
                   value={formData.relevantInfo}
                   onChange={handleChange}
                   required
-                  className="min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="min-h-[100px] w-full rounded-md border px-3 py-2 text-sm"
                 />
               </div>
 
-              {error && (
-                <p className="text-sm text-destructive">{error}</p>
-              )}
+              {error && <p className="text-sm text-red-500">{error}</p>}
 
               <DialogFooter>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full"
-                >
+                <Button type="submit" disabled={loading} className="w-full">
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -193,45 +190,15 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
           </>
         ) : (
           <>
-            {/* ---------------- SUCCESS VIEW ---------------- */}
             <DialogHeader>
               <DialogTitle className="text-2xl">
                 Welcome to QuickHands Africa 👋
               </DialogTitle>
             </DialogHeader>
 
-            <div className="space-y-4 py-4 text-sm leading-relaxed">
-              <p>
-                Your account is now active. You’re ready to start finding
-                jobs and growing your business using your skills.
-              </p>
-
-              <div>
-                <p className="font-medium mb-2">
-                  With QuickHands Africa, you get:
-                </p>
-                <ol className="list-decimal pl-5 space-y-1">
-                  <li>Unlimited access to job opportunities</li>
-                  <li>Safe and secure payments</li>
-                  <li>Direct communication with verified users</li>
-                </ol>
-              </div>
-
-              <p>
-                For tips, updates, and new opportunities, please follow us
-                on our social media platforms.
-              </p>
-
-              <p>
-                Complete your profile, stay active, and start connecting
-                with clients today.
-              </p>
-
-              <p className="font-medium">
-                Welcome on board,
-                <br />
-                The QuickHands Africa Team
-              </p>
+            <div className="py-4 text-sm space-y-3">
+              <p>Your account is now active.</p>
+              <p>You can now start finding jobs and growing your business.</p>
             </div>
 
             <DialogFooter>
