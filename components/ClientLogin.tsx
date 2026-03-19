@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+
 import {
   Dialog,
   DialogContent,
@@ -12,6 +13,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog"
+
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -26,6 +28,8 @@ export function ClientLogin({ children }: ClientLoginProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
+  const [clientId, setClientId] = useState<string | null>(null)
+
   const router = useRouter()
 
   const [formData, setFormData] = useState({
@@ -40,6 +44,7 @@ export function ClientLogin({ children }: ClientLoginProps) {
     if (!nextOpen) {
       setError("")
       setSuccess(false)
+      setClientId(null)
       setFormData({
         firstName: "",
         lastName: "",
@@ -50,6 +55,9 @@ export function ClientLogin({ children }: ClientLoginProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (loading) return // prevent double submit
+
     setLoading(true)
     setError("")
     setSuccess(false)
@@ -63,15 +71,16 @@ export function ClientLogin({ children }: ClientLoginProps) {
         body: JSON.stringify(formData),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Failed to register")
+        throw new Error(data.error || "Failed to register")
       }
 
-      // Show success message
+      setClientId(data.user.id)
       setSuccess(true)
 
-      // Redirect after a short delay
+      // Optional: redirect after success
       setTimeout(() => {
         router.push("/")
       }, 1500)
@@ -95,101 +104,91 @@ export function ClientLogin({ children }: ClientLoginProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>{children}</DialogTrigger>
+
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-2xl">Service Login</DialogTitle>
           <DialogDescription>
-            Enter your details to register as client.
+            Enter your details to register as a client.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
+        {!success ? (
+          <form onSubmit={handleSubmit} className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>First Name</Label>
+                <Input
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Last Name</Label>
+                <Input
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
+              <Label>Phone Number</Label>
               <Input
-                id="firstName"
-                name="firstName"
-                placeholder="John"
-                value={formData.firstName}
+                name="phone"
+                type="tel"
+                value={formData.phone}
                 onChange={handleChange}
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                name="lastName"
-                placeholder="Doe"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-              />
-            </div>
+
+            {error && (
+              <div className="text-sm text-destructive">{error}</div>
+            )}
+
+            <DialogFooter>
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  "Submit"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        ) : (
+          <div className="py-4 space-y-4">
+            <p className="text-green-700 font-semibold">
+              Client successfully registered!
+            </p>
+
+            <p className="text-sm">
+              Welcome to QuickHands Africa — you're ready to find trusted
+              professionals.
+            </p>
+
+            <DialogFooter>
+              <Button
+                onClick={() => {
+                  setOpen(false)
+                  if (clientId) router.push(`/client/${clientId}`)
+                }}
+                className="w-full"
+              >
+                Continue
+              </Button>
+            </DialogFooter>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input
-              id="phone"
-              name="phone"
-              type="tel"
-              placeholder="+1 (555) 000-0000"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {error && <div className="text-sm text-destructive">{error}</div>}
-          {success && (
-  <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-900 space-y-3">
-    <p className="font-semibold text-base">
-      Welcome to QuickHands Africa 👋
-    </p>
-
-    <p>
-      Your account is now active.
-      You’re ready to find trusted professionals and get your work done with confidence.
-    </p>
-
-    <div>
-      <p className="font-medium">With QuickHands Africa, you can:</p>
-      <ul className="list-disc list-inside mt-1 space-y-1">
-        <li>Find skilled and verified service providers</li>
-        <li>Compare options and choose what works best for you</li>
-        <li>Communicate directly and securely</li>
-        <li>C Get quality work done faster and stress-free</li>
-      </ul>
-    </div>
-
-    <p>
-      For tips, updates, and new services, please follow us on our social media platforms.
-    </p>
-
-    <p className="font-medium">
-      Post a job, connect with the right hands, and get started today.
-      <br />
-      <span className="text-green-800">The QuickHands Africa Team</span>
-    </p>
-  </div>
-)}
-
-
-          <DialogFooter>
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting......
-                </>
-              ) : (
-                "Submit"
-              )}
-            </Button>
-          </DialogFooter>
-        </form>
+        )}
       </DialogContent>
     </Dialog>
   )
