@@ -15,14 +15,7 @@ export async function POST(request: Request) {
 
     const clean = (v: string) => v.trim()
 
-    const {
-      firstName,
-      lastName,
-      email,
-      phone,
-      profession,
-      relevantInfo,
-    } = {
+    const { firstName, lastName, email, phone, profession, relevantInfo } = {
       firstName: clean(body.firstName),
       lastName: clean(body.lastName),
       email: clean(body.email),
@@ -31,7 +24,6 @@ export async function POST(request: Request) {
       relevantInfo: clean(body.relevantInfo),
     }
 
-    // Validation
     if (!firstName || !lastName || !email || !phone || !profession || !relevantInfo) {
       return NextResponse.json({ error: "All fields are required" }, { status: 400 })
     }
@@ -41,46 +33,44 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid email format" }, { status: 400 })
     }
 
-    // Insert user
     const [user] = await sql`
       INSERT INTO users (first_name, last_name, email, phone, profession, relevant_info, created_at)
       VALUES (${firstName}, ${lastName}, ${email}, ${phone}, ${profession}, ${relevantInfo}, NOW())
       RETURNING id, first_name, last_name, email, phone, profession, relevant_info
     `
 
-    return NextResponse.json({
-      success: true,
-      user,
-    })
+    return NextResponse.json({ success: true, user })
   } catch (error: any) {
     console.error("[Onboarding error]:", error)
 
-    // Handle duplicate email
     if (error.code === "23505") {
-      return NextResponse.json(
-        { error: "This email is already registered" },
-        { status: 409 }
-      )
+      return NextResponse.json({ error: "This email is already registered" }, { status: 409 })
     }
 
-    return NextResponse.json(
-      { error: "Failed to create user profile" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to create user profile" }, { status: 500 })
   }
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const [result] = await sql`SELECT COUNT(*) as count FROM users`
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get("type")
 
-    return NextResponse.json({
-      count: parseInt(result.count),
-    })
+    if (type === "professions") {
+      const rows = await sql`
+        SELECT profession, COUNT(*) as count
+        FROM users
+        GROUP BY profession
+        ORDER BY count DESC
+      `
+      return NextResponse.json({ professions: rows })
+    }
+
+    // default — preserves existing ProfessionalCounter behaviour
+    const [result] = await sql`SELECT COUNT(*) as count FROM users`
+    return NextResponse.json({ count: parseInt(result.count) })
+
   } catch (error) {
-    return NextResponse.json(
-      { error: "Failed to fetch count" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 })
   }
 }

@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { Search, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -11,6 +12,7 @@ interface ServiceCard {
   image: string
   category: string
   title: string
+  signupCount?: number
 }
 
 const services: ServiceCard[] = [
@@ -49,6 +51,58 @@ const avatars = [
 ]
 
 export function HeroSection() {
+  const [featuredCategory, setFeaturedCategory] = useState<{
+    category: string
+    signupCount: number
+  } | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    const fetchFeaturedCategory = async () => {
+      try {
+        const response = await fetch("/api/categories/featured", {
+          cache: "no-store",
+        })
+
+        if (!response.ok) return
+
+        const data = await response.json()
+
+        if (!isMounted || !data?.category) return
+
+        setFeaturedCategory({
+          category: data.category,
+          signupCount: Number(data.signupCount ?? 0),
+        })
+      } catch {
+        // Keep default first card when API is unavailable.
+      }
+    }
+
+    fetchFeaturedCategory()
+    const intervalId = setInterval(fetchFeaturedCategory, 10000)
+
+    return () => {
+      isMounted = false
+      clearInterval(intervalId)
+    }
+  }, [])
+
+  const displayedServices = useMemo(() => {
+    if (!featuredCategory?.category) return services
+
+    return [
+      {
+        ...services[0],
+        category: featuredCategory.category.toUpperCase(),
+        title: featuredCategory.category,
+        signupCount: featuredCategory.signupCount,
+      },
+      ...services.slice(1),
+    ]
+  }, [featuredCategory])
+
   return (
     <section
       className={cn("relative w-full min-h-screen flex flex-col overflow-hidden")}
@@ -154,19 +208,19 @@ export function HeroSection() {
         <motion.div
           className="flex items-center gap-6 pl-6"
           animate={{
-            x: [0, -((services.length * 380) / 2)],
+            x: [0, -((displayedServices.length * 380) / 2)],
           }}
           transition={{
             x: {
               repeat: Number.POSITIVE_INFINITY,
               repeatType: "loop",
-              duration: services.length * 4,
+              duration: displayedServices.length * 4,
               ease: "linear",
             },
           }}
         >
           {/* Duplicate services for seamless loop */}
-          {[...services, ...services].map((service, index) => (
+          {[...displayedServices, ...displayedServices].map((service, index) => (
             <motion.div
               key={index}
               whileHover={{ scale: 1.05, y: -10 }}
@@ -201,6 +255,11 @@ export function HeroSection() {
                   {service.category}
                 </span>
                 <h3 className="font-sans text-2xl font-semibold text-white leading-tight">{service.title}</h3>
+                {index % displayedServices.length === 0 && typeof service.signupCount === "number" && (
+                  <span className="font-sans text-xs font-medium text-white/90">
+                    {service.signupCount} signed up in this category
+                  </span>
+                )}
               </div>
             </motion.div>
           ))}

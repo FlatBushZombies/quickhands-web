@@ -1,19 +1,5 @@
 "use client";
 
-/**
- * QuickHandsHero
- * ─────────────────────────────────────────────────────────────
- * • Pure Tailwind CSS (arbitrary values for one-off shadows/sizes)
- * • All custom keyframes are scoped under the `.qhh` namespace
- *   so they NEVER bleed into the rest of the page
- * • overflow-hidden on the section stops float-cards from
- *   creating a horizontal scrollbar
- * • No global resets — box-sizing + margin only inside .qhh scope
- * • Google Fonts loaded via a <link> tag so it doesn't block
- *   anything outside this component
- * ─────────────────────────────────────────────────────────────
- */
-
 import { useState } from "react";
 import { OnboardingModal } from "./OnboardingModal";
 import ProfessionalCounter from "./professionals/ProfessionalsCounter";

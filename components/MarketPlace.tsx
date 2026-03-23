@@ -1,25 +1,58 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
+import ProfessionalCounter from "./professionals/ProfessionalsCounter"
 
-const categories = [
-  { title: "Tutors & Education", illustration: "/illustrations/Teacher.svg", count: 0, items: ["English tutoring","Mathematics","Science (Physics, Chemistry, Biology)","Primary school tutoring","High school exam preparation","University tutoring","Computer literacy","Music lessons","Language tutoring (local & international)"], services: 2146 },
-  { title: "Home & Repair Services", illustration: "/illustrations/Electrician.svg", count: 0, items: ["Plumbers","Electricians","Painters","Tilers","Builders / Bricklayers","Handymen","Roofing specialists","Appliance repair","Renovations (turnkey)"], services: 2312 },
-  { title: "Beauty & Personal Care", illustration: "/illustrations/Beauty.svg", count: 0, items: ["Makeup artists","Hair stylists / Braiders","Barbers","Nail technicians","Lash & brow technicians","Massage therapists","Waxing & hair removal","Personal stylists"], services: 1874 },
-  { title: "Freelancers & Digital Services", illustration: "/illustrations/Freelancer.svg", count: 0, items: ["Graphic designers","Web designers & developers","Social media managers","Digital marketers","Content writers","Translators","Virtual assistants","IT support & outsourcing","Data entry specialists"], services: 1439 },
-  { title: "Business & Legal Services", illustration: "/illustrations/Lawyer.svg", count: 0, items: ["Accountants","Bookkeepers","Tax consultants","Lawyers","Company registration services","Business consultants","HR consultants","Real estate agents"], services: 986 },
-  { title: "Sports & Wellness", illustration: "/illustrations/Coach.svg", count: 0, items: ["Personal trainers","Fitness instructors","Yoga instructors","Pilates instructors","Stretching & mobility coaches","Dance instructors","Sports coaches"], services: 742 },
-  { title: "Arts & Entertainment", illustration: "/illustrations/Videographer.svg", count: 0, items: ["Musicians","DJs","MCs / Event hosts","Dancers","Photographers","Videographers","Makeup artists for events","Event entertainers"], services: 1183 },
-  { title: "Domestic & Household Staff", illustration: "/illustrations/Gardening.svg", count: 0, items: ["Housekeepers","Cleaners","Nannies","Babysitters","Caregivers","Gardeners","Drivers","Pet sitters"], services: 624 },
-  { title: "Driving & Transport", illustration: "/illustrations/Driver.svg", count: 0, items: ["Driving instructors","Motorcycle instructors","Defensive driving","Delivery drivers","Couriers","Passenger transport","Moving & logistics"], services: 512 },
-  { title: "Animal & Pet Services", illustration: "/illustrations/Veterinary.svg", count: 0, items: ["Veterinarians","Veterinary assistants","Pet grooming","Dog trainers","Animal boarding","Livestock care"], services: 341 },
-  { title: "Other Popular Services", illustration: "/illustrations/Installation.svg", count: 0, items: ["Mobile money agents","Phone repair technicians","Solar panel installers","CCTV & security installers","Internet & satellite installers","Tailors & designers","Welding & metalwork"], services: 1107 },
-]
+const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  "Tutors & Education":              ["tutor","teacher","education","math","science","english","language","music","computer","lecturer","biology","chemistry","physics","primary","high school","university"],
+  "Home & Repair Services":          ["plumber","electrician","painter","tiler","builder","handyman","roofer","appliance","renovation","bricklayer","roofing","repair"],
+  "Beauty & Personal Care":          ["makeup","hair","barber","nail","lash","brow","massage","wax","stylist","beauty","braider","grooming"],
+  "Freelancers & Digital Services":  ["graphic","web","social media","digital","content","writer","translator","virtual","it support","data entry","developer","designer","freelance","seo","marketing"],
+  "Business & Legal Services":       ["accountant","bookkeeper","tax","lawyer","legal","company","business","hr","real estate","consultant","compliance","auditor","finance"],
+  "Sports & Wellness":               ["trainer","fitness","yoga","pilates","stretch","dance","sports","coach","wellness","gym","aerobics"],
+  "Arts & Entertainment":            ["musician","dj","mc","dancer","photographer","videographer","entertainer","artist","event","band","singer","performer"],
+  "Domestic & Household Staff":      ["housekeeper","cleaner","nanny","babysitter","caregiver","gardener","driver","pet sitter","domestic","cook","chef","maid"],
+  "Driving & Transport":             ["driving instructor","motorcycle","defensive driving","delivery","courier","transport","logistics","moving","chauffeur","taxi"],
+  "Animal & Pet Services":           ["vet","veterinary","pet","grooming","dog trainer","animal","livestock","boarding","kennel"],
+  "Other Popular Services":          ["mobile money","phone repair","solar","cctv","security","internet","satellite","tailor","welder","metalwork","installation","technician"],
+}
+
+const CATEGORY_ILLUSTRATIONS: Record<string, string> = {
+  "Tutors & Education":              "/illustrations/Teacher.svg",
+  "Home & Repair Services":          "/illustrations/Electrician.svg",
+  "Beauty & Personal Care":          "/illustrations/Beauty.svg",
+  "Freelancers & Digital Services":  "/illustrations/Freelancer.svg",
+  "Business & Legal Services":       "/illustrations/Lawyer.svg",
+  "Sports & Wellness":               "/illustrations/Coach.svg",
+  "Arts & Entertainment":            "/illustrations/Videographer.svg",
+  "Domestic & Household Staff":      "/illustrations/Gardening.svg",
+  "Driving & Transport":             "/illustrations/Driver.svg",
+  "Animal & Pet Services":           "/illustrations/Veterinary.svg",
+  "Other Popular Services":          "/illustrations/Installation.svg",
+}
+
+type ProfessionEntry = { profession: string; count: number }
+
+type Category = {
+  title: string
+  illustration: string
+  totalCount: number
+  professions: ProfessionEntry[]
+}
+
+function matchCategory(profession: string): string | null {
+  const lower = profession.toLowerCase()
+  for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (keywords.some((kw) => lower.includes(kw))) return category
+  }
+  return "Other Popular Services" // fallback so nothing is lost
+}
 
 function AfricaSilhouette({ forBanner = false }) {
-  const fill = forBanner ? "rgba(255,255,255,0.10)" : "rgba(22,163,74,0.055)"
-  const stroke = forBanner ? "rgba(255,255,255,0.0)" : "rgba(22,163,74,0.14)"
+  const fill   = forBanner ? "rgba(255,255,255,0.10)" : "rgba(22,163,74,0.055)"
+  const stroke = forBanner ? "rgba(255,255,255,0.0)"  : "rgba(22,163,74,0.14)"
   return (
     <svg viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
       style={forBanner ? {
@@ -39,8 +72,6 @@ function AfricaSilhouette({ forBanner = false }) {
 }
 
 const CSS = `
-
-
 .mkt { font-family:'Outfit',sans-serif; background:#fff; min-height:100vh; position:relative; overflow-x:hidden; padding:100px 0 120px; }
 .mkt::before { content:''; position:absolute; top:-200px; left:50%; transform:translateX(-50%); width:1100px; height:700px; border-radius:50%; background:radial-gradient(ellipse, rgba(22,163,74,0.05) 0%, transparent 68%); pointer-events:none; z-index:0; }
 
@@ -80,13 +111,23 @@ const CSS = `
 
 .cat-body { padding:22px 24px 24px; display:flex; flex-direction:column; flex:1; }
 .cat-title { font-family:'Cormorant Garamond',serif; font-weight:700; font-size:1.25rem; color:#111827; line-height:1.2; margin:0 0 5px; }
-.cat-count { font-size:11px; font-weight:700; color:#16A34A; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:16px; }
-.cat-list { list-style:none; padding:0; margin:0 0 20px; display:flex; flex-direction:column; gap:5px; }
-.cat-list li { font-size:13px; color:#6B7280; padding-left:15px; position:relative; line-height:1.55; font-weight:400; }
-.cat-list li::before { content:'›'; position:absolute; left:2px; color:#22C55E; font-size:15px; font-weight:700; line-height:1.38; }
+.cat-total { font-size:11px; font-weight:700; color:#16A34A; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:14px; }
+
+.prof-list { list-style:none; padding:0; margin:0 0 20px; display:flex; flex-direction:column; gap:6px; }
+.prof-row { display:flex; align-items:center; justify-content:space-between; gap:8px; padding-left:15px; position:relative; }
+.prof-row::before { content:'›'; position:absolute; left:2px; color:#22C55E; font-size:15px; font-weight:700; line-height:1.38; }
+.prof-name { flex:1; font-size:13px; font-weight:400; color:#6B7280; line-height:1.5; }
+.prof-badge { flex-shrink:0; display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:100px; background:#F0FDF4; border:1px solid rgba(22,163,74,0.2); font-size:10px; font-weight:700; color:#16A34A; letter-spacing:0.04em; white-space:nowrap; }
+
+.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:28px 0 20px; color:#9CA3AF; font-size:13px; text-align:center; }
+.empty-icon { font-size:28px; opacity:0.5; }
+
 .cat-cta { margin-top:auto; padding-top:16px; border-top:1px solid #E5E7EB; font-size:13px; font-weight:600; color:#16A34A; display:flex; align-items:center; justify-content:space-between; letter-spacing:0.01em; }
 .cta-pill { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; background:#F0FDF4; border:1px solid rgba(22,163,74,0.2); font-size:14px; color:#16A34A; transition:background 0.2s, color 0.2s, transform 0.2s; }
 .cat-card:hover .cta-pill { background:#16A34A; color:#fff; transform:translateX(3px); }
+
+.skeleton { background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:6px; height:14px; margin-bottom:8px; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
 .app-banner { margin-top:100px; border-radius:28px; background:#16A34A; position:relative; overflow:hidden; }
 .app-banner::before { content:''; position:absolute; top:-140px; left:-100px; width:600px; height:600px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.14) 0%, transparent 65%); pointer-events:none; }
@@ -111,6 +152,48 @@ const CSS = `
 `
 
 export default function Marketplace() {
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await fetch("/api/onboarding?type=professions")
+        if (!res.ok) return
+
+        const { professions } = await res.json() as {
+          professions: { profession: string; count: string }[]
+        }
+
+        // Group all DB professions into their matching category
+        const map: Record<string, ProfessionEntry[]> = {}
+        for (const { profession, count } of professions) {
+          const cat = matchCategory(profession)
+          if (!cat) continue
+          if (!map[cat]) map[cat] = []
+          map[cat].push({ profession, count: parseInt(count) })
+        }
+
+        // Only render categories that actually have data
+        const built: Category[] = Object.entries(map)
+          .map(([title, entries]) => ({
+            title,
+            illustration: CATEGORY_ILLUSTRATIONS[title] ?? "/illustrations/Installation.svg",
+            totalCount: entries.reduce((s, e) => s + e.count, 0),
+            professions: entries.sort((a, b) => b.count - a.count), // most popular first
+          }))
+          .sort((a, b) => b.totalCount - a.totalCount) // busiest category first
+
+        setCategories(built)
+      } catch {
+        // fail silently — grid stays empty
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
   return (
     <>
       <style>{CSS}</style>
@@ -138,18 +221,18 @@ export default function Marketplace() {
             </h2>
 
             <p className="mkt-sub">
-              Choose from <strong>0 local specialists</strong> or{" "}
-              <strong>0 remote professionals</strong>, all ready to help when you need them.
+              Choose from <strong><ProfessionalCounter /> local specialists</strong> or{" "}
+              <strong>remote professionals</strong>, all ready to help when you need them.
             </p>
 
             <div className="stats-row">
               {[
                 { n: "", l: "" },
-                { n: "",   l: "" },
                 { n: "", l: "" },
-                { n: "",  l: "" },
-              ].map((s) => (
-                <div className="stat-cell" key={s.l}>
+                { n: "", l: "" },
+                { n: "", l: "" },
+              ].map((s, i) => (
+                <div className="stat-cell" key={i}>
                   <span className="stat-n">{s.n}</span>
                   <span className="stat-l">{s.l}</span>
                 </div>
@@ -165,47 +248,79 @@ export default function Marketplace() {
           </div>
 
           {/* Grid */}
-          <div className="cat-grid">
-            {categories.map((cat, i) => (
-              <motion.div
-                key={cat.title}
-                initial={{ opacity: 0, y: 36 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
-                viewport={{ once: true }}
-                style={{ display: "flex" }}
-              >
-                <div className="cat-card">
-                  <div className="illus-tray">
-                    <span>
-                      <Image
-                        src={cat.illustration}
-                        alt={`${cat.title} illustration`}
-                        fill
-                        sizes="320px"
-                        priority={i < 6}
-                      />
-                    </span>
-                  </div>
+          {loading ? (
+            // Skeleton shimmer while fetching
+            <div className="cat-grid">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="cat-card" style={{ minHeight: 320 }}>
+                  <div className="illus-tray" />
                   <div className="tray-edge" />
-
                   <div className="cat-body">
-                    <h3 className="cat-title">{cat.title}</h3>
-                    <p className="cat-count">{cat.count.toLocaleString()} specialists</p>
-                    <ul className="cat-list">
-                      {cat.items.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                    <div className="cat-cta">
-                      <span>All {cat.services.toLocaleString()} services</span>
-                      <span className="cta-pill">→</span>
-                    </div>
+                    <div className="skeleton" style={{ width: "60%", marginBottom: 10 }} />
+                    <div className="skeleton" style={{ width: "35%", height: 10, marginBottom: 18 }} />
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <div key={j} className="skeleton" style={{ width: `${75 - j * 8}%` }} />
+                    ))}
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : categories.length === 0 ? (
+            <div style={{ textAlign: "center", color: "#9CA3AF", padding: "60px 0", fontSize: "15px" }}>
+              No specialists registered yet — be the first! 🌱
+            </div>
+          ) : (
+            <div className="cat-grid">
+              {categories.map((cat, i) => (
+                <motion.div
+                  key={cat.title}
+                  initial={{ opacity: 0, y: 36 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.55, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                  viewport={{ once: true }}
+                  style={{ display: "flex" }}
+                >
+                  <div className="cat-card">
+                    <div className="illus-tray">
+                      <span>
+                        <Image
+                          src={cat.illustration}
+                          alt={`${cat.title} illustration`}
+                          fill
+                          sizes="320px"
+                          priority={i < 6}
+                        />
+                      </span>
+                    </div>
+                    <div className="tray-edge" />
+
+                    <div className="cat-body">
+                      <h3 className="cat-title">{cat.title}</h3>
+                      <p className="cat-total">
+                        {cat.totalCount.toLocaleString()} specialist{cat.totalCount === 1 ? "" : "s"} registered
+                      </p>
+
+                      <ul className="prof-list">
+                        {cat.professions.map((p) => (
+                          <li key={p.profession} className="prof-row">
+                            <span className="prof-name">{p.profession}</span>
+                            <span className="prof-badge">
+                              👤 {p.count.toLocaleString()}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className="cat-cta">
+                        <span>View all specialists</span>
+                        <span className="cta-pill">→</span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           {/* App Banner */}
           <div className="app-banner">
