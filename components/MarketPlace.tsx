@@ -708,7 +708,13 @@ export default function Marketplace() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    async function load() {
+    let isMounted = true
+
+    async function load(showLoading = false) {
+      if (showLoading && isMounted) {
+        setLoading(true)
+      }
+
       // 1. Seed all 11 categories as empty placeholders
       const map: Record<string, ProfessionEntry[]> = {}
       for (const title of STATIC_CATEGORIES) {
@@ -749,11 +755,21 @@ export default function Marketplace() {
           return b.totalCount - a.totalCount
         })
 
-      setCategories(built)
-      setLoading(false)
+      if (isMounted) {
+        setCategories(built)
+        setLoading(false)
+      }
     }
 
-    load()
+    load(true)
+    const intervalId = setInterval(() => {
+      load(false)
+    }, 10000)
+
+    return () => {
+      isMounted = false
+      clearInterval(intervalId)
+    }
   }, [])
 
   return (
