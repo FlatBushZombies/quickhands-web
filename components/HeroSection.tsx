@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { Search, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -56,6 +56,10 @@ export function HeroSection() {
     signupCount: number
   } | null>(null)
 
+  const [searchQuery, setSearchQuery] = useState('')
+  const [suggestions, setSuggestions] = useState<{profession: string, count: number}[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+
   useEffect(() => {
     let isMounted = true
 
@@ -86,6 +90,24 @@ export function HeroSection() {
     return () => {
       isMounted = false
       clearInterval(intervalId)
+    }
+  }, [])
+
+  const fetchSuggestions = useCallback(async (query: string) => {
+    if (query.length < 2) {
+      setSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
+    try {
+      const res = await fetch(`/api/search/professions?q=${encodeURIComponent(query)}`)
+      if (res.ok) {
+        const data = await res.json()
+        setSuggestions(data)
+        setShowSuggestions(true)
+      }
+    } catch (error) {
+      console.error('Failed to fetch suggestions', error)
     }
   }, [])
 
@@ -147,8 +169,39 @@ export function HeroSection() {
               <Input
                 type="text"
                 placeholder="Specialist or services"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  fetchSuggestions(e.target.value)
+                }}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 className="h-14 pl-12 pr-4 text-base bg-white border-[#e2e8f0] rounded-full shadow-[0_4px_20px_rgba(0,0,0,0.08)] focus:shadow-[0_4px_24px_rgba(0,0,0,0.12)] transition-shadow placeholder:text-[#718096]"
               />
+              {showSuggestions && (
+                <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto mt-1">
+                  {suggestions.length > 0 ? (
+                    suggestions.map((suggestion, index) => (
+                      <div
+                        key={index}
+                        className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0 transition-colors"
+                        onClick={() => {
+                          setSearchQuery(suggestion.profession)
+                          setShowSuggestions(false)
+                        }}
+                      >
+                        <div className="font-medium text-gray-900">{suggestion.profession}</div>
+                        <div className="text-sm text-green-600 mt-1">
+                          * {suggestion.count} specialist{suggestion.count !== 1 ? 's' : ''} available
+                        </div>
+                      </div>
+                    ))
+                  ) : searchQuery.length >= 2 ? (
+                    <div className="px-4 py-3 text-center text-gray-500">
+                      No specialists are available yet
+                    </div>
+                  ) : null}
+                </div>
+              )}
             </div>
             <Button
               size="lg"
