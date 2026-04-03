@@ -28,7 +28,6 @@ export function ClientLogin({ children }: ClientLoginProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
-  const [clientId, setClientId] = useState<string | null>(null)
 
   const router = useRouter()
 
@@ -44,7 +43,6 @@ export function ClientLogin({ children }: ClientLoginProps) {
     if (!nextOpen) {
       setError("")
       setSuccess(false)
-      setClientId(null)
       setFormData({
         firstName: "",
         lastName: "",
@@ -77,12 +75,11 @@ export function ClientLogin({ children }: ClientLoginProps) {
         throw new Error(data.error || "Failed to register")
       }
 
-      setClientId(data.user.id)
       setSuccess(true)
 
       // Optional: redirect after success
       setTimeout(() => {
-        router.push("/")
+        router.push("/professionals")
       }, 1500)
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong")
@@ -180,7 +177,7 @@ export function ClientLogin({ children }: ClientLoginProps) {
               <Button
                 onClick={() => {
                   setOpen(false)
-                  if (clientId) router.push(`/client/${clientId}`)
+                  router.push("/professionals")
                 }}
                 className="w-full"
               >

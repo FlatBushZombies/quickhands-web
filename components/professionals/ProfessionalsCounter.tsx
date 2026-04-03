@@ -28,7 +28,7 @@ export default function ProfessionalCounter() {
   }, [])
 
   return (
-    <p className="font-sans text-[15px] font-medium text-slate-600 m-0">
+    <span className="block font-sans text-[15px] font-medium text-slate-600 m-0">
       <span
         key={tick}
         className="font-mono font-semibold text-green-600 bg-green-50 border border-green-200 rounded-md px-2 py-0.5 mr-1.5 text-[15px] animate-[countpop_.35s_cubic-bezier(.34,1.56,.64,1)_both]"
@@ -36,6 +36,6 @@ export default function ProfessionalCounter() {
         {count.toLocaleString()}
       </span>
       professionals have already joined QuickHands.
-    </p>
+    </span>
   )
 }
