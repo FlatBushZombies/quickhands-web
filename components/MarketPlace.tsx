@@ -37,98 +37,35 @@ const CATEGORY_ILLUSTRATIONS: Record<string, string> = {
 }
 
 const CATEGORY_PROFESSIONS: Record<string, string[]> = {
-  "Tutors & Education": [
-    "Mathematics Tutor",
-    "Science Tutor",
-    "English Tutor",
-    "Language Tutor",
-    "Music Teacher",
-    "Computer Studies Tutor",
-  ],
-  "Home & Repair Services": [
-    "Plumber",
-    "Electrician",
-    "Painter",
-    "Carpenter",
-    "Handyman",
-    "Appliance Repair Technician",
-  ],
-  "Beauty & Personal Care": [
-    "Makeup Artist",
-    "Hair Stylist",
-    "Barber",
-    "Nail Technician",
-    "Lash Technician",
-    "Massage Therapist",
-  ],
-  "Freelancers & Digital Services": [
-    "Graphic Designer",
-    "Web Developer",
-    "Social Media Manager",
-    "Content Writer",
-    "Virtual Assistant",
-    "SEO Specialist",
-  ],
-  "Business & Legal Services": [
-    "Accountant",
-    "Bookkeeper",
-    "Tax Consultant",
-    "Lawyer",
-    "HR Consultant",
-    "Business Consultant",
-  ],
-  "Sports & Wellness": [
-    "Personal Trainer",
-    "Fitness Coach",
-    "Yoga Instructor",
-    "Pilates Instructor",
-    "Dance Coach",
-    "Wellness Coach",
-  ],
-  "Arts & Entertainment": [
-    "Musician",
-    "DJ",
-    "Photographer",
-    "Videographer",
-    "Event MC",
-    "Performer",
-  ],
-  "Domestic & Household Staff": [
-    "Housekeeper",
-    "Cleaner",
-    "Nanny",
-    "Babysitter",
-    "Caregiver",
-    "Gardener",
-  ],
-  "Driving & Transport": [
-    "Driving Instructor",
-    "Delivery Driver",
-    "Courier Rider",
-    "Logistics Driver",
-    "Moving Assistant",
-    "Chauffeur",
-  ],
-  "Animal & Pet Services": [
-    "Veterinarian",
-    "Pet Groomer",
-    "Dog Trainer",
-    "Pet Sitter",
-    "Animal Care Assistant",
-    "Kennel Assistant",
-  ],
-  "Other Popular Services": [
-    "Phone Repair Technician",
-    "Solar Installer",
-    "CCTV Installer",
-    "Internet Technician",
-    "Tailor",
-    "Welder",
-  ],
+  "Tutors & Education": ["Mathematics Tutor","Science Tutor","English Tutor","Language Tutor","Music Teacher","Computer Studies Tutor"],
+  "Home & Repair Services": ["Plumber","Electrician","Painter","Carpenter","Handyman","Appliance Repair Technician"],
+  "Beauty & Personal Care": ["Makeup Artist","Hair Stylist","Barber","Nail Technician","Lash Technician","Massage Therapist"],
+  "Freelancers & Digital Services": ["Graphic Designer","Web Developer","Social Media Manager","Content Writer","Virtual Assistant","SEO Specialist"],
+  "Business & Legal Services": ["Accountant","Bookkeeper","Tax Consultant","Lawyer","HR Consultant","Business Consultant"],
+  "Sports & Wellness": ["Personal Trainer","Fitness Coach","Yoga Instructor","Pilates Instructor","Dance Coach","Wellness Coach"],
+  "Arts & Entertainment": ["Musician","DJ","Photographer","Videographer","Event MC","Performer"],
+  "Domestic & Household Staff": ["Housekeeper","Cleaner","Nanny","Babysitter","Caregiver","Gardener"],
+  "Driving & Transport": ["Driving Instructor","Delivery Driver","Courier Rider","Logistics Driver","Moving Assistant","Chauffeur"],
+  "Animal & Pet Services": ["Veterinarian","Pet Groomer","Dog Trainer","Pet Sitter","Animal Care Assistant","Kennel Assistant"],
+  "Other Popular Services": ["Phone Repair Technician","Solar Installer","CCTV Installer","Internet Technician","Tailor","Welder"],
 }
 
-// All 11 categories pre-seeded as empty — live data fills them in
 const STATIC_CATEGORIES = Object.keys(CATEGORY_KEYWORDS)
+
+// ─── Category accent colours — one warm tone per card ────────────────────────
+const CATEGORY_ACCENTS: Record<string, string> = {
+  "Tutors & Education":             "#F5A623",
+  "Home & Repair Services":         "#4A90D9",
+  "Beauty & Personal Care":         "#E8639A",
+  "Freelancers & Digital Services": "#7B61FF",
+  "Business & Legal Services":      "#2DB67D",
+  "Sports & Wellness":              "#F56C23",
+  "Arts & Entertainment":           "#D94A4A",
+  "Domestic & Household Staff":     "#4ABAAB",
+  "Driving & Transport":            "#5A7FD9",
+  "Animal & Pet Services":          "#7DBF3F",
+  "Other Popular Services":         "#C17D2A",
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -161,8 +98,8 @@ function matchCategory(profession: string): string {
 // ─── Africa silhouette SVG ────────────────────────────────────────────────────
 
 function AfricaSilhouette({ forBanner = false }) {
-  const fill   = forBanner ? "rgba(255,255,255,0.10)" : "rgba(22,163,74,0.055)"
-  const stroke = forBanner ? "rgba(255,255,255,0.0)"  : "rgba(22,163,74,0.14)"
+  const fill   = forBanner ? "rgba(255,255,255,0.07)" : "rgba(193,125,42,0.055)"
+  const stroke = forBanner ? "rgba(255,255,255,0.0)"  : "rgba(193,125,42,0.13)"
   return (
     <svg viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
       style={forBanner ? {
@@ -181,105 +118,120 @@ function AfricaSilhouette({ forBanner = false }) {
   )
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
+// ─── CSS ──────────────────────────────────────────────────────────────────────
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
+/* ── Section shell ── */
 .mkt {
   font-family: 'DM Sans', sans-serif;
-  background: #fff;
+  background: #FDFAF5;
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  padding: 100px 0 140px;
+  padding: 7rem 0 8rem;
 }
 
-.mkt::before {
+/* Ambient noise */
+.mkt::after {
   content: '';
   position: absolute;
-  top: -200px; left: 50%;
-  transform: translateX(-50%);
-  width: 1100px; height: 700px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(22,163,74,0.05) 0%, transparent 68%);
-  pointer-events: none; z-index: 0;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Warm amber orb top-right */
+.mkt-orb-1 {
+  position: absolute; pointer-events: none; border-radius: 50%; filter: blur(90px); z-index: 0;
+  width: 560px; height: 560px;
+  background: radial-gradient(circle, rgba(245,166,35,0.10) 0%, transparent 70%);
+  top: -160px; right: -100px;
+}
+
+/* Cool blue orb bottom-left */
+.mkt-orb-2 {
+  position: absolute; pointer-events: none; border-radius: 50%; filter: blur(90px); z-index: 0;
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(74,144,217,0.08) 0%, transparent 70%);
+  bottom: 120px; left: -80px;
 }
 
 .mkt-inner {
   position: relative; z-index: 1;
-  max-width: 1280px; margin: 0 auto; padding: 0 48px;
+  max-width: 1280px; margin: 0 auto; padding: 0 3rem;
 }
 
-@media (max-width: 768px) { .mkt-inner { padding: 0 24px; } }
+@media (max-width: 768px) { .mkt-inner { padding: 0 1.5rem; } }
 
-/* ── Header: asymmetric two-column ── */
+/* ── Header ── */
 .mkt-header {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 80px;
-  align-items: end;
-  margin-bottom: 88px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 4rem;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
-@media (max-width: 820px) {
-  .mkt-header { grid-template-columns: 1fr; gap: 36px; }
-  .mkt-sub { max-width: 100% !important; }
-}
-
-.eyebrow {
+.mkt-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.22em;
+  gap: 8px;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #16A34A;
-  margin-bottom: 20px;
+  color: #C17D2A;
+  margin-bottom: 1rem;
 }
 
-.eyebrow-dash {
+.mkt-eyebrow-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #F5A623;
   display: inline-block;
-  width: 28px; height: 1px;
-  background: #86EFAC;
 }
 
 .mkt-h1 {
-  font-family: 'Fraunces', serif;
-  font-weight: 300;
-  font-size: clamp(3rem, 5.5vw, 5rem);
-  line-height: 1.04;
-  color: #111827;
-  letter-spacing: -0.03em;
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400;
+  font-size: clamp(2.4rem, 4vw, 3.4rem);
+  line-height: 1.08;
+  color: #1A1208;
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
 .mkt-h1 em {
   font-style: italic;
-  color: #16A34A;
-  font-weight: 300;
+  color: #C17D2A;
 }
 
-.header-right { padding-bottom: 4px; }
+.mkt-header-right {
+  max-width: 320px;
+  align-self: flex-end;
+}
 
 .mkt-sub {
-  color: #6B7280;
-  font-size: 1rem;
+  color: #6B5E48;
+  font-size: 15px;
   font-weight: 300;
-  line-height: 1.8;
-  max-width: 420px;
-  margin: 0 0 36px;
+  line-height: 1.75;
+  margin: 0 0 1.5rem;
 }
 
-.mkt-sub strong { color: #16A34A; font-weight: 500; }
+.mkt-sub strong { color: #1A1208; font-weight: 500; }
 
 /* Stats bar */
 .stats-row {
   display: flex;
   align-items: stretch;
-  border: 1px solid #E5E7EB;
-  border-radius: 10px;
+  border: 1px solid rgba(26,18,8,0.09);
+  border-radius: 14px;
   overflow: hidden;
   background: #fff;
 }
@@ -289,10 +241,11 @@ const CSS = `
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 18px 20px;
-  border-right: 1px solid #E5E7EB;
+  padding: 16px 18px;
+  border-right: 1px solid rgba(26,18,8,0.07);
   position: relative;
   overflow: hidden;
+  transition: background 0.25s ease;
 }
 
 .stat-cell:last-child { border-right: none; }
@@ -302,28 +255,30 @@ const CSS = `
   position: absolute;
   bottom: 0; left: 0;
   width: 100%; height: 2px;
-  background: #22C55E;
+  background: #F5A623;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.32s cubic-bezier(0.22,1,0.36,1);
 }
 
+.stat-cell:hover { background: #FFFBF4; }
 .stat-cell:hover::after { transform: scaleX(1); }
 
 .stat-n {
-  font-family: 'Fraunces', serif;
-  font-size: 1.7rem;
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem;
   font-weight: 400;
-  color: #111827;
+  color: #1A1208;
   line-height: 1;
   margin-bottom: 4px;
 }
 
 .stat-l {
+  font-family: 'Syne', sans-serif;
   font-size: 9px;
-  font-weight: 500;
-  color: #9CA3AF;
-  letter-spacing: 0.12em;
+  font-weight: 600;
+  color: #B0A090;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -332,147 +287,183 @@ const CSS = `
   display: flex;
   align-items: center;
   gap: 20px;
-  margin-bottom: 52px;
+  margin-bottom: 2.5rem;
 }
 
 .section-rule-label {
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #9CA3AF;
+  color: #B0A090;
   white-space: nowrap;
 }
 
-.section-rule-line { flex: 1; height: 1px; background: #E5E7EB; }
+.section-rule-line { flex: 1; height: 1px; background: rgba(26,18,8,0.08); }
 
-/* ── Card grid: flush tile layout ── */
+/* ── Card grid ── */
 .cat-grid {
   display: grid;
-  gap: 1px;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  background: #E5E7EB;
-  border: 1px solid #E5E7EB;
-  border-radius: 20px;
-  overflow: hidden;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
 }
 
+/* ── Category card ── */
 .cat-card {
-  background: #fff;
+  background: #FFFFFF;
+  border-radius: 22px;
+  border: 1px solid rgba(26,18,8,0.07);
   display: flex;
   flex-direction: column;
   cursor: pointer;
   position: relative;
-  transition: background 0.2s ease;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.35s cubic-bezier(0.22,1,0.36,1);
 }
 
-.cat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 3px; height: 0;
-  background: #22C55E;
-  transition: height 0.35s cubic-bezier(0.22,1,0.36,1);
-  z-index: 1;
+.cat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 44px -12px rgba(26,18,8,0.13);
 }
 
-.cat-card:hover { background: #F9FFF9; }
-.cat-card:hover::before { height: 100%; }
+.cat-card-glow {
+  position: absolute; inset: 0;
+  pointer-events: none; opacity: 0;
+  transition: opacity 0.35s ease; z-index: 0;
+}
+
+.cat-card:hover .cat-card-glow { opacity: 1; }
 
 /* Illustration tray */
 .illus-tray {
-  width: 100%; height: 190px;
-  background: #F0FDF4;
+  width: 100%; height: 186px;
+  background: #F7F3EC;
   position: relative; overflow: hidden;
   flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  border-bottom: 1px solid #E5E7EB;
+  border-bottom: 1px solid rgba(26,18,8,0.06);
 }
 
-/* "Coming soon" tray variant for empty categories */
+/* Dot-grid texture on tray */
+.illus-tray::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(26,18,8,0.045) 1px, transparent 0);
+  background-size: 20px 20px;
+  z-index: 1;
+}
+
 .illus-tray.is-empty {
-  background: #FAFAFA;
-  border-bottom-color: #F3F4F6;
+  background: #F5F2EE;
 }
 
 .illus-tray > span {
   position: absolute !important;
-  inset: 12px 28px 8px !important;
+  inset: 10px 24px 8px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  z-index: 2;
 }
 
 .illus-tray img {
   object-fit: contain !important;
   width: auto !important; height: 100% !important;
-  max-height: 175px !important;
+  max-height: 168px !important;
   position: relative !important;
-  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.09));
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.09));
   transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), filter 0.45s ease;
 }
 
-/* Desaturate illustration when no live data yet */
 .illus-tray.is-empty img {
-  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.06)) saturate(0.35) opacity(0.7);
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.06)) saturate(0.3) opacity(0.65);
 }
 
 .cat-card:hover .illus-tray img {
   transform: scale(1.05) translateY(-4px);
-  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.13));
+  filter: drop-shadow(0 12px 22px rgba(0,0,0,0.13));
 }
 
 .cat-card:hover .illus-tray.is-empty img {
-  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.1)) saturate(0.55) opacity(0.85);
+  filter: drop-shadow(0 12px 22px rgba(0,0,0,0.1)) saturate(0.5) opacity(0.8);
 }
 
+/* Accent index number top-right of tray */
+.illus-index {
+  position: absolute;
+  top: 14px; right: 16px;
+  font-family: 'DM Serif Display', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: rgba(26,18,8,0.22);
+  z-index: 3;
+  transition: opacity 0.3s ease;
+  opacity: 0.65;
+}
+
+.cat-card:hover .illus-index { opacity: 1; }
+
 /* Card body */
-.cat-body { padding: 24px 26px 22px; display: flex; flex-direction: column; flex: 1; }
+.cat-body {
+  padding: 1.4rem 1.5rem 1.4rem;
+  display: flex; flex-direction: column; flex: 1;
+  position: relative; z-index: 1;
+}
 
 .cat-header-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 0.6rem;
 }
 
 .cat-title {
-  font-family: 'Fraunces', serif;
-  font-weight: 400;
-  font-size: 1.15rem;
-  color: #111827;
-  line-height: 1.2;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #1A1208;
+  line-height: 1.25;
   margin: 0;
   letter-spacing: -0.01em;
 }
 
 .cat-total {
-  font-size: 9px;
-  font-weight: 600;
-  color: #16A34A;
-  letter-spacing: 0.12em;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-/* Muted count label when no live data */
-.cat-total.is-empty {
-  color: #D1D5DB;
-}
+.cat-total.is-live { color: #C17D2A; }
+.cat-total.is-empty { color: #D4C9BA; }
 
 .cat-total-link {
-  color: #16A34A;
+  color: #C17D2A;
   text-decoration: none;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-.cat-total-link:hover {
-  text-decoration: underline;
+.cat-total-link:hover { text-decoration: underline; }
+
+/* Divider between title and list */
+.cat-divider {
+  height: 1px;
+  background: rgba(26,18,8,0.07);
+  margin-bottom: 0.85rem;
 }
 
 .prof-list {
-  list-style: none; padding: 0; margin: 0 0 20px;
+  list-style: none; padding: 0; margin: 0 0 1.1rem;
   display: flex; flex-direction: column;
 }
 
@@ -481,8 +472,8 @@ const CSS = `
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 0;
-  border-bottom: 1px solid #F3F4F6;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(26,18,8,0.05);
 }
 
 .prof-row:last-child { border-bottom: none; }
@@ -490,32 +481,31 @@ const CSS = `
 .prof-name {
   font-size: 13px;
   font-weight: 300;
-  color: #6B7280;
+  color: #7A6B54;
   line-height: 1.4;
 }
 
 .prof-count {
-  font-family: 'Fraunces', serif;
+  font-family: 'DM Serif Display', serif;
   font-size: 13px;
   font-weight: 400;
-  color: #9CA3AF;
+  color: #B8A898;
   flex-shrink: 0;
 }
 
-/* Empty state within a card */
+/* Empty state */
 .empty-hint {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
-  padding: 10px 0 18px;
-  margin-bottom: 4px;
+  padding: 8px 0 14px;
 }
 
 .empty-hint-label {
   font-size: 12px;
   font-weight: 300;
-  color: #D1D5DB;
+  color: #C8BDB0;
   font-style: italic;
   line-height: 1.5;
 }
@@ -526,20 +516,23 @@ const CSS = `
   gap: 5px;
   padding: 3px 10px;
   border-radius: 100px;
-  border: 1px dashed #E5E7EB;
-  font-size: 10px;
-  font-weight: 500;
-  color: #D1D5DB;
-  letter-spacing: 0.06em;
-}
-
-.cat-cta {
-  margin-top: auto;
-  padding-top: 18px;
-  border-top: 1px solid #E5E7EB;
+  border: 1px dashed rgba(26,18,8,0.15);
   font-size: 10px;
   font-weight: 600;
-  color: #111827;
+  color: #C8BDB0;
+  letter-spacing: 0.06em;
+  font-family: 'Syne', sans-serif;
+}
+
+/* CTA strip */
+.cat-cta {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(26,18,8,0.07);
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #1A1208;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -547,68 +540,80 @@ const CSS = `
   text-transform: uppercase;
 }
 
-.cta-pill {
+.cta-arrow {
   width: 28px; height: 28px;
   border-radius: 50%;
-  border: 1px solid #E5E7EB;
+  border: 1px solid rgba(26,18,8,0.1);
   display: flex; align-items: center; justify-content: center;
-  font-size: 12px; color: #6B7280;
-  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+  font-size: 13px; color: #7A6B54;
+  transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.25s;
   flex-shrink: 0;
 }
 
-.cat-card:hover .cta-pill {
-  background: #16A34A;
-  border-color: #16A34A;
-  color: #fff;
+.cat-card:hover .cta-arrow {
+  background: #1A1208;
+  border-color: #1A1208;
+  color: #FDFAF5;
   transform: translateX(2px);
 }
 
 /* ── Skeleton ── */
 .skeleton {
-  background: linear-gradient(90deg,#f0f0f0 25%,#e4e4e4 50%,#f0f0f0 75%);
+  background: linear-gradient(90deg, #EDE8DF 25%, #E4DDD3 50%, #EDE8DF 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 3px;
-  height: 12px; margin-bottom: 8px;
+  animation: shimmer 1.6s infinite;
+  border-radius: 4px;
+  height: 12px;
+  margin-bottom: 8px;
 }
+.skeleton-tray {
+  width: 100%; height: 186px;
+  background: #F0EBE2;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(26,18,8,0.06);
+}
+
 @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
 /* ── App Banner ── */
 .app-banner {
-  margin-top: 100px;
-  border-radius: 24px;
-  background: #16A34A;
+  margin-top: 6rem;
+  border-radius: 28px;
+  background: #1A1208;
   position: relative;
   overflow: hidden;
 }
 
-.app-banner::before {
-  content: '';
-  position: absolute;
-  top: -140px; left: -100px;
-  width: 600px; height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, transparent 65%);
-  pointer-events: none;
+/* Warm amber glow inside banner */
+.app-banner-orb-1 {
+  position: absolute; pointer-events: none; border-radius: 50%; filter: blur(70px); z-index: 0;
+  width: 440px; height: 440px;
+  background: radial-gradient(circle, rgba(245,166,35,0.22) 0%, transparent 65%);
+  top: -120px; left: -80px;
 }
 
-.app-banner::after {
+.app-banner-orb-2 {
+  position: absolute; pointer-events: none; border-radius: 50%; filter: blur(80px); z-index: 0;
+  width: 360px; height: 360px;
+  background: radial-gradient(circle, rgba(74,144,217,0.14) 0%, transparent 65%);
+  bottom: -100px; right: 160px;
+}
+
+/* Dot grid on banner */
+.app-banner::before {
   content: '';
-  position: absolute;
-  bottom: -160px; right: -100px;
-  width: 560px; height: 560px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,0,0,0.12) 0%, transparent 65%);
-  pointer-events: none;
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+  background-size: 22px 22px;
+  pointer-events: none; z-index: 0;
 }
 
 .banner-inner {
   position: relative; z-index: 1;
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 48px;
-  padding: clamp(52px,6vw,96px);
+  gap: 3rem;
+  padding: clamp(3.5rem, 6vw, 6rem);
   align-items: center;
 }
 
@@ -621,51 +626,51 @@ const CSS = `
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 5px 13px 5px 10px;
+  padding: 5px 14px 5px 10px;
   border-radius: 100px;
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: #fff;
+  background: rgba(245,166,35,0.15);
+  border: 1px solid rgba(245,166,35,0.30);
+  color: #F5A623;
+  font-family: 'Syne', sans-serif;
   font-size: 9.5px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem;
 }
 
 .live-dot {
   width: 5px; height: 5px; border-radius: 50%;
-  background: #fff;
+  background: #F5A623;
   animation: ldot 2.2s ease infinite;
 }
 @keyframes ldot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.55)} }
 
 .banner-h {
-  font-family: 'Fraunces', serif;
-  font-weight: 300;
-  font-size: clamp(2.8rem,4.5vw,4.4rem);
-  line-height: 1.02;
-  color: #fff;
-  margin: 0 0 18px;
-  letter-spacing: -0.03em;
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400;
+  font-size: clamp(2.8rem, 4.5vw, 4.2rem);
+  line-height: 1.04;
+  color: #FDFAF5;
+  margin: 0 0 1.1rem;
+  letter-spacing: -0.02em;
 }
 
 .banner-h em {
   font-style: italic;
-  color: rgba(255,255,255,0.8);
-  font-weight: 300;
+  color: #F5A623;
 }
 
 .banner-p {
-  color: rgba(255,255,255,0.75);
-  font-size: 0.98rem;
+  color: rgba(253,250,245,0.60);
+  font-size: 15px;
   font-weight: 300;
   line-height: 1.8;
   max-width: 400px;
-  margin-bottom: 38px;
+  margin-bottom: 2.2rem;
 }
 
-.banner-p strong { color: #fff; font-weight: 500; }
+.banner-p strong { color: rgba(253,250,245,0.90); font-weight: 400; }
 
 .store-row { display: flex; gap: 10px; flex-wrap: wrap; }
 
@@ -673,31 +678,36 @@ const CSS = `
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 22px;
+  padding: 11px 22px;
   border-radius: 100px;
-  background: #fff;
+  background: #FDFAF5;
   border: none;
-  color: #16A34A;
+  color: #1A1208;
   font-size: 13px;
   font-weight: 600;
-  font-family: 'DM Sans', sans-serif;
-  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  font-family: 'Syne', sans-serif;
+  letter-spacing: 0.02em;
+  transition: transform 0.25s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.25s ease,
+              background 0.2s ease;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.18);
 }
 
 .store-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(0,0,0,0.18);
-  background: #f0fdf4;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  background: #fff;
 }
 
 .phone-shell {
-  background: rgba(0,0,0,0.15);
-  border-radius: 30px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 32px;
   padding: 11px;
-  border: 1px solid rgba(255,255,255,0.22);
-  box-shadow: 0 40px 80px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.14);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.35),
+              0 0 0 1px rgba(255,255,255,0.06),
+              inset 0 1px 0 rgba(255,255,255,0.12);
 }
 `
 
@@ -711,18 +721,12 @@ export default function Marketplace() {
     let isMounted = true
 
     async function load(showLoading = false) {
-      if (showLoading && isMounted) {
-        setLoading(true)
-      }
+      if (showLoading && isMounted) setLoading(true)
 
-      // 1. Seed all 11 categories as empty placeholders
       const map: Record<string, ProfessionEntry[]> = {}
-      for (const title of STATIC_CATEGORIES) {
-        map[title] = []
-      }
+      for (const title of STATIC_CATEGORIES) map[title] = []
 
       try {
-        // 2. Fetch live data and overlay into the seeded map
         const res = await fetch("/api/onboarding?type=professions")
         if (res.ok) {
           const { professions } = await res.json() as {
@@ -734,12 +738,8 @@ export default function Marketplace() {
             map[cat].push({ profession, count: parseInt(count) })
           }
         }
-      } catch {
-        // fail silently — all 11 static categories still render
-      }
+      } catch { /* fail silently */ }
 
-      // 3. Build final sorted list
-      // Categories with live data float to the top; empties go to the end
       const built: Category[] = Object.entries(map)
         .map(([title, entries]) => ({
           title,
@@ -749,7 +749,6 @@ export default function Marketplace() {
           hasLiveData: entries.length > 0,
         }))
         .sort((a, b) => {
-          // Live categories first, sorted by count; empty categories after
           if (a.hasLiveData && !b.hasLiveData) return -1
           if (!a.hasLiveData && b.hasLiveData) return 1
           return b.totalCount - a.totalCount
@@ -762,20 +761,16 @@ export default function Marketplace() {
     }
 
     load(true)
-    const intervalId = setInterval(() => {
-      load(false)
-    }, 10000)
-
-    return () => {
-      isMounted = false
-      clearInterval(intervalId)
-    }
+    const id = setInterval(() => load(false), 10000)
+    return () => { isMounted = false; clearInterval(id) }
   }, [])
 
   return (
     <>
       <style>{CSS}</style>
       <section className="mkt">
+        <div className="mkt-orb-1" />
+        <div className="mkt-orb-2" />
         <AfricaSilhouette />
 
         <div className="mkt-inner">
@@ -792,10 +787,9 @@ export default function Marketplace() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="eyebrow">
-                <span className="eyebrow-dash" />
+              <div className="mkt-eyebrow">
+                <span className="mkt-eyebrow-dot" />
                 Across Africa &amp; Beyond
-                <span className="eyebrow-dash" />
               </div>
               <h2 className="mkt-h1">
                 Trusted specialists<br />
@@ -804,7 +798,7 @@ export default function Marketplace() {
             </motion.div>
 
             <motion.div
-              className="header-right"
+              className="mkt-header-right"
               initial={{ opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
@@ -841,10 +835,10 @@ export default function Marketplace() {
             <div className="cat-grid">
               {Array.from({ length: 11 }).map((_, i) => (
                 <div key={i} className="cat-card" style={{ minHeight: 340 }}>
-                  <div className="illus-tray" />
+                  <div className="skeleton-tray" />
                   <div className="cat-body">
                     <div className="skeleton" style={{ width: "55%", marginBottom: 14 }} />
-                    <div className="skeleton" style={{ width: "28%", height: 9, marginBottom: 22 }} />
+                    <div className="skeleton" style={{ width: "28%", height: 9, marginBottom: 20 }} />
                     {Array.from({ length: 4 }).map((_, j) => (
                       <div key={j} className="skeleton" style={{ width: `${80 - j * 9}%` }} />
                     ))}
@@ -854,86 +848,98 @@ export default function Marketplace() {
             </div>
           ) : (
             <div className="cat-grid">
-              {categories.map((cat, i) => (
-                <motion.div
-                  key={cat.title}
-                  initial={{ opacity: 0, y: 28 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
-                  viewport={{ once: true }}
-                  style={{ display: "flex" }}
-                >
-                  <div className="cat-card">
+              {categories.map((cat, i) => {
+                const accent = CATEGORY_ACCENTS[cat.title] ?? "#C17D2A"
+                const glowStyle = {
+                  background: `radial-gradient(ellipse at 50% 0%, ${accent}14 0%, transparent 65%)`,
+                }
+                return (
+                  <motion.div
+                    key={cat.title}
+                    initial={{ opacity: 0, y: 28 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                    viewport={{ once: true }}
+                    style={{ display: "flex" }}
+                  >
+                    <div className="cat-card">
+                      {/* Per-card accent glow on hover */}
+                      <div className="cat-card-glow" style={glowStyle} />
 
-                    {/* Illustration */}
-                    <div className={`illus-tray${cat.hasLiveData ? "" : " is-empty"}`}>
-                      <span>
-                        <Image
-                          src={cat.illustration}
-                          alt={`${cat.title} illustration`}
-                          fill
-                          sizes="360px"
-                          priority={i < 6}
-                        />
-                      </span>
-                    </div>
-
-                    <div className="cat-body">
-                      <div className="cat-header-row">
-                        <h3 className="cat-title">{cat.title}</h3>
-                        <span className={`cat-total${cat.hasLiveData ? "" : " is-empty"}`}>
-                          {cat.hasLiveData
-                            ? `${cat.totalCount.toLocaleString()} specialist${cat.totalCount === 1 ? "" : "s"}`
-                            : <Link href="/professionals" className="cat-total-link">Be the first</Link>}
+                      {/* Illustration tray */}
+                      <div className={`illus-tray${cat.hasLiveData ? "" : " is-empty"}`}>
+                        <span className="illus-index">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <span>
+                          <Image
+                            src={cat.illustration}
+                            alt={`${cat.title} illustration`}
+                            fill
+                            sizes="360px"
+                            priority={i < 6}
+                          />
                         </span>
                       </div>
 
-                      {cat.hasLiveData ? (
-                        /* Live profession rows */
-                        <ul className="prof-list">
-                          {cat.professions.map((p) => (
-                            <li key={p.profession} className="prof-row">
-                              <span className="prof-name">{p.profession}</span>
-                              <span className="prof-count">{p.count.toLocaleString()}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        /* Fallback keyword rows when no specialists registered yet */
-                        <>
+                      <div className="cat-body">
+                        <div className="cat-header-row">
+                          <h3 className="cat-title">{cat.title}</h3>
+                          <span className={`cat-total ${cat.hasLiveData ? "is-live" : "is-empty"}`}>
+                            {cat.hasLiveData
+                              ? `${cat.totalCount.toLocaleString()} specialist${cat.totalCount === 1 ? "" : "s"}`
+                              : <Link href="/professionals" className="cat-total-link">Be the first</Link>
+                            }
+                          </span>
+                        </div>
+
+                        <div className="cat-divider" />
+
+                        {cat.hasLiveData ? (
                           <ul className="prof-list">
-                            {(CATEGORY_PROFESSIONS[cat.title] ?? []).map((title) => (
-                              <li key={title} className="prof-row">
-                                <span className="prof-name">{title}</span>
-                                <span className="prof-count">0</span>
+                            {cat.professions.map((p) => (
+                              <li key={p.profession} className="prof-row">
+                                <span className="prof-name">{p.profession}</span>
+                                <span className="prof-count">{p.count.toLocaleString()}</span>
                               </li>
                             ))}
                           </ul>
-                          <div className="empty-hint">
-                            <span className="empty-hint-label">
-                              No specialists registered yet in this category.
-                            </span>
-                            <span className="empty-hint-pill">
-                              ✦ Be the first to register
-                            </span>
-                          </div>
-                        </>
-                      )}
+                        ) : (
+                          <>
+                            <ul className="prof-list">
+                              {(CATEGORY_PROFESSIONS[cat.title] ?? []).map((title) => (
+                                <li key={title} className="prof-row">
+                                  <span className="prof-name">{title}</span>
+                                  <span className="prof-count">0</span>
+                                </li>
+                              ))}
+                            </ul>
+                            <div className="empty-hint">
+                              <span className="empty-hint-label">
+                                No specialists registered yet in this category.
+                              </span>
+                              <span className="empty-hint-pill">✦ Be the first to register</span>
+                            </div>
+                          </>
+                        )}
 
-                      <div className="cat-cta">
-                        <span>{cat.hasLiveData ? "View all specialists" : "Register as a specialist"}</span>
-                        <span className="cta-pill">→</span>
+                        <div className="cat-cta">
+                          <span>{cat.hasLiveData ? "View all specialists" : "Register as a specialist"}</span>
+                          <span className="cta-arrow">→</span>
+                        </div>
                       </div>
-                    </div>
 
-                  </div>
-                </motion.div>
-              ))}
+                    </div>
+                  </motion.div>
+                )
+              })}
             </div>
           )}
 
           {/* ── App Banner ── */}
           <div className="app-banner">
+            <div className="app-banner-orb-1" />
+            <div className="app-banner-orb-2" />
             <AfricaSilhouette forBanner={true} />
             <div className="banner-inner">
               <div>

@@ -23,80 +23,76 @@ const footerLinks = {
 }
 
 const TikTokIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.2 8.2 0 0 0 4.79 1.52V6.75a4.85 4.85 0 0 1-1.02-.06z" />
   </svg>
 )
 
 const InstagramIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z" />
   </svg>
 )
 
 const FacebookIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
   </svg>
 )
 
 export function Footer() {
   return (
-    <footer id="footer" className="w-full border-t border-border bg-background">
+    <footer id="footer" className="w-full bg-[#1c1917]">
       {/* Main footer content */}
-      <div className="container mx-auto px-6 py-10">
-        <div className="flex flex-col lg:flex-row lg:justify-between gap-10">
+      <div className="container mx-auto px-6 py-14">
+        <div className="flex flex-col lg:flex-row lg:justify-between gap-12">
+
           {/* Left: Logo + description + social */}
-          <div className="flex flex-col gap-5 max-w-xs">
-            <Link href="/" className="flex items-center gap-2">
-              <Image src="/quickhands.png" alt="Quickhands Logo" width={32} height={32} />
-              <span className="text-xl font-bold text-foreground font-sans">Quickhands Africa</span>
+          <div className="flex flex-col gap-6 max-w-[260px]">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <Image src="/quickhands.png" alt="Quickhands Logo" width={28} height={28} className="opacity-90" />
+              <span className="text-[1.05rem] font-semibold text-white tracking-[-0.02em]">
+                Quickhands Africa
+              </span>
             </Link>
-            <p className="text-sm text-muted-foreground font-sans leading-relaxed">
+
+            <p className="text-sm text-[#a8a29e] leading-relaxed">
               The complete platform for clients and specialists to connect, collaborate, and get work done.
             </p>
+
             {/* Social Icons */}
-            <div className="flex items-center gap-4 pt-1">
-              <Link
-                href="https://www.tiktok.com/@quickhands.app"
-                target="_blank"
-                aria-label="TikTok"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <TikTokIcon />
-              </Link>
-              <Link
-                href="https://www.instagram.com/quickhandsafrica"
-                target="_blank"
-                aria-label="Instagram"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <InstagramIcon />
-              </Link>
-              <Link
-                href="https://www.facebook.com/share/181GvFUCXq/?mibextid=wwXIfr"
-                target="_blank"
-                aria-label="Facebook"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <FacebookIcon />
-              </Link>
+            <div className="flex items-center gap-2 pt-1">
+              {[
+                { href: "https://www.tiktok.com/@quickhands.app", label: "TikTok", Icon: TikTokIcon },
+                { href: "https://www.instagram.com/quickhandsafrica", label: "Instagram", Icon: InstagramIcon },
+                { href: "https://www.facebook.com/share/181GvFUCXq/?mibextid=wwXIfr", label: "Facebook", Icon: FacebookIcon },
+              ].map(({ href, label, Icon }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  aria-label={label}
+                  className="w-8 h-8 rounded-lg border border-[#44403c] flex items-center justify-center text-[#78716c] hover:text-white hover:border-[#78716c] transition-colors duration-150"
+                >
+                  <Icon />
+                </Link>
+              ))}
             </div>
           </div>
 
           {/* Right: Link columns */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-8 lg:gap-16">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-16">
             {/* For Clients */}
             <div>
-              <h3 className="mb-4 text-sm font-semibold text-foreground font-sans uppercase tracking-wide">
+              <h3 className="mb-5 text-[10px] font-medium text-[#57534e] uppercase tracking-[0.1em]">
                 For Clients
               </h3>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-3.5">
                 {footerLinks.forClients.map((link) => (
                   <li key={link.title}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground font-sans hover:text-foreground transition-colors"
+                      className="text-sm text-[#a8a29e] hover:text-white transition-colors duration-150"
                     >
                       {link.title}
                     </Link>
@@ -107,15 +103,15 @@ export function Footer() {
 
             {/* For Specialists */}
             <div>
-              <h3 className="mb-4 text-sm font-semibold text-foreground font-sans uppercase tracking-wide">
+              <h3 className="mb-5 text-[10px] font-medium text-[#57534e] uppercase tracking-[0.1em]">
                 For Specialists
               </h3>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-3.5">
                 {footerLinks.forSpecialists.map((link) => (
                   <li key={link.title}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground font-sans hover:text-foreground transition-colors"
+                      className="text-sm text-[#a8a29e] hover:text-white transition-colors duration-150"
                     >
                       {link.title}
                     </Link>
@@ -126,15 +122,15 @@ export function Footer() {
 
             {/* Company */}
             <div>
-              <h3 className="mb-4 text-sm font-semibold text-foreground font-sans uppercase tracking-wide">
+              <h3 className="mb-5 text-[10px] font-medium text-[#57534e] uppercase tracking-[0.1em]">
                 Company
               </h3>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-3.5">
                 {footerLinks.company.map((link) => (
                   <li key={link.title}>
                     <Link
                       href={link.href}
-                      className="text-sm text-muted-foreground font-sans hover:text-foreground transition-colors"
+                      className="text-sm text-[#a8a29e] hover:text-white transition-colors duration-150"
                     >
                       {link.title}
                     </Link>
@@ -147,21 +143,25 @@ export function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-border">
+      <div className="border-t border-[#292524]">
         <div className="container mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-sm text-muted-foreground font-sans">
+          <p className="text-xs text-[#57534e]">
             &copy; 2026 Quickhands, Inc.
           </p>
           <div className="flex items-center gap-5">
-            <Link href="#" className="text-sm text-muted-foreground font-sans hover:text-foreground transition-colors">
-              Privacy Policy
-            </Link>
-            <Link href="#" className="text-sm text-muted-foreground font-sans hover:text-foreground transition-colors">
-              Terms of Service
-            </Link>
-            <Link href="#" className="text-sm text-muted-foreground font-sans hover:text-foreground transition-colors">
-              Accessibility
-            </Link>
+            {[
+              { title: "Privacy Policy", href: "#" },
+              { title: "Terms of Service", href: "#" },
+              { title: "Accessibility", href: "#" },
+            ].map((link) => (
+              <Link
+                key={link.title}
+                href={link.href}
+                className="text-xs text-[#57534e] hover:text-[#a8a29e] transition-colors duration-150"
+              >
+                {link.title}
+              </Link>
+            ))}
           </div>
         </div>
       </div>
