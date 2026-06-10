@@ -35,17 +35,18 @@ export function ProfessionalsHeader() {
         <header
           className={cn(
             "mx-auto w-full max-w-6xl transition-all duration-300 relative",
-            "rounded-2xl backdrop-blur-xl bg-background/90",
+            "rounded-full backdrop-blur-xl",
+            "bg-white/85",
             scrolled
-              ? "shadow-lg border border-border/80 py-1"
-              : "shadow-[0_10px_30px_-12px_rgba(0,0,0,0.25)] border border-border/50 py-2"
+              ? "shadow-sm border border-zinc-200/80 py-1"
+              : "shadow-[0_2px_15px_-4px_rgba(0,0,0,0.04)] border border-zinc-100 py-1.5"
           )}
         >
           <nav className="flex items-center justify-between px-4">
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
-              <div className="relative h-9 w-9 overflow-hidden rounded-xl border border-border/60 bg-muted shadow-sm flex-shrink-0">
+              <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-100 bg-zinc-50 shadow-sm flex-shrink-0">
                 <Image
                   src="/quickhands.png"
                   alt="Quickhands"
@@ -53,32 +54,33 @@ export function ProfessionalsHeader() {
                   className="object-contain p-1 transition-transform duration-200 group-hover:scale-110"
                 />
               </div>
-              <span className="text-lg font-semibold tracking-tight transition group-hover:opacity-80">
+              <span className="text-xs font-semibold tracking-tight transition group-hover:opacity-80 font-sans text-zinc-900">
                 Quickhands Africa
               </span>
             </Link>
 
             {/* Desktop nav */}
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="hidden lg:flex items-center gap-1 font-sans">
               {links.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}
                   className={cn(
                     buttonVariants({ variant: "ghost", size: "sm" }),
-                    "rounded-xl text-[13px] text-muted-foreground hover:text-foreground",
-                    "transition-all duration-200 hover:bg-muted/60",
-                    "relative after:absolute after:bottom-1 after:left-3 after:right-3 after:h-[1px] after:bg-foreground after:scale-x-0 hover:after:scale-x-100 after:transition-transform"
+                    "rounded-full text-xs text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50",
+                    "transition-all duration-200 relative"
                   )}
                 >
                   {link.label}
                 </Link>
               ))}
 
+              <div className="w-px h-4 bg-zinc-100 mx-1.5" />
+
               <OnboardingModal>
                 <Button
                   size="sm"
-                  className="ml-2 rounded-xl px-5 bg-primary text-primary-foreground shadow-md hover:shadow-lg transition-all"
+                  className="rounded-full px-5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover shadow-sm transition-all cursor-pointer"
                 >
                   Register
                 </Button>
@@ -92,7 +94,7 @@ export function ProfessionalsHeader() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="rounded-xl border-border/60 h-8 w-8"
+                    className="rounded-full border-zinc-200 hover:bg-zinc-50 h-8 w-8"
                   >
                     <Menu className="h-4 w-4" />
                   </Button>
@@ -100,12 +102,12 @@ export function ProfessionalsHeader() {
 
                 <SheetContent
                   side="left"
-                  className="flex flex-col w-72 bg-background/95 backdrop-blur-xl"
+                  className="flex flex-col w-72 bg-white/95 backdrop-blur-xl border-r border-zinc-100"
                   showClose={false}
                 >
                   {/* Logo */}
-                  <div className="flex items-center gap-2.5 pt-2 pb-6 border-b border-border/50">
-                    <div className="relative h-9 w-9 overflow-hidden rounded-xl border border-border/60 bg-muted shadow-sm flex-shrink-0">
+                  <div className="flex items-center gap-2.5 pt-2 pb-6 border-b border-zinc-100">
+                    <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-150 bg-zinc-50 shadow-sm flex-shrink-0">
                       <Image
                         src="/quickhands.png"
                         alt="Quickhands"
@@ -113,12 +115,12 @@ export function ProfessionalsHeader() {
                         className="object-contain p-1"
                       />
                     </div>
-                    <span className="text-lg font-semibold tracking-tight">
+                    <span className="text-[13px] font-semibold tracking-tight text-zinc-900 font-sans">
                       Quickhands Africa
                     </span>
                   </div>
 
-                  <div className="pt-6 space-y-2">
+                  <div className="pt-6 space-y-2 font-sans">
                     {links.map((link) => (
                       <Link
                         key={link.label}
@@ -126,7 +128,7 @@ export function ProfessionalsHeader() {
                         className={buttonVariants({
                           variant: "ghost",
                           className:
-                            "w-full justify-start rounded-xl text-[13px] text-muted-foreground hover:bg-muted/60",
+                            "w-full justify-start rounded-full text-xs text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50",
                         })}
                       >
                         {link.label}
@@ -134,9 +136,9 @@ export function ProfessionalsHeader() {
                     ))}
                   </div>
 
-                  <div className="mt-auto space-y-2 border-t border-border/50 pt-4">
+                  <div className="mt-auto space-y-2 border-t border-zinc-100 pt-4 font-sans">
                     <OnboardingModal>
-                      <Button className="w-full rounded-xl h-10 shadow-md">
+                      <Button className="w-full rounded-full text-xs font-semibold h-10 bg-primary text-white hover:bg-primary-hover shadow-sm">
                         Register
                       </Button>
                     </OnboardingModal>

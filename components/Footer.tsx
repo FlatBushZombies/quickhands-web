@@ -18,7 +18,7 @@ const footerLinks = {
     { title: "About Us", href: "#" },
     { title: "Feedback", href: "/feedback" },
     { title: "Terms of Service", href: "#" },
-    { title: "Privacy Policy", href: "#" },
+    { title: "Privacy Policy", href: "/privacy-policy" },
   ],
 }
 
@@ -42,26 +42,28 @@ const FacebookIcon = () => (
 
 export function Footer() {
   return (
-    <footer id="footer" className="w-full bg-[#1c1917]">
+    <footer id="footer" className="w-full bg-zinc-950 border-t border-zinc-900">
       {/* Main footer content */}
-      <div className="container mx-auto px-6 py-14">
+      <div className="max-w-[1200px] mx-auto px-6 py-20">
         <div className="flex flex-col lg:flex-row lg:justify-between gap-12">
 
           {/* Left: Logo + description + social */}
-          <div className="flex flex-col gap-6 max-w-[260px]">
+          <div className="flex flex-col gap-6 max-w-[280px] text-left">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <Image src="/quickhands.png" alt="Quickhands Logo" width={28} height={28} className="opacity-90" />
-              <span className="text-[1.05rem] font-semibold text-white tracking-[-0.02em]">
+              <div className="relative h-7 w-7 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden shrink-0 flex items-center justify-center">
+                <Image src="/quickhands.png" alt="Quickhands Logo" fill className="opacity-90 object-contain p-0.5" />
+              </div>
+              <span className="text-sm font-semibold text-white tracking-tight font-sans">
                 Quickhands Africa
               </span>
             </Link>
 
-            <p className="text-sm text-[#a8a29e] leading-relaxed">
-              The complete platform for clients and specialists to connect, collaborate, and get work done.
+            <p className="text-xs text-zinc-400 leading-relaxed font-sans font-light">
+              The complete directory and secure matches platform for clients and specialists to connect, collaborate, and get jobs done.
             </p>
 
             {/* Social Icons */}
-            <div className="flex items-center gap-2 pt-1">
+            <div className="flex items-center gap-2 pt-1 font-sans">
               {[
                 { href: "https://www.tiktok.com/@quickhands.app", label: "TikTok", Icon: TikTokIcon },
                 { href: "https://www.instagram.com/quickhandsafrica", label: "Instagram", Icon: InstagramIcon },
@@ -72,7 +74,7 @@ export function Footer() {
                   href={href}
                   target="_blank"
                   aria-label={label}
-                  className="w-8 h-8 rounded-lg border border-[#44403c] flex items-center justify-center text-[#78716c] hover:text-white hover:border-[#78716c] transition-colors duration-150"
+                  className="w-8 h-8 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-550 hover:text-white hover:border-zinc-700 transition-colors duration-150 cursor-pointer"
                 >
                   <Icon />
                 </Link>
@@ -81,10 +83,10 @@ export function Footer() {
           </div>
 
           {/* Right: Link columns */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-16">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-16 text-left font-sans">
             {/* For Clients */}
             <div>
-              <h3 className="mb-5 text-[10px] font-medium text-[#57534e] uppercase tracking-[0.1em]">
+              <h3 className="mb-5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em]">
                 For Clients
               </h3>
               <ul className="flex flex-col gap-3.5">
@@ -92,7 +94,7 @@ export function Footer() {
                   <li key={link.title}>
                     <Link
                       href={link.href}
-                      className="text-sm text-[#a8a29e] hover:text-white transition-colors duration-150"
+                      className="text-[12.5px] text-zinc-400 hover:text-white transition-colors duration-150 font-light"
                     >
                       {link.title}
                     </Link>
@@ -103,7 +105,7 @@ export function Footer() {
 
             {/* For Specialists */}
             <div>
-              <h3 className="mb-5 text-[10px] font-medium text-[#57534e] uppercase tracking-[0.1em]">
+              <h3 className="mb-5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em]">
                 For Specialists
               </h3>
               <ul className="flex flex-col gap-3.5">
@@ -111,7 +113,7 @@ export function Footer() {
                   <li key={link.title}>
                     <Link
                       href={link.href}
-                      className="text-sm text-[#a8a29e] hover:text-white transition-colors duration-150"
+                      className="text-[12.5px] text-zinc-400 hover:text-white transition-colors duration-150 font-light"
                     >
                       {link.title}
                     </Link>
@@ -122,7 +124,7 @@ export function Footer() {
 
             {/* Company */}
             <div>
-              <h3 className="mb-5 text-[10px] font-medium text-[#57534e] uppercase tracking-[0.1em]">
+              <h3 className="mb-5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em]">
                 Company
               </h3>
               <ul className="flex flex-col gap-3.5">
@@ -130,7 +132,7 @@ export function Footer() {
                   <li key={link.title}>
                     <Link
                       href={link.href}
-                      className="text-sm text-[#a8a29e] hover:text-white transition-colors duration-150"
+                      className="text-[12.5px] text-zinc-400 hover:text-white transition-colors duration-150 font-light"
                     >
                       {link.title}
                     </Link>
@@ -143,21 +145,21 @@ export function Footer() {
       </div>
 
       {/* Bottom bar */}
-      <div className="border-t border-[#292524]">
-        <div className="container mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-[#57534e]">
-            &copy; 2026 Quickhands, Inc.
+      <div className="border-t border-zinc-900/60 py-6">
+        <div className="max-w-[1200px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-sans text-zinc-650">
+          <p>
+            &copy; 2026 Quickhands, Inc. All rights reserved.
           </p>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-6">
             {[
-              { title: "Privacy Policy", href: "#" },
+              { title: "Privacy Policy", href: "/privacy-policy" },
               { title: "Terms of Service", href: "#" },
               { title: "Accessibility", href: "#" },
             ].map((link) => (
               <Link
                 key={link.title}
                 href={link.href}
-                className="text-xs text-[#57534e] hover:text-[#a8a29e] transition-colors duration-150"
+                className="hover:text-zinc-400 transition-colors duration-150"
               >
                 {link.title}
               </Link>

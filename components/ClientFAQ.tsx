@@ -32,47 +32,52 @@ const faqs = [
 
 export function ClientFAQ() {
   return (
-    <section className="py-24 w-full border-t border-border/40">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-32 w-full bg-white relative overflow-hidden">
+      {/* Background ambient glow */}
+      <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-primary/3 rounded-full blur-[110px] pointer-events-none -z-10" />
+
+      <div className="max-w-[1200px] mx-auto px-6">
         <div className="mx-auto max-w-3xl">
-          {/* Header */}
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="font-sans text-4xl font-bold tracking-tight text-foreground">
+          
+          {/* Section Header */}
+          <div className="text-center space-y-4 mb-16">
+            <h2 className="font-serif text-4xl md:text-5xl tracking-tight text-zinc-950 leading-tight">
               Frequently Asked Questions
             </h2>
-            <p className="font-sans text-lg text-muted-foreground">
-              Everything you need to know about working on Quickhands
+            <p className="font-sans text-sm text-zinc-500 font-light max-w-md mx-auto leading-relaxed">
+              Everything you need to know about secure client-specialist cooperation on Quickhands.
             </p>
           </div>
 
-          {/* FAQ Cards */}
-          <Accordion type="single" collapsible className="space-y-4">
+          {/* Premium Ceramic FAQ Accordions */}
+          <Accordion type="single" collapsible className="space-y-4 font-sans">
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
                 className={[
-                  "rounded-xl",
-                  "bg-card text-card-foreground",
-                  "border border-border/60",
-                  "shadow-sm dark:shadow-black/10",
-                  "transition-colors",
+                  "rounded-[24px]",
+                  "bg-white text-zinc-900",
+                  "border border-zinc-100",
+                  "shadow-sm/50",
+                  "hover:shadow-sm hover:border-zinc-200",
+                  "transition-all duration-300",
+                  "overflow-hidden px-6 py-1",
                 ].join(" ")}
               >
                 <AccordionTrigger
                   className={[
-                    "px-6 py-5",
-                    "text-left font-sans text-lg font-medium",
+                    "py-5",
+                    "text-left font-sans text-[14.5px] font-semibold text-zinc-900",
                     "hover:no-underline",
-                    "data-[state=open]:border-b",
-                    "data-[state=open]:border-border/60",
+                    "border-0 focus:outline-none",
                   ].join(" ")}
                 >
                   {faq.question}
                 </AccordionTrigger>
 
-                <AccordionContent className="px-6 pt-4 pb-6">
-                  <p className="font-sans text-muted-foreground leading-relaxed">
+                <AccordionContent className="pt-1 pb-5 border-t border-zinc-50">
+                  <p className="font-sans text-[12.5px] text-zinc-500 leading-relaxed font-light mt-3">
                     {faq.answer}
                   </p>
                 </AccordionContent>

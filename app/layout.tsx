@@ -1,11 +1,19 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Schibsted_Grotesk, Martian_Mono } from "next/font/google"
+import { Newsreader, Inter, Martian_Mono } from "next/font/google"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
+import CookieConsent from "@/components/cookie-consent/CookieConsent"
 
-const schibstedGrotesk = Schibsted_Grotesk({
-  variable: "--font-schibsted-grotesk",
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  subsets: ["latin"],
+  display: "swap",
+  style: ["normal", "italic"],
+})
+
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 })
@@ -77,7 +85,8 @@ export default function RootLayout({
       <html lang="en">
         <body
           className={`
-            ${schibstedGrotesk.variable}
+            ${inter.variable}
+            ${newsreader.variable}
             ${martianMono.variable}
             font-sans
             min-h-screen
@@ -87,6 +96,7 @@ export default function RootLayout({
           `}
         >
           <main>{children}</main>
+          <CookieConsent />
 
           {/* =============================
               STRUCTURED DATA (LD+JSON)

@@ -168,11 +168,11 @@ export function OnboardingModal({ children }: OnboardingModalProps) {
                   value={formData.relevantInfo}
                   onChange={handleChange}
                   required
-                  className="min-h-[100px] w-full rounded-md border px-3 py-2 text-sm"
+                  className="min-h-[100px] w-full rounded-xl border border-border bg-white px-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all duration-150 resize-none"
                 />
               </div>
 
-              {error && <p className="text-sm text-red-500">{error}</p>}
+              {error && <p className="text-sm text-destructive font-medium">{error}</p>}
 
               <DialogFooter>
                 <Button type="submit" disabled={loading} className="w-full">

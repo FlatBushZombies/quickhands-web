@@ -1,15 +1,7 @@
 "use client";
 
-/**
- * HowItWorks — QuickHands
- * ─────────────────────────────────────────────────────────────
- * Airtasker-style sticky left nav + large right photo panel.
- * Every image is a real Unsplash photo, step-relevant,
- * featuring Black people.
- * ─────────────────────────────────────────────────────────────
- */
-
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ClipboardList,
   Search,
@@ -78,12 +70,12 @@ export default function HowItWorks() {
   const [progress, setProgress] = useState<number>(0);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
-  const rafRef = useRef<ReturnType<typeof requestAnimationFrame> | undefined>(undefined);
+  const rafRef = useRef<number | undefined>(undefined);
   const startRef = useRef<number>(0);
 
   const startTimer = () => {
     clearInterval(intervalRef.current);
-    cancelAnimationFrame(rafRef.current ?? 0);
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     setProgress(0);
     startRef.current = performance.now();
 
@@ -105,9 +97,8 @@ export default function HowItWorks() {
     if (!paused) startTimer();
     return () => {
       clearInterval(intervalRef.current);
-      cancelAnimationFrame(rafRef.current ?? 0);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paused, active]);
 
   const handleSelect = (i: number) => {
@@ -119,231 +110,222 @@ export default function HowItWorks() {
   const Icon = current.icon;
 
   return (
-    <>
-      <style>{`
-        @keyframes qhiw_fadeSlide {
-          from { opacity: 0; transform: translateY(14px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes qhiw_imgFade {
-          from { opacity: 0; transform: scale(1.04); }
-          to   { opacity: 1; transform: scale(1); }
-        }
-        #how.qhiw *, #how.qhiw *::before, #how.qhiw *::after {
-          box-sizing: border-box;
-        }
-        .qhiw-content-enter { animation: qhiw_fadeSlide .4s ease forwards; }
-        .qhiw-img-enter     { animation: qhiw_imgFade  .55s ease forwards; }
-      `}</style>
+    <section
+      id="how"
+      className="relative overflow-hidden bg-zinc-950 text-white py-32"
+    >
+      {/* Background dot grid pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle,#ffffff01_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none -z-10" />
+      
+      {/* Soft dark ambient glows */}
+      <div className="pointer-events-none absolute -top-40 right-0 w-[550px] h-[550px] rounded-full bg-primary/5 blur-[120px] -z-10" />
+      <div className="pointer-events-none absolute -bottom-40 left-0 w-[500px] h-[500px] rounded-full bg-primary/3 blur-[100px] -z-10" />
 
-      <section
-        id="how"
-        className="qhiw relative overflow-hidden bg-neutral-900 text-white py-24"
-      >
-        {/* dot grid */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)",
-            backgroundSize: "30px 30px",
-          }}
-        />
-        {/* ambient glows */}
-        <div className="pointer-events-none absolute -top-60 right-0 w-[700px] h-[700px] rounded-full bg-green-500 opacity-[0.05] blur-[120px]" />
-        <div className="pointer-events-none absolute -bottom-60 left-0 w-[600px] h-[600px] rounded-full bg-green-500 opacity-[0.04] blur-[100px]" />
+      <div className="relative z-10 max-w-[1200px] w-full mx-auto px-6">
 
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-
-          {/* ── Header ── */}
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-4 py-1.5 mb-5 text-green-400 text-xs font-bold uppercase tracking-widest">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+        {/* ── Section Header ── */}
+        <div className="max-w-xl mb-20 text-left font-sans">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 animate-pulse" />
+            <span className="text-[10px] font-semibold text-primary tracking-[0.08em] uppercase font-sans">
               Simple Process
             </span>
-            <h2 className="font-sans text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4">
-              How It{" "}
-              <span className="relative inline-block text-green-400">
-                Works
-                <span className="absolute bottom-1 left-0 right-0 h-[3px] rounded bg-green-400 opacity-30 pointer-events-none" />
-              </span>
-            </h2>
-            <p className="font-sans text-lg text-neutral-400">
-              Get started in minutes with our simple, transparent process
+          </div>
+          <h2 className="font-serif text-4xl md:text-5xl tracking-tight text-white mb-4 leading-tight">
+            How It <span className="italic text-primary font-normal">Works</span>.
+          </h2>
+          <p className="font-sans text-sm text-zinc-400 font-light leading-relaxed">
+            Get started in minutes with our simple, transparent onboarding process for specialists.
+          </p>
+        </div>
+
+        {/* Two-Column Grid Stepper */}
+        <div
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start"
+          onMouseEnter={() => setPaused(true)}
+          onMouseLeave={() => setPaused(false)}
+        >
+
+          {/* LEFT COLUMN: Step toggles */}
+          <div className="lg:col-span-5 flex flex-col gap-3 font-sans w-full lg:sticky lg:top-28">
+            {steps.map((step, i) => {
+              const StepIcon = step.icon;
+              const isActive = i === active;
+              return (
+                <button
+                  key={step.title}
+                  onClick={() => handleSelect(i)}
+                  className={`group relative w-full text-left rounded-[24px] px-6 py-4.5 border transition-all duration-300 cursor-pointer focus:outline-none
+                    ${isActive
+                      ? "bg-zinc-900 border-primary/20 shadow-md"
+                      : "bg-transparent border-transparent hover:bg-zinc-900/40 hover:border-zinc-800/80"
+                    }`}
+                >
+                  <div className="flex items-center gap-4">
+                    {/* Icon Container */}
+                    <div className="relative shrink-0 select-none">
+                      <div className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-300 border
+                        ${isActive
+                          ? "bg-primary border-primary shadow-[0_4px_16px_rgba(38,192,141,0.25)] text-white"
+                          : "bg-zinc-900 border-zinc-800 text-zinc-550 group-hover:text-zinc-200"
+                        }`}>
+                        <StepIcon className="h-4.5 w-4.5" />
+                      </div>
+                      <div className={`absolute -top-1.5 -right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full text-[9px] font-bold border transition-all duration-300 font-sans
+                        ${isActive
+                          ? "bg-primary border-zinc-900 text-white"
+                          : "bg-zinc-800 border-zinc-900 text-zinc-500"
+                        }`}>
+                        {i + 1}
+                      </div>
+                    </div>
+
+                    {/* Step Title + Preview Description */}
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-xs font-semibold tracking-wide transition-colors duration-200 ${isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-250"}`}>
+                        {step.title}
+                      </p>
+                      {isActive && (
+                        <motion.p
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="text-[11.5px] text-zinc-450 mt-1 leading-relaxed font-light"
+                        >
+                          {step.description}
+                        </motion.p>
+                      )}
+                    </div>
+
+                    {/* Chevron Indicator */}
+                    <svg
+                      className={`shrink-0 h-4.5 w-4.5 transition-all duration-300 ${isActive ? "text-primary opacity-100" : "text-zinc-700 opacity-0 group-hover:opacity-70"}`}
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                    >
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </div>
+
+                  {/* Tiny Progress Tracker Bar */}
+                  {isActive && !paused && (
+                    <div className="absolute bottom-0 left-6 right-6 h-[2px] rounded-full bg-zinc-800 overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full"
+                        style={{ width: `${progress}%`, transition: "none" }}
+                      />
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+
+            <p className="text-center text-[10px] font-bold text-zinc-650 mt-2 uppercase tracking-widest select-none">
+              Step <span className="text-primary font-bold">{active + 1}</span> of {steps.length}
             </p>
           </div>
 
-          {/* ══ Two-column layout ══ */}
-          <div
-            className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start"
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-          >
-
-            {/* ── LEFT: step nav ── */}
-            <div className="w-full lg:w-[38%] lg:sticky lg:top-24 flex flex-col gap-2">
-              {steps.map((step, i) => {
-                const StepIcon = step.icon;
-                const isActive = i === active;
-                return (
-                  <button
-                    key={step.title}
-                    onClick={() => handleSelect(i)}
-                    className={`group relative w-full text-left rounded-2xl px-5 py-4 border transition-all duration-300 cursor-pointer
-                      ${isActive
-                        ? "bg-neutral-800 border-green-500/40 shadow-[0_0_0_1px_rgba(34,197,94,.15),0_8px_32px_rgba(0,0,0,.4)]"
-                        : "bg-neutral-800/30 border-neutral-700/40 hover:bg-neutral-800/60 hover:border-neutral-600/60"
-                      }`}
-                  >
-                    <div className="flex items-center gap-4">
-
-                      {/* Icon + number badge */}
-                      <div className="relative shrink-0">
-                        <div className={`flex h-12 w-12 items-center justify-center rounded-xl transition-all duration-300
-                          ${isActive
-                            ? "bg-green-500 shadow-[0_4px_20px_rgba(34,197,94,.5)]"
-                            : "bg-neutral-700/60 group-hover:bg-neutral-700"
-                          }`}>
-                          <StepIcon className={`h-5 w-5 transition-colors duration-300 ${isActive ? "text-white" : "text-neutral-400 group-hover:text-neutral-200"}`} />
-                        </div>
-                        <div className={`absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-black font-mono border transition-all duration-300
-                          ${isActive
-                            ? "bg-green-500 border-neutral-900 text-white"
-                            : "bg-neutral-700 border-neutral-800 text-neutral-400"
-                          }`}>
-                          {i + 1}
-                        </div>
-                      </div>
-
-                      {/* Title + preview */}
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-sans font-semibold text-[15px] leading-snug transition-colors duration-200 ${isActive ? "text-white" : "text-neutral-400 group-hover:text-neutral-200"}`}>
-                          {step.title}
-                        </p>
-                        {isActive && (
-                          <p className="qhiw-content-enter font-sans text-[13px] text-neutral-400 mt-1 leading-snug line-clamp-2">
-                            {step.description}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Chevron */}
-                      <svg
-                        className={`shrink-0 h-4 w-4 transition-all duration-300 ${isActive ? "text-green-400 opacity-100" : "text-neutral-600 opacity-0 group-hover:opacity-60"}`}
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                      >
-                        <path d="M9 18l6-6-6-6" />
-                      </svg>
-                    </div>
-
-                    {/* Progress bar */}
-                    {isActive && !paused && (
-                      <div className="absolute bottom-0 left-4 right-4 h-[2px] rounded-full bg-neutral-700 overflow-hidden">
-                        <div
-                          className="h-full bg-green-500 rounded-full"
-                          style={{ width: `${progress}%`, transition: "none" }}
-                        />
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-
-              <p className="font-sans text-center text-xs text-neutral-600 mt-2 tracking-wide">
-                Step <span className="text-green-500 font-bold">{active + 1}</span> of {steps.length}
-              </p>
-            </div>
-
-            {/* ── RIGHT: photo + content ── */}
-            <div className="w-full lg:w-[62%]">
-              <div className="relative rounded-3xl overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,.6)] border border-white/5 bg-neutral-800">
-
-                {/* Photo */}
-                <div className="relative h-[300px] sm:h-[380px] lg:h-[440px] overflow-hidden">
-                  <img
+          {/* RIGHT COLUMN: Photo + detail card */}
+          <div className="lg:col-span-7 w-full">
+            <div className="relative rounded-[24px] overflow-hidden border border-zinc-900 bg-zinc-900/60 shadow-lg">
+              
+              {/* Image Frame */}
+              <div className="relative h-[280px] sm:h-[350px] lg:h-[400px] overflow-hidden select-none">
+                <AnimatePresence mode="wait">
+                  <motion.img
                     key={active}
+                    initial={{ opacity: 0, scale: 1.02 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.02 }}
+                    transition={{ duration: 0.4 }}
                     src={current.image}
                     alt={current.title}
-                    className="qhiw-img-enter w-full h-full object-cover object-center block"
+                    className="w-full h-full object-cover object-center block"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src =
                         "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=900&q=85&fit=crop";
                     }}
                   />
-                  {/* dark gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/10 to-transparent pointer-events-none" />
+                </AnimatePresence>
 
-                  {/* Step badge */}
-                  <div className="absolute top-5 left-5 flex items-center gap-2 bg-neutral-900/70 backdrop-blur-md rounded-full pl-2 pr-4 py-2 border border-white/10">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-500 text-white text-sm font-black font-mono shadow-[0_2px_12px_rgba(34,197,94,.5)]">
-                      {active + 1}
-                    </div>
-                    <span className="text-white text-xs font-semibold tracking-wide">
-                      Step {active + 1} of {steps.length}
-                    </span>
+                {/* Subdued Dark Editorial Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent pointer-events-none" />
+
+                {/* Custom Step badge */}
+                <div className="absolute top-5 left-5 flex items-center gap-2 bg-zinc-950/75 backdrop-blur-md rounded-full pl-2 pr-3.5 py-1.5 border border-zinc-900/80">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white text-[11px] font-bold font-sans">
+                    {active + 1}
                   </div>
-
-                  {/* Stat chip — only render if stat is non-empty */}
-                  {current.stat && (
-                    <div className="absolute top-5 right-5 bg-green-500/90 backdrop-blur-sm rounded-full px-4 py-1.5 shadow-[0_4px_16px_rgba(34,197,94,.4)]">
-                      <p className="font-sans text-white text-[12px] font-bold tracking-wide">
-                        {current.stat}
-                      </p>
-                    </div>
-                  )}
+                  <span className="text-white text-[10.5px] font-semibold tracking-wide font-sans">
+                    Step {active + 1} of {steps.length}
+                  </span>
                 </div>
 
-                {/* Text */}
-                <div key={`text-${active}`} className="qhiw-content-enter px-7 py-7">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-500/15 border border-green-500/25">
-                      <Icon className="h-6 w-6 text-green-400" />
-                    </div>
-                    <h3 className="font-sans text-2xl lg:text-3xl font-bold text-white leading-tight mt-1.5">
+                {/* Stat tag if exists */}
+                {current.stat && (
+                  <div className="absolute top-5 right-5 bg-primary/95 backdrop-blur-sm rounded-full px-3.5 py-1.5 shadow-[0_4px_16px_rgba(38,192,141,0.2)]">
+                    <p className="text-white text-[10.5px] font-semibold tracking-wide font-sans">
+                      {current.stat}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Card Footer Text */}
+              <div className="p-7 font-sans text-left space-y-4">
+                <div className="flex items-start gap-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-800 border border-zinc-700/80 text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-md font-semibold text-white mt-2 leading-none">
                       {current.title}
                     </h3>
                   </div>
+                </div>
 
-                  <p className="font-sans text-[16px] leading-relaxed text-neutral-300 mb-6">
-                    {current.description}
-                  </p>
+                <p className="text-[12.5px] leading-relaxed text-zinc-400 font-sans font-light">
+                  {current.description}
+                </p>
 
-                  {/* Dot nav */}
-                  <div className="flex items-center gap-2">
-                    {steps.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSelect(i)}
-                        className={`transition-all duration-300 rounded-full cursor-pointer border-0 ${i === active ? "w-7 h-2.5 bg-green-500" : "w-2.5 h-2.5 bg-neutral-600 hover:bg-neutral-400"}`}
-                      />
-                    ))}
-                  </div>
+                {/* Bottom Navigation Dots */}
+                <div className="flex items-center gap-2 pt-2 select-none">
+                  {steps.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSelect(i)}
+                      className={`transition-all duration-300 rounded-full cursor-pointer border-0 ${i === active ? "w-6 h-2 bg-primary" : "w-2 h-2 bg-zinc-800 hover:bg-zinc-700"}`}
+                    />
+                  ))}
                 </div>
               </div>
+
             </div>
-
-          </div>{/* /two-col */}
-
-          {/* ── CTA strip ── */}
-          <div className="mt-16 rounded-2xl border border-neutral-700/50 bg-neutral-800/40 backdrop-blur-sm px-8 py-10 text-center shadow-[0_8px_40px_rgba(0,0,0,.3)]">
-            <p className="font-sans text-sm font-semibold uppercase tracking-widest text-green-400 mb-2">
-              Ready to get started?
-            </p>
-            <h3 className="font-sans text-2xl lg:text-3xl font-bold text-white mb-6">
-              Join thousands of specialists and start earning.
-            </h3>
-            <a
-              href="#"
-              className="inline-flex items-center gap-2.5 rounded-full bg-green-500 px-8 py-4 text-white text-[15px] font-bold no-underline shadow-[0_8px_28px_rgba(34,197,94,.35)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-green-600 hover:shadow-[0_14px_36px_rgba(34,197,94,.4)]"
-            >
-              Get Started — It's Free
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </a>
           </div>
 
         </div>
-      </section>
-    </>
+
+        {/* CTA callout band */}
+        <div className="mt-20 rounded-[24px] border border-zinc-900 bg-zinc-900/40 backdrop-blur-sm px-6 py-12 text-center shadow-sm font-sans flex flex-col items-center justify-center gap-6">
+          <div className="space-y-1">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
+              Ready to get started?
+            </p>
+            <h3 className="text-xl md:text-2xl font-semibold text-white">
+              Join thousands of specialists and start earning.
+            </h3>
+          </div>
+          <a
+            href="#"
+            className="inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3 text-white text-xs font-semibold shadow-sm hover:bg-primary-hover active:scale-[0.98] transition-all duration-200 select-none cursor-pointer"
+          >
+            Get Started — It's Free
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </a>
+        </div>
+
+      </div>
+    </section>
   );
 }
