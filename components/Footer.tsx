@@ -74,7 +74,7 @@ export function Footer() {
                   href={href}
                   target="_blank"
                   aria-label={label}
-                  className="w-8 h-8 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-550 hover:text-white hover:border-zinc-700 transition-colors duration-150 cursor-pointer"
+                  className="w-8 h-8 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors duration-150 cursor-pointer"
                 >
                   <Icon />
                 </Link>
@@ -146,7 +146,7 @@ export function Footer() {
 
       {/* Bottom bar */}
       <div className="border-t border-zinc-900/60 py-6">
-        <div className="max-w-[1200px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-sans text-zinc-650">
+        <div className="max-w-[1200px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-sans text-zinc-400">
           <p>
             &copy; 2026 Quickhands, Inc. All rights reserved.
           </p>

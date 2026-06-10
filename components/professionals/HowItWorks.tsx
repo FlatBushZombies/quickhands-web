@@ -167,7 +167,7 @@ export default function HowItWorks() {
                       <div className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-300 border
                         ${isActive
                           ? "bg-primary border-primary shadow-[0_4px_16px_rgba(38,192,141,0.25)] text-white"
-                          : "bg-zinc-900 border-zinc-800 text-zinc-550 group-hover:text-zinc-200"
+                          : "bg-zinc-900 border-zinc-800 text-zinc-400 group-hover:text-zinc-300"
                         }`}>
                         <StepIcon className="h-4.5 w-4.5" />
                       </div>
@@ -182,7 +182,7 @@ export default function HowItWorks() {
 
                     {/* Step Title + Preview Description */}
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-semibold tracking-wide transition-colors duration-200 ${isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-250"}`}>
+                      <p className={`text-xs font-semibold tracking-wide transition-colors duration-200 ${isActive ? "text-white" : "text-zinc-400 group-hover:text-zinc-300"}`}>
                         {step.title}
                       </p>
                       {isActive && (
@@ -190,7 +190,7 @@ export default function HowItWorks() {
                           initial={{ opacity: 0, y: 4 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3 }}
-                          className="text-[11.5px] text-zinc-450 mt-1 leading-relaxed font-light"
+                          className="text-[11.5px] text-zinc-400 mt-1 leading-relaxed font-light"
                         >
                           {step.description}
                         </motion.p>
@@ -219,7 +219,7 @@ export default function HowItWorks() {
               );
             })}
 
-            <p className="text-center text-[10px] font-bold text-zinc-650 mt-2 uppercase tracking-widest select-none">
+            <p className="text-center text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-widest select-none">
               Step <span className="text-primary font-bold">{active + 1}</span> of {steps.length}
             </p>
           </div>
