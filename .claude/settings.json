@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:www.pexels.com)",
+      "Bash(curl -sI \"https://images.pexels.com/photos/36085816/pexels-photo-36085816.jpeg?cs=srgb&dl=pexels-elite-power-group-661996115-36085816.jpg&fm=jpg\")",
+      "Bash(curl -sI \"https://images.pexels.com/photos/4175028/pexels-photo-4175028.jpeg\")",
+      "Bash(curl -sI \"https://images.pexels.com/photos/36085816/pexels-photo-36085816.jpeg?auto=compress&cs=tinysrgb&w=1600\")",
+      "Bash(curl -sI \"https://images.pexels.com/photos/4175028/pexels-photo-4175028.jpeg?auto=compress&cs=tinysrgb&w=1200\")"
+    ]
+  }
+}

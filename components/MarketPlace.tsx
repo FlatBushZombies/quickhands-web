@@ -208,7 +208,7 @@ export default function Marketplace() {
                 Across Africa &amp; Beyond
               </span>
             </div>
-            <h2 className="font-serif text-4xl md:text-5xl tracking-tight text-zinc-950 leading-tight">
+            <h2 className="font-serif font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-zinc-950 leading-tight">
               Trusted specialists<br />
               <span className="italic text-primary">near you</span>.
             </h2>
@@ -226,15 +226,15 @@ export default function Marketplace() {
             </p>
 
             {/* Metrics Row */}
-            <div className="grid grid-cols-2 border border-zinc-100 bg-white rounded-2xl overflow-hidden shadow-sm/30 divide-x divide-y divide-zinc-50">
+            <div className="grid grid-cols-2 border border-zinc-200 bg-white rounded-2xl overflow-hidden shadow-sm divide-x divide-y divide-zinc-200">
               {[
                 { n: "2M+", l: "Vetted experts" },
                 { n: "500K+", l: "Completed jobs" },
                 { n: "100%", l: "Secure pay" },
                 { n: "4.9★", l: "Avg rating" },
               ].map((s, i) => (
-                <div 
-                  className="flex flex-col p-3.5 font-sans hover:bg-emerald-50/10 transition-colors group relative" 
+                <div
+                  className="flex flex-col p-3.5 font-sans hover:bg-[var(--primary-light)] transition-colors group relative"
                   key={i}
                 >
                   <span className="text-md font-bold text-zinc-900 group-hover:text-primary transition-colors">{s.n}</span>
@@ -255,7 +255,10 @@ export default function Marketplace() {
         {loading ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 9 }).map((_, i) => (
-              <div key={i} className="bg-white border border-zinc-100 rounded-[24px] h-[340px] animate-pulse" />
+              <div
+                key={i}
+                className={`bg-white border border-zinc-200 shadow-sm rounded-[24px] h-[340px] animate-pulse ${i === 0 ? "lg:col-span-2" : ""}`}
+              />
             ))}
           </div>
         ) : (
@@ -263,7 +266,8 @@ export default function Marketplace() {
             {categories.map((cat, i) => {
               const accent = CATEGORY_ACCENTS[cat.title] ?? "#B45309"
               const Icon = CATEGORY_ICONS[cat.title] ?? Hammer
-              
+              const isFeatured = i === 0
+
               return (
                 <motion.div
                   key={cat.title}
@@ -271,56 +275,78 @@ export default function Marketplace() {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: Math.min(i * 0.03, 0.2) }}
                   viewport={{ once: true }}
-                  className="flex"
+                  className={`flex ${isFeatured ? "lg:col-span-2" : ""}`}
                 >
-                  <div className="group w-full bg-white border border-zinc-100 rounded-[24px] flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-                    
-                    {/* Index Card Header (Replaces Illustration Tray) */}
-                    <div 
-                      className="h-28 w-full relative overflow-hidden flex items-center justify-center border-b border-zinc-50"
-                      style={{ backgroundColor: `${accent}04` }}
-                    >
-                      <span className="absolute top-4 right-5 font-serif text-[13px] italic text-zinc-300 select-none">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <div 
-                        className="h-11 w-11 rounded-2xl flex items-center justify-center border transition-all duration-300 group-hover:scale-105"
-                        style={{ 
-                          borderColor: `${accent}15`, 
-                          backgroundColor: `${accent}05` 
-                        }}
-                      >
-                        <Icon className="h-5 w-5" style={{ color: accent }} />
+                  <div className="group w-full bg-white border border-zinc-200 rounded-[24px] flex flex-col justify-between overflow-hidden shadow-sm hover:border-primary/30 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+
+                    {/* Index Card Header (Replaces Illustration Tray) — featured card gets a real photographic treatment for depth */}
+                    {isFeatured ? (
+                      <div className="h-40 w-full relative overflow-hidden border-b border-zinc-200">
+                        <img
+                          src="https://images.pexels.com/photos/4175028/pexels-photo-4175028.jpeg?auto=compress&cs=tinysrgb&w=1200"
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/25 to-transparent" />
+                        <span className="absolute top-4 right-5 font-serif text-[13px] italic text-white/70 select-none">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <div className="absolute bottom-4 left-5">
+                          <div
+                            className="h-11.5 w-11.5 rounded-2xl flex items-center justify-center border border-white/20 bg-white/10 backdrop-blur-md transition-all duration-300 group-hover:scale-110"
+                          >
+                            <Icon className="h-5 w-5" style={{ color: accent }} />
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div
+                        className="h-28 w-full relative overflow-hidden flex items-center justify-center border-b border-zinc-200"
+                        style={{ backgroundColor: `${accent}04` }}
+                      >
+                        <span className="absolute top-4 right-5 font-serif text-[13px] italic text-zinc-300 select-none">
+                          {String(i + 1).padStart(2, "0")}
+                        </span>
+                        <div
+                          className="h-11.5 w-11.5 rounded-2xl flex items-center justify-center border transition-all duration-300 group-hover:scale-110"
+                          style={{
+                            borderColor: `${accent}18`,
+                            backgroundColor: `${accent}08`
+                          }}
+                        >
+                          <Icon className="h-5 w-5" style={{ color: accent }} />
+                        </div>
+                      </div>
+                    )}
 
                     {/* Card Body */}
                     <div className="p-6 flex-1 flex flex-col justify-between font-sans text-left">
                       <div className="space-y-4">
                         <div className="flex items-start justify-between gap-3">
-                          <h3 className="text-sm font-semibold text-zinc-900 group-hover:text-primary transition-colors duration-200">
+                          <h3 className="text-sm font-bold text-zinc-900 group-hover:text-primary transition-colors duration-200">
                             {cat.title}
                           </h3>
-                          <span className="text-[10px] font-bold text-zinc-400 tracking-wide shrink-0">
+                          <span className="text-[10px] font-bold text-zinc-400 tracking-wide shrink-0 bg-zinc-50 border border-zinc-200 rounded-full px-2 py-0.5">
                             {cat.hasLiveData
                               ? `${cat.totalCount.toLocaleString()} available`
                               : "0 available"}
                           </span>
                         </div>
 
-                        <div className="h-px bg-zinc-100/60" />
+                        <div className="h-px bg-zinc-200" />
 
-                        <ul className="space-y-2 text-[11.5px]">
+                        <ul className={`text-[11.5px] ${isFeatured ? "grid gap-2.5 lg:grid-cols-2 lg:gap-x-10" : "space-y-2.5"}`}>
                           {cat.hasLiveData ? (
                             cat.professions.slice(0, 4).map((p) => (
-                              <li key={p.profession} className="flex justify-between text-zinc-500 font-light">
+                              <li key={p.profession} className="flex justify-between text-zinc-500 font-light transition-colors duration-150 hover:text-zinc-800 cursor-pointer">
                                 <span>{p.profession}</span>
                                 <span className="font-semibold text-zinc-800">{p.count}</span>
                               </li>
                             ))
                           ) : (
                             (CATEGORY_PROFESSIONS[cat.title] ?? []).slice(0, 4).map((title) => (
-                              <li key={title} className="flex justify-between text-zinc-400 font-light">
+                              <li key={title} className="flex justify-between text-zinc-450 font-light hover:text-zinc-700 transition-colors duration-150 cursor-pointer">
                                 <span>{title}</span>
                                 <span>0</span>
                               </li>
@@ -330,7 +356,7 @@ export default function Marketplace() {
                       </div>
 
                       {/* Card Footer CTA */}
-                      <div className="border-t border-zinc-100/60 pt-4 mt-6 flex items-center justify-between text-xs text-zinc-800 group-hover:text-primary transition-colors font-semibold">
+                      <div className="border-t border-zinc-200 pt-4 mt-6 flex items-center justify-between text-xs text-zinc-800 group-hover:text-primary transition-colors font-semibold">
                         <span>{cat.hasLiveData ? "View specialists" : "Register profile"}</span>
                         <ArrowRight className="h-3.5 w-3.5 transform group-hover:translate-x-1 transition-transform" />
                       </div>
@@ -344,21 +370,22 @@ export default function Marketplace() {
         )}
 
         {/* ── App Banner (Editorial Callout) ── */}
-        <div className="mt-24 bg-zinc-950 border border-zinc-900 rounded-[32px] relative overflow-hidden text-white p-8 md:p-14 text-left group">
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[100px] pointer-events-none -z-10" />
+        <div className="mt-24 bg-zinc-950 border border-zinc-900 rounded-[32px] relative overflow-hidden text-white p-8 md:p-14 text-left group shadow-2xl">
+          <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-[radial-gradient(circle_at_center,rgba(38,192,141,0.14)_0%,rgba(38,192,141,0.01)_70%,transparent_100%)] rounded-full blur-[90px] pointer-events-none -z-10" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle,#ffffff01_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none -z-20" />
           <AfricaSilhouette forBanner={true} />
 
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
             
             {/* Left Info Box */}
             <div className="flex-1 space-y-6 max-w-xl">
-              <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3.5 py-1 text-[10px] font-semibold text-primary tracking-[0.08em] uppercase font-sans">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+              <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-3.5 py-1.5 text-[10px] font-semibold text-primary tracking-[0.08em] uppercase font-sans">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 animate-pulse" />
                 Launching Soon
               </div>
               
-              <h3 className="font-serif text-3xl md:text-5xl leading-tight text-white font-normal">
-                Try the <span className="italic text-primary">Quickhands</span> mobile app.
+              <h3 className="font-serif text-3xl md:text-5xl lg:text-6xl leading-tight text-white font-bold">
+                Try the <span className="italic text-primary font-bold">Quickhands</span> mobile app.
               </h3>
               
               <p className="font-sans text-sm text-zinc-400 font-light leading-relaxed">
@@ -366,12 +393,12 @@ export default function Marketplace() {
               </p>
 
               {/* Store Buttons */}
-              <div className="flex flex-wrap items-center gap-3 pt-2 font-sans">
-                <button className="h-10 px-5 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900 hover:bg-zinc-850 hover:border-zinc-700 text-xs font-semibold text-zinc-300 hover:text-white transition-all cursor-pointer">
+              <div className="flex flex-wrap items-center gap-3.5 pt-2 font-sans select-none">
+                <button className="h-10 px-5 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900 hover:bg-zinc-850 hover:border-zinc-700 text-xs font-semibold text-zinc-300 hover:text-white transition-all cursor-pointer shadow-sm">
                   <Image src="/icons/app-store.svg" alt="App Store" width={14} height={14} />
                   App Store
                 </button>
-                <button className="h-10 px-5 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900 hover:bg-zinc-850 hover:border-zinc-700 text-xs font-semibold text-zinc-300 hover:text-white transition-all cursor-pointer">
+                <button className="h-10 px-5 inline-flex items-center gap-2 rounded-full border border-zinc-800 bg-zinc-900 hover:bg-zinc-850 hover:border-zinc-700 text-xs font-semibold text-zinc-300 hover:text-white transition-all cursor-pointer shadow-sm">
                   <Image src="/icons/google-play.svg" alt="Google Play" width={14} height={14} />
                   Google Play
                 </button>
@@ -380,7 +407,7 @@ export default function Marketplace() {
 
             {/* Right Phone mockup container */}
             <div className="flex-shrink-0 relative hidden md:block">
-              <div className="relative border-[6px] border-zinc-800 rounded-[28px] p-1 bg-zinc-950 shadow-2xl">
+              <div className="relative border-[6px] border-zinc-800 rounded-[28px] p-1 bg-zinc-950 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] transition-transform duration-500 hover:scale-[1.01]">
                 <Image
                   src="/demo.png"
                   alt="Quickhands app demo"

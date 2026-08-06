@@ -131,8 +131,8 @@ export default function HowItWorks() {
               Simple Process
             </span>
           </div>
-          <h2 className="font-serif text-4xl md:text-5xl tracking-tight text-white mb-4 leading-tight">
-            How It <span className="italic text-primary font-normal">Works</span>.
+          <h2 className="font-serif font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-white mb-4 leading-tight">
+            How It <span className="italic text-primary font-bold">Works</span>.
           </h2>
           <p className="font-sans text-sm text-zinc-400 font-light leading-relaxed">
             Get started in minutes with our simple, transparent onboarding process for specialists.
@@ -157,8 +157,8 @@ export default function HowItWorks() {
                   onClick={() => handleSelect(i)}
                   className={`group relative w-full text-left rounded-[24px] px-6 py-4.5 border transition-all duration-300 cursor-pointer focus:outline-none
                     ${isActive
-                      ? "bg-zinc-900 border-primary/20 shadow-md"
-                      : "bg-transparent border-transparent hover:bg-zinc-900/40 hover:border-zinc-800/80"
+                      ? "bg-zinc-900 border-zinc-800 border-l-2 border-l-primary shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+                      : "bg-transparent border-transparent hover:bg-zinc-900/30 hover:border-zinc-900/80"
                     }`}
                 >
                   <div className="flex items-center gap-4">
@@ -167,14 +167,14 @@ export default function HowItWorks() {
                       <div className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-300 border
                         ${isActive
                           ? "bg-primary border-primary shadow-[0_4px_16px_rgba(38,192,141,0.25)] text-white"
-                          : "bg-zinc-900 border-zinc-800 text-zinc-400 group-hover:text-zinc-300"
+                          : "bg-zinc-900 border-zinc-800 text-zinc-400 group-hover:text-zinc-300 group-hover:bg-zinc-850"
                         }`}>
                         <StepIcon className="h-4.5 w-4.5" />
                       </div>
                       <div className={`absolute -top-1.5 -right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full text-[9px] font-bold border transition-all duration-300 font-sans
                         ${isActive
                           ? "bg-primary border-zinc-900 text-white"
-                          : "bg-zinc-800 border-zinc-900 text-zinc-500"
+                          : "bg-zinc-850 border-zinc-900 text-zinc-500 group-hover:text-zinc-400"
                         }`}>
                         {i + 1}
                       </div>
@@ -226,7 +226,7 @@ export default function HowItWorks() {
 
           {/* RIGHT COLUMN: Photo + detail card */}
           <div className="lg:col-span-7 w-full">
-            <div className="relative rounded-[24px] overflow-hidden border border-zinc-900 bg-zinc-900/60 shadow-lg">
+            <div className="relative rounded-[24px] overflow-hidden border border-zinc-850 bg-zinc-900/40 backdrop-blur-sm shadow-xl hover:border-zinc-800 transition-colors duration-350">
               
               {/* Image Frame */}
               <div className="relative h-[280px] sm:h-[350px] lg:h-[400px] overflow-hidden select-none">
@@ -251,7 +251,7 @@ export default function HowItWorks() {
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent pointer-events-none" />
 
                 {/* Custom Step badge */}
-                <div className="absolute top-5 left-5 flex items-center gap-2 bg-zinc-950/75 backdrop-blur-md rounded-full pl-2 pr-3.5 py-1.5 border border-zinc-900/80">
+                <div className="absolute top-5 left-5 flex items-center gap-2 bg-zinc-950/80 backdrop-blur-md rounded-full pl-2 pr-3.5 py-1.5 border border-zinc-900/80">
                   <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white text-[11px] font-bold font-sans">
                     {active + 1}
                   </div>
@@ -262,7 +262,7 @@ export default function HowItWorks() {
 
                 {/* Stat tag if exists */}
                 {current.stat && (
-                  <div className="absolute top-5 right-5 bg-primary/95 backdrop-blur-sm rounded-full px-3.5 py-1.5 shadow-[0_4px_16px_rgba(38,192,141,0.2)]">
+                  <div className="absolute top-5 right-5 bg-primary/95 backdrop-blur-sm rounded-full px-3.5 py-1.5 shadow-[0_4px_16px_rgba(38,192,141,0.25)] border border-primary/20">
                     <p className="text-white text-[10.5px] font-semibold tracking-wide font-sans">
                       {current.stat}
                     </p>
@@ -273,11 +273,11 @@ export default function HowItWorks() {
               {/* Card Footer Text */}
               <div className="p-7 font-sans text-left space-y-4">
                 <div className="flex items-start gap-3.5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-800 border border-zinc-700/80 text-primary">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-primary shadow-[0_4px_12px_rgba(38,192,141,0.1)]">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-md font-semibold text-white mt-2 leading-none">
+                    <h3 className="text-md font-bold text-white mt-2 leading-none">
                       {current.title}
                     </h3>
                   </div>
@@ -305,18 +305,18 @@ export default function HowItWorks() {
         </div>
 
         {/* CTA callout band */}
-        <div className="mt-20 rounded-[24px] border border-zinc-900 bg-zinc-900/40 backdrop-blur-sm px-6 py-12 text-center shadow-sm font-sans flex flex-col items-center justify-center gap-6">
+        <div className="mt-20 rounded-[24px] border border-zinc-850 bg-zinc-900/20 backdrop-blur-sm px-6 py-12 text-center shadow-lg font-sans flex flex-col items-center justify-center gap-6">
           <div className="space-y-1">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
               Ready to get started?
             </p>
-            <h3 className="text-xl md:text-2xl font-semibold text-white">
+            <h3 className="text-xl md:text-3xl font-bold text-white">
               Join thousands of specialists and start earning.
             </h3>
           </div>
           <a
             href="#"
-            className="inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3 text-white text-xs font-semibold shadow-sm hover:bg-primary-hover active:scale-[0.98] transition-all duration-200 select-none cursor-pointer"
+            className="inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3.5 text-white text-xs font-semibold shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] hover:bg-primary-hover active:scale-[0.97] transition-all duration-200 select-none cursor-pointer"
           >
             Get Started — It's Free
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

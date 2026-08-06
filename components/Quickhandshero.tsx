@@ -101,7 +101,7 @@ export default function QuickHandsHero() {
           className="text-left flex flex-col gap-6"
         >
           {/* Eyebrow Badge */}
-          <div className="inline-flex items-center gap-2 bg-primary/5 border border-primary/10 rounded-full px-3.5 py-1 self-start select-none">
+          <div className="inline-flex items-center gap-2 bg-primary/5 border border-primary/15 rounded-full px-4 py-1.5 self-start select-none shadow-[0_2px_10px_rgba(38,192,141,0.04)] hover:bg-primary/8 transition-colors duration-200">
             <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 animate-pulse" />
             <span className="text-[10px] font-semibold text-primary tracking-[0.08em] uppercase font-sans">
               Now available in your area
@@ -109,8 +109,8 @@ export default function QuickHandsHero() {
           </div>
 
           {/* Headline - Signifier */}
-          <h1 className="font-serif text-[42px] sm:text-5xl md:text-[68px] tracking-[-0.025em] leading-[1.06] text-zinc-950 font-normal">
-            Be your own <span className="italic text-primary font-normal">boss</span>.
+          <h1 className="font-serif text-[46px] sm:text-6xl md:text-[76px] tracking-[-0.025em] leading-[1.04] text-zinc-950 font-bold">
+            Be your own <span className="italic text-primary font-bold">boss</span>.
           </h1>
 
           {/* Sub-copy - Sohne */}
@@ -121,7 +121,7 @@ export default function QuickHandsHero() {
           {/* Feature list */}
           <ul className="flex flex-col gap-3 font-sans select-none">
             {FEATURES.map((f, i) => (
-              <li key={i} className="flex items-center gap-3 text-xs text-zinc-500 font-light">
+              <li key={i} className="flex items-center gap-3 text-xs text-zinc-500 font-light transition-all duration-200 hover:text-zinc-800 hover:translate-x-0.5 cursor-pointer">
                 <CheckIcon />
                 <span>{f}</span>
               </li>
@@ -133,7 +133,7 @@ export default function QuickHandsHero() {
             <OnboardingModal>
               <button
                 type="button"
-                className="group inline-flex items-center gap-3 rounded-full bg-primary px-7 py-3 text-white text-xs font-semibold hover:bg-primary-hover shadow-sm transition-all duration-200 active:scale-[0.98] cursor-pointer"
+                className="group inline-flex items-center gap-3 rounded-full bg-primary px-7 py-3 text-white text-xs font-semibold hover:bg-primary-hover shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] transition-all duration-200 active:scale-[0.97] cursor-pointer"
               >
                 Register as a specialist
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20 transition-transform duration-200 group-hover:translate-x-0.5">
@@ -144,7 +144,7 @@ export default function QuickHandsHero() {
           </div>
 
           {/* Disclaimer & Counter */}
-          <div className="space-y-2.5 font-sans mt-4 border-t border-zinc-50 pt-6">
+          <div className="space-y-2.5 font-sans mt-4 border-t border-zinc-200 pt-6">
             <p className="text-[11px] text-zinc-400 font-light">
               We'll send you a confirmation code — no spam, no advertising.
             </p>
@@ -166,12 +166,12 @@ export default function QuickHandsHero() {
         >
           {/* Decorative backdrop shape */}
           <div
-            className="absolute top-[-12px] left-[-12px] w-[80%] h-full rounded-[32px] opacity-[0.06] pointer-events-none"
+            className="absolute top-[-12px] left-[-12px] w-[80%] h-full rounded-[32px] opacity-[0.05] pointer-events-none"
             style={{ background: "linear-gradient(135deg,#26C08D 0%,#1FA777 100%)" }}
           />
 
           {/* Core photo frame */}
-          <div className="absolute top-3 left-0 w-[80%] h-full rounded-[32px] overflow-hidden border border-zinc-100 shadow-md">
+          <div className="absolute top-3 left-0 w-[80%] h-full rounded-[32px] overflow-hidden border border-zinc-200 shadow-lg">
             <img
               src={imgSrc}
               alt="Professional tasker at work"
@@ -184,7 +184,7 @@ export default function QuickHandsHero() {
           <motion.div
             animate={{ y: [0, -8, 0] }}
             transition={{ repeat: Infinity, repeatType: "mirror", duration: 3.6, ease: "easeInOut" }}
-            className="absolute top-6 right-0 w-[210px] bg-white border border-zinc-100 rounded-[24px] px-5 py-4 shadow-sm z-10 text-left font-sans space-y-3"
+            className="absolute top-6 right-0 w-[210px] bg-white/90 backdrop-blur-md border border-zinc-250/80 rounded-[24px] px-5 py-4 shadow-[0_10px_30px_-6px_rgba(0,0,0,0.06)] z-10 text-left font-sans space-y-3"
           >
             <div className="flex items-center gap-1.5 text-[9px] font-bold text-zinc-400 uppercase tracking-wider">
               <span className="w-4 h-4 rounded-full bg-emerald-50 text-primary flex items-center justify-center shrink-0">
@@ -195,7 +195,7 @@ export default function QuickHandsHero() {
             <div className="flex items-center justify-between gap-2">
               <div>
                 <p className="text-xs font-semibold text-zinc-900 leading-none">Paint chairs</p>
-                <p className="text-[10px] text-zinc-400 mt-1 font-light">2h ago</p>
+                <p className="text-[10px] text-zinc-450 mt-1 font-light">2h ago</p>
               </div>
               <span className="text-lg font-bold text-primary">$179</span>
             </div>
@@ -205,7 +205,7 @@ export default function QuickHandsHero() {
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ repeat: Infinity, repeatType: "mirror", duration: 3.2, ease: "easeInOut", delay: 0.4 }}
-            className="absolute top-[42%] right-[-10px] flex items-center gap-2.5 rounded-full bg-primary px-4.5 py-2.5 text-white text-xs font-semibold shadow-sm z-10 whitespace-nowrap cursor-pointer font-sans"
+            className="absolute top-[42%] right-[-10px] flex items-center gap-2.5 rounded-full bg-primary px-4.5 py-2.5 text-white text-xs font-semibold shadow-[0_4px_14px_rgba(38,192,141,0.3)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.4)] z-10 whitespace-nowrap cursor-pointer font-sans active:scale-95 transition-transform"
           >
             <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0">
               <BellIcon />
@@ -217,7 +217,7 @@ export default function QuickHandsHero() {
           <motion.div
             animate={{ y: [0, -6, 0] }}
             transition={{ repeat: Infinity, repeatType: "mirror", duration: 4.0, ease: "easeInOut", delay: 0.2 }}
-            className="absolute bottom-4 right-0 w-[200px] bg-white border border-zinc-100 rounded-[24px] px-5 py-4 shadow-sm z-10 text-left font-sans space-y-3.5"
+            className="absolute bottom-4 right-0 w-[200px] bg-white/95 backdrop-blur-md border border-zinc-250/80 rounded-[24px] px-5 py-4 shadow-[0_12px_36px_-6px_rgba(0,0,0,0.06)] z-10 text-left font-sans space-y-3.5"
           >
             <div>
               <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider">Total earnings</p>
@@ -227,7 +227,7 @@ export default function QuickHandsHero() {
               <TrendUpIcon />
               <span>+20% vs last month</span>
             </div>
-            <div className="pt-2 border-t border-zinc-50">
+            <div className="pt-2 border-t border-zinc-200">
               <MiniChart />
             </div>
           </motion.div>

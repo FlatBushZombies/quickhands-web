@@ -42,18 +42,21 @@ const FacebookIcon = () => (
 
 export function Footer() {
   return (
-    <footer id="footer" className="w-full bg-zinc-950 border-t border-zinc-900">
+    <footer id="footer" className="w-full bg-zinc-950 border-t border-zinc-900/80 relative overflow-hidden">
+      {/* Soft background glow */}
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/[0.01] rounded-full blur-[100px] pointer-events-none -z-10" />
+
       {/* Main footer content */}
-      <div className="max-w-[1200px] mx-auto px-6 py-20">
-        <div className="flex flex-col lg:flex-row lg:justify-between gap-12">
+      <div className="max-w-[1200px] mx-auto px-6 py-20 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
 
           {/* Left: Logo + description + social */}
-          <div className="flex flex-col gap-6 max-w-[280px] text-left">
+          <div className="lg:col-span-5 flex flex-col gap-6 max-w-[280px] text-left">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="relative h-7 w-7 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden shrink-0 flex items-center justify-center">
-                <Image src="/quickhands.png" alt="Quickhands Logo" fill className="opacity-90 object-contain p-0.5" />
+              <div className="relative h-7 w-7 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden shrink-0 flex items-center justify-center transition-transform duration-350 group-hover:rotate-6">
+                <Image src="/quickhands.png" alt="Quickhands Logo" fill className="opacity-95 object-contain p-0.5" />
               </div>
-              <span className="text-sm font-semibold text-white tracking-tight font-sans">
+              <span className="text-sm font-semibold text-white tracking-tight font-sans transition-colors group-hover:text-primary">
                 Quickhands Africa
               </span>
             </Link>
@@ -74,7 +77,7 @@ export function Footer() {
                   href={href}
                   target="_blank"
                   aria-label={label}
-                  className="w-8 h-8 rounded-full border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-700 transition-colors duration-150 cursor-pointer"
+                  className="w-8 h-8 rounded-full border border-zinc-900 bg-zinc-950 flex items-center justify-center text-zinc-400 hover:text-white hover:border-zinc-800 hover:bg-zinc-900 active:scale-90 transition-all duration-200 cursor-pointer shadow-sm"
                 >
                   <Icon />
                 </Link>
@@ -83,7 +86,7 @@ export function Footer() {
           </div>
 
           {/* Right: Link columns */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-16 text-left font-sans">
+          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-12 text-left font-sans">
             {/* For Clients */}
             <div>
               <h3 className="mb-5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em]">

@@ -31,43 +31,41 @@ export function ProfessionalsHeader() {
 
   return (
     <>
-      <div className="sticky top-4 z-50 px-4 sm:px-6">
+      <div className="sticky top-5 z-50 px-4 sm:px-6">
         <header
           className={cn(
             "mx-auto w-full max-w-6xl transition-all duration-300 relative",
-            "rounded-full backdrop-blur-xl",
-            "bg-white/85",
+            "rounded-full backdrop-blur-md",
             scrolled
-              ? "shadow-sm border border-zinc-200/80 py-1"
-              : "shadow-[0_2px_15px_-4px_rgba(0,0,0,0.04)] border border-zinc-100 py-1.5"
+              ? "bg-white/90 border border-zinc-200/80 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.08)] py-1"
+              : "bg-white/75 border border-zinc-150/50 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.04)] py-2"
           )}
         >
-          <nav className="flex items-center justify-between px-4">
+          <nav className="flex items-center justify-between px-5">
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
-              <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-100 bg-zinc-50 shadow-sm flex-shrink-0">
+              <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-200/60 bg-zinc-50 shadow-sm flex-shrink-0 transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
                 <Image
                   src="/quickhands.png"
                   alt="Quickhands"
                   fill
-                  className="object-contain p-1 transition-transform duration-200 group-hover:scale-110"
+                  className="object-contain p-1"
                 />
               </div>
-              <span className="text-xs font-semibold tracking-tight transition group-hover:opacity-80 font-sans text-zinc-900">
+              <span className="text-xs font-semibold tracking-tight transition-colors duration-200 group-hover:text-primary font-sans text-zinc-900">
                 Quickhands Africa
               </span>
             </Link>
 
             {/* Desktop nav */}
-            <div className="hidden lg:flex items-center gap-1 font-sans">
+            <div className="hidden lg:flex items-center gap-1.5 font-sans">
               {links.map((link) => (
                 <Link
                   key={link.label}
                   href={link.href}
                   className={cn(
-                    buttonVariants({ variant: "ghost", size: "sm" }),
-                    "rounded-full text-xs text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50",
+                    "rounded-full text-xs font-medium text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 px-3.5 py-1.5",
                     "transition-all duration-200 relative"
                   )}
                 >
@@ -75,12 +73,12 @@ export function ProfessionalsHeader() {
                 </Link>
               ))}
 
-              <div className="w-px h-4 bg-zinc-100 mx-1.5" />
+              <div className="w-px h-4 bg-zinc-200/60 mx-2" />
 
               <OnboardingModal>
                 <Button
                   size="sm"
-                  className="rounded-full px-5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover shadow-sm transition-all cursor-pointer"
+                  className="rounded-full px-5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover active:scale-[0.97] shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] transition-all duration-200 cursor-pointer border-0"
                 >
                   Register
                 </Button>
@@ -102,11 +100,11 @@ export function ProfessionalsHeader() {
 
                 <SheetContent
                   side="left"
-                  className="flex flex-col w-72 bg-white/95 backdrop-blur-xl border-r border-zinc-100"
+                  className="flex flex-col w-72 bg-white/95 backdrop-blur-xl border-r border-zinc-200"
                   showClose={false}
                 >
                   {/* Logo */}
-                  <div className="flex items-center gap-2.5 pt-2 pb-6 border-b border-zinc-100">
+                  <div className="flex items-center gap-2.5 pt-2 pb-6 border-b border-zinc-200">
                     <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-150 bg-zinc-50 shadow-sm flex-shrink-0">
                       <Image
                         src="/quickhands.png"
@@ -136,7 +134,7 @@ export function ProfessionalsHeader() {
                     ))}
                   </div>
 
-                  <div className="mt-auto space-y-2 border-t border-zinc-100 pt-4 font-sans">
+                  <div className="mt-auto space-y-2 border-t border-zinc-200 pt-4 font-sans">
                     <OnboardingModal>
                       <Button className="w-full rounded-full text-xs font-semibold h-10 bg-primary text-white hover:bg-primary-hover shadow-sm">
                         Register

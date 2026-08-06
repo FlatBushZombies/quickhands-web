@@ -72,7 +72,7 @@ export function FaqSection() {
             </div>
 
             {/* Title - Signifier */}
-            <h2 className="font-serif text-4xl lg:text-5xl leading-[1.1] tracking-tight text-white mb-2">
+            <h2 className="font-serif font-bold text-4xl lg:text-6xl leading-[1.05] tracking-tight text-white mb-2">
               Frequently Asked Questions
             </h2>
 
@@ -95,9 +95,9 @@ export function FaqSection() {
             {/* Custom Interactive Widget (Replaces static SVG Illustration) */}
             <div className="relative mt-8 max-w-xs select-none">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-[24px] blur-xl" />
-              <div className="relative rounded-[24px] border border-zinc-850 bg-zinc-900/80 backdrop-blur-sm p-5 space-y-4">
+              <div className="relative rounded-[24px] border border-zinc-850 bg-zinc-900/90 backdrop-blur-md p-5 space-y-4 shadow-xl">
                 <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-zinc-800 flex items-center justify-center border border-zinc-750">
+                  <div className="h-8.5 w-8.5 rounded-lg bg-zinc-800 flex items-center justify-center border border-zinc-750 transition-colors group-hover:border-primary/30">
                     <MessageCircle className="h-4 w-4 text-primary" />
                   </div>
                   <div>
@@ -108,11 +108,11 @@ export function FaqSection() {
                 <div className="bg-zinc-850/40 rounded-xl p-3 border border-zinc-850/50 text-[11px] text-zinc-400 leading-normal font-light">
                   "Hello! I am here to help you get registered as a specialist. What skills do you have?"
                 </div>
-                <div className="flex items-center bg-zinc-950 border border-zinc-850 rounded-full p-1 shadow-sm">
-                  <div className="w-full text-left bg-transparent px-3 text-[10px] text-zinc-650 font-light">
+                <div className="flex items-center bg-zinc-950 border border-zinc-850 rounded-full p-1.5 shadow-inner">
+                  <div className="w-full text-left bg-transparent px-3 text-[10px] text-zinc-500 font-light">
                     Type your question...
                   </div>
-                  <button className="h-6 w-6 rounded-full bg-primary flex items-center justify-center shrink-0 cursor-pointer">
+                  <button className="h-6.5 w-6.5 rounded-full bg-primary flex items-center justify-center shrink-0 cursor-pointer shadow-[0_2px_8px_rgba(38,192,141,0.25)] hover:bg-primary-hover active:scale-95 transition-all">
                     <ArrowRight className="h-3 w-3 text-white" />
                   </button>
                 </div>
@@ -127,12 +127,12 @@ export function FaqSection() {
                 <AccordionItem
                   key={index}
                   value={`item-${index}`}
-                  className="group border border-zinc-900 bg-zinc-900/40 rounded-[24px] px-6 py-1
-                    data-[state=open]:bg-zinc-900 data-[state=open]:border-primary/25 
-                    transition-all duration-300 hover:border-zinc-800 shadow-sm/30"
+                  className="group border border-zinc-900 bg-zinc-900/30 rounded-[24px] px-6 py-1
+                    data-[state=open]:bg-zinc-900 data-[state=open]:border-primary/20 data-[state=open]:border-l-primary data-[state=open]:border-l-2
+                    transition-all duration-300 hover:border-zinc-850 shadow-[0_4px_20px_rgba(0,0,0,0.01)]"
                 >
                   <AccordionTrigger
-                    className="py-5 text-left text-[14.5px] font-semibold text-zinc-200 
+                    className="py-5 text-left text-[14.5px] font-semibold text-zinc-300 
                       hover:text-white hover:no-underline transition-colors duration-150 border-0 focus:outline-none"
                   >
                     {faq.question}

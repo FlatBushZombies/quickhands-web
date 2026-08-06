@@ -6,6 +6,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { ClientLogin } from "./ClientLogin"
 
 const faqs = [
   {
@@ -37,20 +38,20 @@ export function ClientFAQ() {
       <div className="absolute top-1/2 left-0 w-[400px] h-[400px] bg-primary/3 rounded-full blur-[110px] pointer-events-none -z-10" />
 
       <div className="max-w-[1200px] mx-auto px-6">
-        <div className="mx-auto max-w-3xl">
-          
-          {/* Section Header */}
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="font-serif text-4xl md:text-5xl tracking-tight text-zinc-950 leading-tight">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+
+          {/* Section Header — sticky rail on desktop */}
+          <div className="lg:col-span-5 lg:sticky lg:top-32 text-center lg:text-left space-y-4">
+            <h2 className="font-serif font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-zinc-950 leading-tight">
               Frequently Asked Questions
             </h2>
-            <p className="font-sans text-sm text-zinc-500 font-light max-w-md mx-auto leading-relaxed">
+            <p className="font-sans text-sm text-zinc-500 font-light max-w-md mx-auto lg:mx-0 leading-relaxed">
               Everything you need to know about secure client-specialist cooperation on Quickhands.
             </p>
           </div>
 
           {/* Premium Ceramic FAQ Accordions */}
-          <Accordion type="single" collapsible className="space-y-4 font-sans">
+          <Accordion type="single" collapsible className="lg:col-span-7 space-y-4 font-sans">
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
@@ -58,9 +59,10 @@ export function ClientFAQ() {
                 className={[
                   "rounded-[24px]",
                   "bg-white text-zinc-900",
-                  "border border-zinc-100",
-                  "shadow-sm/50",
-                  "hover:shadow-sm hover:border-zinc-200",
+                  "border border-zinc-200",
+                  "shadow-sm",
+                  "data-[state=open]:border-primary/30 data-[state=open]:shadow-md data-[state=open]:bg-[var(--primary-light)]",
+                  "hover:border-zinc-300 hover:shadow-md",
                   "transition-all duration-300",
                   "overflow-hidden px-6 py-1",
                 ].join(" ")}
@@ -68,15 +70,15 @@ export function ClientFAQ() {
                 <AccordionTrigger
                   className={[
                     "py-5",
-                    "text-left font-sans text-[14.5px] font-semibold text-zinc-900",
-                    "hover:no-underline",
+                    "text-left font-sans text-[14.5px] font-semibold text-zinc-900 hover:text-primary",
+                    "hover:no-underline transition-colors duration-150",
                     "border-0 focus:outline-none",
                   ].join(" ")}
                 >
                   {faq.question}
                 </AccordionTrigger>
 
-                <AccordionContent className="pt-1 pb-5 border-t border-zinc-50">
+                <AccordionContent className="pt-1 pb-5 border-t border-zinc-200">
                   <p className="font-sans text-[12.5px] text-zinc-500 leading-relaxed font-light mt-3">
                     {faq.answer}
                   </p>
@@ -84,6 +86,21 @@ export function ClientFAQ() {
               </AccordionItem>
             ))}
           </Accordion>
+        </div>
+
+        {/* Closing CTA band — bookends the page with the same promise and CTA the Hero opened with */}
+        <div className="mt-28 rounded-[32px] border border-zinc-200 bg-[var(--primary-light)] shadow-sm px-8 py-14 md:px-16 md:py-16 text-center flex flex-col items-center gap-7">
+          <h3 className="font-serif text-3xl md:text-[48px] tracking-[-0.02em] leading-[1.08] text-zinc-950 font-bold max-w-2xl">
+            Quickly find the right <span className="italic text-primary font-bold">specialists</span> for your tasks.
+          </h3>
+          <ClientLogin>
+            <button
+              type="button"
+              className="h-12 px-8 font-sans text-xs font-semibold rounded-full bg-primary text-white hover:bg-primary-hover active:scale-[0.97] transition-all duration-200 shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] cursor-pointer"
+            >
+              Get Started
+            </button>
+          </ClientLogin>
         </div>
       </div>
     </section>
