@@ -78,7 +78,7 @@
 }
 
 @theme inline {
-  --font-sans: "Sohne", var(--font-inter), "Inter", "General Sans", "Untitled Sans", sans-serif;
+  --font-sans: var(--font-onest), "Sohne", var(--font-inter), "Inter", "General Sans", "Untitled Sans", sans-serif;
   --font-serif: "Signifier", var(--font-newsreader), "Newsreader", "Playfair Display", "Georgia", serif;
   --font-mono: var(--font-martian-mono), monospace;
 

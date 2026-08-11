@@ -11,7 +11,7 @@ export default function ProfessionalCounter() {
     try {
       const res = await fetch("/api/onboarding")
       const data = await res.json()
-      if (prevCountRef.current !== data.count) {
+      if (typeof data.count === "number" && prevCountRef.current !== data.count) {
         prevCountRef.current = data.count
         setCount(data.count)
         setTick(t => t + 1)

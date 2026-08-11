@@ -1,20 +1,30 @@
-import { Header } from "@/components/Header"
-import { HeroSection } from "@/components/HeroSection"
-import { HowItWorks } from "@/components/HowItWorks"
-import Marketplace from "@/components/MarketPlace"
+"use client"
+
+import { useState } from "react"
+import { IntroLoader } from "@/components/quickhands/IntroLoader"
+import { Header } from "@/components/quickhands/Header"
+import { Hero } from "@/components/quickhands/Hero"
+import { HowItWorks } from "@/components/quickhands/HowItWorks"
+import { TaskCategories } from "@/components/quickhands/TaskCategories"
+import { MarketplacePreview } from "@/components/quickhands/MarketplacePreview"
+import { TaskerSection } from "@/components/quickhands/TaskerSection"
+import { Stats } from "@/components/quickhands/Stats"
 import { Footer } from "@/components/Footer"
-import { Features } from "@/components/Features"
 import { ClientFAQ } from "@/components/ClientFAQ"
 
-
 export default function Home() {
+  const [introDone, setIntroDone] = useState(false)
+
   return (
     <>
+      <IntroLoader onComplete={() => setIntroDone(true)} />
       <Header />
-      <HeroSection />
-      <Features />
+      <Hero ready={introDone} />
       <HowItWorks />
-      <Marketplace />
+      <TaskCategories />
+      <MarketplacePreview />
+      <TaskerSection />
+      <Stats />
       <ClientFAQ />
       <Footer />
     </>

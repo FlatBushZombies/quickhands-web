@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Newsreader, Inter, Martian_Mono } from "next/font/google"
+import { Newsreader, Inter, Martian_Mono, Onest } from "next/font/google"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
 import CookieConsent from "@/components/cookie-consent/CookieConsent"
@@ -16,6 +16,13 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+})
+
+const onest = Onest({
+  variable: "--font-onest",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
 })
 
 const martianMono = Martian_Mono({
@@ -85,6 +92,7 @@ export default function RootLayout({
       <html lang="en">
         <body
           className={`
+            ${onest.variable}
             ${inter.variable}
             ${newsreader.variable}
             ${martianMono.variable}
