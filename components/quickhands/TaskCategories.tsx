@@ -54,14 +54,14 @@ export function TaskCategories() {
   }
 
   return (
-    <section id="tasks" className="relative bg-[var(--primary-light)] py-28 lg:py-36">
+    <section id="tasks" className="relative scroll-mt-28 bg-[var(--primary-light)] py-28 lg:py-36">
       <div className="mx-auto max-w-[1200px] px-6">
         {/* Header */}
         <div className="mb-14 flex flex-col items-start gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <div className="max-w-xl">
             <Eyebrow>Popular tasks</Eyebrow>
             <h2 className="mt-4 font-serif text-4xl font-medium leading-[1.05] tracking-tight text-zinc-950 md:text-5xl lg:text-6xl">
-              What can you get <span className="italic text-primary">done?</span>
+              What can you get done?
             </h2>
           </div>
           <p className="max-w-xs font-sans text-sm font-light leading-relaxed text-zinc-500">

@@ -54,14 +54,14 @@ export function HowItWorks() {
   }
 
   return (
-    <section id="how-it-works" className="relative overflow-hidden bg-white py-28 lg:py-36">
+    <section id="how-it-works" className="relative scroll-mt-28 overflow-hidden bg-white py-28 lg:py-36">
       <div className="mx-auto max-w-[1200px] px-6">
         {/* Header */}
         <div className="mb-20 flex flex-col items-start gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <div className="max-w-xl">
             <Eyebrow>How it works</Eyebrow>
             <h2 className="mt-4 font-serif text-4xl font-medium leading-[1.05] tracking-tight text-zinc-950 md:text-5xl lg:text-6xl">
-              Four steps. <span className="italic text-primary">No friction.</span>
+              Four steps. No friction.
             </h2>
           </div>
           <p className="max-w-xs font-sans text-sm font-light leading-relaxed text-zinc-500">

@@ -47,11 +47,11 @@ export function Footer() {
       <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/[0.01] rounded-full blur-[100px] pointer-events-none -z-10" />
 
       {/* Main footer content */}
-      <div className="max-w-[1200px] mx-auto px-6 py-20 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
+      <div className="max-w-[1200px] mx-auto px-6 py-24 lg:py-28 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
 
           {/* Left: Logo + description + social */}
-          <div className="lg:col-span-5 flex flex-col gap-6 max-w-[280px] text-left">
+          <div className="lg:col-span-5 flex flex-col gap-7 max-w-[300px] text-left pb-10 border-b border-zinc-900/60 lg:pb-0 lg:border-b-0 lg:border-r lg:border-zinc-900/60 lg:pr-12">
             <Link href="/" className="flex items-center gap-2.5 group">
               <div className="relative h-7 w-7 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden shrink-0 flex items-center justify-center transition-transform duration-350 group-hover:rotate-6">
                 <Image src="/quickhands.png" alt="Quickhands Logo" fill className="opacity-95 object-contain p-0.5" />
@@ -61,7 +61,7 @@ export function Footer() {
               </span>
             </Link>
 
-            <p className="text-xs text-zinc-400 leading-relaxed font-sans font-light">
+            <p className="text-[13px] text-zinc-400 leading-relaxed font-sans font-light">
               The complete directory and secure matches platform for clients and specialists to connect, collaborate, and get jobs done.
             </p>
 
@@ -89,10 +89,10 @@ export function Footer() {
           <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-10 lg:gap-12 text-left font-sans">
             {/* For Clients */}
             <div>
-              <h3 className="mb-5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em]">
+              <h3 className="mb-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.16em]">
                 For Clients
               </h3>
-              <ul className="flex flex-col gap-3.5">
+              <ul className="flex flex-col gap-4">
                 {footerLinks.forClients.map((link) => (
                   <li key={link.title}>
                     <Link
@@ -108,10 +108,10 @@ export function Footer() {
 
             {/* For Specialists */}
             <div>
-              <h3 className="mb-5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em]">
+              <h3 className="mb-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.16em]">
                 For Specialists
               </h3>
-              <ul className="flex flex-col gap-3.5">
+              <ul className="flex flex-col gap-4">
                 {footerLinks.forSpecialists.map((link) => (
                   <li key={link.title}>
                     <Link
@@ -127,10 +127,10 @@ export function Footer() {
 
             {/* Company */}
             <div>
-              <h3 className="mb-5 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.14em]">
+              <h3 className="mb-6 text-[10px] font-bold text-zinc-500 uppercase tracking-[0.16em]">
                 Company
               </h3>
-              <ul className="flex flex-col gap-3.5">
+              <ul className="flex flex-col gap-4">
                 {footerLinks.company.map((link) => (
                   <li key={link.title}>
                     <Link
@@ -162,7 +162,7 @@ export function Footer() {
               <Link
                 key={link.title}
                 href={link.href}
-                className="hover:text-zinc-400 transition-colors duration-150"
+                className="hover:text-white transition-colors duration-150"
               >
                 {link.title}
               </Link>

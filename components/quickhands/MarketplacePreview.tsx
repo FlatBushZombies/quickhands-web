@@ -65,7 +65,7 @@ export function MarketplacePreview() {
         <div className="mb-16 max-w-xl">
           <Eyebrow tone="dark">See it in action</Eyebrow>
           <h2 className="mt-4 font-serif text-4xl font-medium leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl">
-            Post a task. <span className="italic text-primary">Meet your match.</span>
+            Post a task. Meet your match.
           </h2>
           <p className="mt-5 max-w-md font-sans text-sm font-light leading-relaxed text-zinc-400">
             Here's what it looks like — a real task, matched with real local

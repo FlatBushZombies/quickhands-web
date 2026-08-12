@@ -64,9 +64,9 @@ export function FaqSection() {
           {/* Left Column — Sticky Info */}
           <div className="lg:sticky lg:top-28 text-left font-sans flex flex-col gap-5">
             {/* Label */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-zinc-850 bg-zinc-900 px-3.5 py-1 self-start select-none shadow-sm/30">
-              <MessageCircle className="h-3.5 w-3.5 text-primary" />
-              <span className="text-[10px] font-semibold text-zinc-400 tracking-[0.08em] uppercase font-sans">
+            <div className="inline-flex items-center gap-2 self-start select-none">
+              <MessageCircle className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+              <span className="text-[10px] font-semibold text-zinc-400 tracking-[0.16em] uppercase font-sans">
                 Help Center
               </span>
             </div>

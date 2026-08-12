@@ -7,6 +7,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { ClientLogin } from "./ClientLogin"
+import { Em } from "./quickhands/Em"
 
 const faqs = [
   {
@@ -91,7 +92,7 @@ export function ClientFAQ() {
         {/* Closing CTA band — bookends the page with the same promise and CTA the Hero opened with */}
         <div className="mt-28 rounded-[32px] border border-zinc-200 bg-[var(--primary-light)] shadow-sm px-8 py-14 md:px-16 md:py-16 text-center flex flex-col items-center gap-7">
           <h3 className="font-serif text-3xl md:text-[48px] tracking-[-0.02em] leading-[1.08] text-zinc-950 font-bold max-w-2xl">
-            Quickly find the right <span className="italic text-primary font-bold">specialists</span> for your tasks.
+            Quickly find the right <Em className="font-bold">specialists</Em> for your tasks.
           </h3>
           <ClientLogin>
             <button

@@ -12,10 +12,14 @@ interface EyebrowProps {
   /** Skip the entrance animation (parent already staggers it, or it's above the fold and must be instant). */
   animate?: boolean
   delay?: number
+  /** Swap the dash accent for a small pulsing dot — reserved for genuine "live" status labels. */
+  pulse?: boolean
 }
 
 /**
- * Small uppercase label pill with a soft dot indicator.
+ * Small tracked-uppercase label with a short rule accent — plain text, no
+ * pill/border/background. Deliberately restrained (not a badge) so it can
+ * repeat across sections without reading as the same rounded chip everywhere.
  * Shared across Hero and later sections (HowItWorks, TaskCategories, etc.)
  */
 export function Eyebrow({
@@ -24,21 +28,20 @@ export function Eyebrow({
   tone = "light",
   animate = true,
   delay = 0,
+  pulse = false,
 }: EyebrowProps) {
   const content = (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-4 py-1.5 font-sans text-[10px] font-semibold uppercase tracking-[0.14em] shadow-sm",
-        tone === "light"
-          ? "border-primary/15 bg-primary/5 text-primary"
-          : "border-white/15 bg-white/8 text-white/90 backdrop-blur-sm",
+        "inline-flex items-center gap-2.5 font-sans text-[10px] font-semibold uppercase tracking-[0.16em]",
+        tone === "light" ? "text-primary" : "text-white/80",
         className
       )}
     >
       <span
         className={cn(
-          "h-1.5 w-1.5 shrink-0 rounded-full",
-          tone === "light" ? "bg-primary" : "bg-primary"
+          "shrink-0 bg-primary",
+          pulse ? "h-1.5 w-1.5 rounded-full animate-pulse" : "h-px w-5"
         )}
         aria-hidden="true"
       />

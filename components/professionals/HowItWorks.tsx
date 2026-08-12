@@ -10,6 +10,8 @@ import {
   Star,
   type LucideIcon,
 } from "lucide-react";
+import { Eyebrow } from "@/components/quickhands/Eyebrow";
+import { Em } from "@/components/quickhands/Em";
 
 interface Step {
   icon: LucideIcon;
@@ -125,14 +127,11 @@ export default function HowItWorks() {
 
         {/* ── Section Header ── */}
         <div className="max-w-xl mb-20 text-left font-sans">
-          <div className="inline-flex items-center gap-2 mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 animate-pulse" />
-            <span className="text-[10px] font-semibold text-primary tracking-[0.08em] uppercase font-sans">
-              Simple Process
-            </span>
-          </div>
+          <Eyebrow tone="dark" animate={false} pulse className="mb-4">
+            Simple Process
+          </Eyebrow>
           <h2 className="font-serif font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-white mb-4 leading-tight">
-            How It <span className="italic text-primary font-bold">Works</span>.
+            How It <Em className="font-bold">Works</Em>.
           </h2>
           <p className="font-sans text-sm text-zinc-400 font-light leading-relaxed">
             Get started in minutes with our simple, transparent onboarding process for specialists.

@@ -31,21 +31,32 @@ export function ProfessionalsHeader() {
 
   return (
     <>
-      <div className="sticky top-5 z-50 px-4 sm:px-6">
+      <div className="fixed inset-x-0 top-0 z-50 w-full">
         <header
           className={cn(
-            "mx-auto w-full max-w-6xl transition-all duration-300 relative",
-            "rounded-full backdrop-blur-md",
+            "w-full border-b transition-all duration-300",
             scrolled
-              ? "bg-white/90 border border-zinc-200/80 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.08)] py-1"
-              : "bg-white/75 border border-zinc-150/50 shadow-[0_4px_20px_-8px_rgba(0,0,0,0.04)] py-2"
+              ? "bg-white/95 border-zinc-200 backdrop-blur-md shadow-[0_1px_0_0_rgba(0,0,0,0.04)]"
+              : "bg-transparent border-transparent"
           )}
         >
-          <nav className="flex items-center justify-between px-5">
+          <nav
+            className={cn(
+              "mx-auto flex w-full max-w-[1200px] items-center justify-between px-6 transition-all duration-300",
+              scrolled ? "py-3.5" : "py-5"
+            )}
+          >
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
-              <div className="relative h-8 w-8 overflow-hidden rounded-full border border-zinc-200/60 bg-zinc-50 shadow-sm flex-shrink-0 transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
+              <div
+                className={cn(
+                  "relative h-8 w-8 overflow-hidden rounded-full flex-shrink-0 shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:rotate-3",
+                  scrolled
+                    ? "border border-zinc-200/60 bg-zinc-50"
+                    : "border border-white/30 bg-white/90 backdrop-blur-sm"
+                )}
+              >
                 <Image
                   src="/quickhands.png"
                   alt="Quickhands"
@@ -53,7 +64,12 @@ export function ProfessionalsHeader() {
                   className="object-contain p-1"
                 />
               </div>
-              <span className="text-xs font-semibold tracking-tight transition-colors duration-200 group-hover:text-primary font-sans text-zinc-900">
+              <span
+                className={cn(
+                  "text-xs font-semibold tracking-tight transition-colors duration-200 group-hover:text-primary font-sans",
+                  scrolled ? "text-zinc-900" : "text-white"
+                )}
+              >
                 Quickhands Africa
               </span>
             </Link>
@@ -65,15 +81,22 @@ export function ProfessionalsHeader() {
                   key={link.label}
                   href={link.href}
                   className={cn(
-                    "rounded-full text-xs font-medium text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 px-3.5 py-1.5",
-                    "transition-all duration-200 relative"
+                    "text-xs font-medium px-3.5 py-1.5 transition-colors duration-200",
+                    scrolled
+                      ? "text-zinc-500 hover:text-zinc-900"
+                      : "text-white/80 hover:text-white"
                   )}
                 >
                   {link.label}
                 </Link>
               ))}
 
-              <div className="w-px h-4 bg-zinc-200/60 mx-2" />
+              <div
+                className={cn(
+                  "w-px h-4 mx-2 transition-colors duration-300",
+                  scrolled ? "bg-zinc-200/60" : "bg-white/25"
+                )}
+              />
 
               <OnboardingModal>
                 <Button
@@ -92,7 +115,12 @@ export function ProfessionalsHeader() {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="rounded-full border-zinc-200 hover:bg-zinc-50 h-8 w-8"
+                    className={cn(
+                      "rounded-full h-8 w-8 transition-colors duration-300",
+                      scrolled
+                        ? "border-zinc-200 hover:bg-zinc-50 text-zinc-900"
+                        : "border-white/40 bg-white/10 text-white hover:bg-white/20"
+                    )}
                   >
                     <Menu className="h-4 w-4" />
                   </Button>

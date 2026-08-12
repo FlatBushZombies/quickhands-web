@@ -43,9 +43,9 @@ export function PricingPlans() {
         
         {/* Section Header */}
         <div className="text-center mb-20 font-sans">
-          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3.5 py-1 mb-5 shadow-sm select-none">
-            <Zap className="h-3.5 w-3.5 text-primary" />
-            <span className="text-[10px] font-semibold text-zinc-500 tracking-[0.08em] uppercase font-sans">
+          <div className="mb-5 inline-flex items-center gap-2 select-none">
+            <Zap className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+            <span className="text-[10px] font-semibold text-primary tracking-[0.16em] uppercase font-sans">
               Transparent pricing
             </span>
           </div>

@@ -7,6 +7,8 @@ import { PillButton } from "./PillButton"
 import { AnimatedLink } from "./AnimatedLink"
 import { LiquidReveal } from "./LiquidReveal"
 import { HeroMarketplaceCard } from "./HeroMarketplaceCard"
+import { Em } from "./Em"
+import { PostTaskModal } from "./PostTaskModal"
 
 const TRUST_SIGNALS = [
   { icon: ShieldCheck, label: "Verified specialists" },
@@ -72,7 +74,7 @@ export function Hero({ ready = true }: HeroProps) {
           >
             Get tasks done.
             <br />
-            Find trusted help.
+            Find <Em>trusted</Em> help.
             <br />
             Right when you need it.
           </motion.h1>
@@ -87,10 +89,10 @@ export function Hero({ ready = true }: HeroProps) {
           </motion.p>
 
           <motion.div variants={itemVariants} className="mt-2 flex flex-wrap items-center gap-x-7 gap-y-3">
-            {/* Post a Task: placeholder — Phase C wires this to the real PostTaskModal. */}
-            <PillButton size="lg">Post a Task</PillButton>
+            <PostTaskModal>
+              <PillButton size="lg">Post a Task</PillButton>
+            </PostTaskModal>
 
-            {/* Browse Tasks: placeholder anchor — Phase B builds the section this points to. */}
             <AnimatedLink href="#tasks">Browse Tasks</AnimatedLink>
           </motion.div>
 
