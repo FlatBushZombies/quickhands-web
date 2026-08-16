@@ -131,7 +131,7 @@ export default function HowItWorks() {
             Simple Process
           </Eyebrow>
           <h2 className="font-serif font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-white mb-4 leading-tight">
-            How It <Em className="font-bold">Works</Em>.
+            How It <Em>Works</Em>.
           </h2>
           <p className="font-sans text-sm text-zinc-400 font-light leading-relaxed">
             Get started in minutes with our simple, transparent onboarding process for specialists.

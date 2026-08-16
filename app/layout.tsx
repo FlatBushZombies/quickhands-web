@@ -1,6 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Newsreader, Inter, Martian_Mono, Onest } from "next/font/google"
+import { Newsreader, Inter, Martian_Mono, Onest, Instrument_Serif } from "next/font/google"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
 import CookieConsent from "@/components/cookie-consent/CookieConsent"
@@ -29,6 +29,22 @@ const martianMono = Martian_Mono({
   variable: "--font-martian-mono",
   subsets: ["latin"],
   display: "swap",
+})
+
+/**
+ * Editorial accent italic — used exclusively via components/quickhands/Em.tsx
+ * for single-word "startup accent" moments in headlines (the Worrki
+ * reference's "*employers*" move). Instrument Serif only ships one weight
+ * (400) in both roman and italic, so it's wired to its own --font-accent
+ * token instead of replacing --font-serif, which other headlines still rely
+ * on at font-medium/font-bold weights Instrument Serif can't render.
+ */
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-instrument-serif",
+  subsets: ["latin"],
+  display: "swap",
+  weight: "400",
+  style: ["normal", "italic"],
 })
 
 export const metadata: Metadata = {
@@ -96,6 +112,7 @@ export default function RootLayout({
             ${inter.variable}
             ${newsreader.variable}
             ${martianMono.variable}
+            ${instrumentSerif.variable}
             font-sans
             min-h-screen
             antialiased

@@ -81,6 +81,10 @@
   --font-sans: var(--font-onest), "Sohne", var(--font-inter), "Inter", "General Sans", "Untitled Sans", sans-serif;
   --font-serif: "Signifier", var(--font-newsreader), "Newsreader", "Playfair Display", "Georgia", serif;
   --font-mono: var(--font-martian-mono), monospace;
+  /* Dedicated editorial-accent token for Em.tsx — a high-contrast display
+     italic (Instrument Serif) distinct from the body serif above, which is
+     still used at font-medium/font-bold weights Instrument Serif lacks. */
+  --font-accent: var(--font-instrument-serif), "Instrument Serif", var(--font-newsreader), "Newsreader", "Georgia", serif;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

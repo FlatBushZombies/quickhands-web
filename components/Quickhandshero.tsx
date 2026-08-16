@@ -164,7 +164,7 @@ export default function QuickHandsHero() {
           </Eyebrow>
 
           <h1 className="font-serif text-[42px] font-bold leading-[1.04] tracking-[-0.025em] text-white sm:text-6xl md:text-[68px]">
-            Be your own <Em className="font-bold">boss</Em>.
+            Be your own <Em>boss</Em>.
           </h1>
 
           <p className="max-w-[460px] font-sans text-sm font-light leading-relaxed text-white/80">
