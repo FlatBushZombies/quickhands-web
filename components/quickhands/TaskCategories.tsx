@@ -60,11 +60,11 @@ export function TaskCategories() {
         <div className="mb-14 flex flex-col items-start gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <div className="max-w-xl">
             <Eyebrow>Popular tasks</Eyebrow>
-            <h2 className="mt-4 font-serif text-4xl font-medium leading-[1.05] tracking-tight text-zinc-950 md:text-5xl lg:text-6xl">
+            <h2 className="mt-4 font-heading text-4xl font-bold leading-[1.05] tracking-tight text-zinc-950 md:text-5xl lg:text-6xl">
               What can you get done?
             </h2>
           </div>
-          <p className="max-w-xs font-sans text-sm font-light leading-relaxed text-zinc-500">
+          <p className="max-w-xs font-body text-[15px] font-normal leading-relaxed text-zinc-500">
             From a leaky tap to a full house move, browse the kinds of tasks
             people get done on QuickHands every day.
           </p>
@@ -97,10 +97,10 @@ export function TaskCategories() {
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-zinc-950/25 to-transparent transition-opacity duration-300" />
 
               <div className="absolute inset-x-0 bottom-0 flex flex-col gap-3 p-6 text-left sm:p-7">
-                <h3 className="font-serif text-2xl italic leading-tight text-white sm:text-3xl">
+                <h3 className="font-heading text-3xl font-bold leading-tight text-white sm:text-4xl">
                   {category.title}
                 </h3>
-                <p className="max-w-sm font-sans text-[13px] leading-relaxed text-white/75">
+                <p className="max-w-sm font-body text-[15px] font-normal leading-relaxed text-white/75">
                   {category.tagline}
                 </p>
 

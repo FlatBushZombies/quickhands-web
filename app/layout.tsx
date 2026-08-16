@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Newsreader, Inter, Martian_Mono, Onest, Instrument_Serif } from "next/font/google"
+import { Newsreader, Inter, Martian_Mono, Onest, Instrument_Serif, Plus_Jakarta_Sans } from "next/font/google"
+import localFont from "next/font/local"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
 import CookieConsent from "@/components/cookie-consent/CookieConsent"
@@ -29,6 +30,38 @@ const martianMono = Martian_Mono({
   variable: "--font-martian-mono",
   subsets: ["latin"],
   display: "swap",
+})
+
+/**
+ * Satoshi — the H1/H2/H3 heading family from the user's type-scale spec.
+ * Not on Google Fonts (it's a Fontshare release), so it's wired via
+ * next/font/local against the .woff2 files already sitting in
+ * public/fonts/satoshi/. Exposed as --font-satoshi here and remapped to the
+ * --font-heading token in globals.css, which stays separate from --font-sans
+ * (Onest) — Onest is still correct for UI chrome (buttons, nav, badges),
+ * which this type-scale spec doesn't cover.
+ */
+const satoshi = localFont({
+  src: [
+    { path: "../public/fonts/satoshi/Satoshi-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../public/fonts/satoshi/Satoshi-Medium.woff2", weight: "500", style: "normal" },
+    { path: "../public/fonts/satoshi/Satoshi-Bold.woff2", weight: "700", style: "normal" },
+  ],
+  variable: "--font-satoshi",
+  display: "swap",
+})
+
+/**
+ * Plus Jakarta Sans — the H4 tier of the spec ("Plus Jakarta Sans, Semibold,
+ * 24 — (deprecated)" per the user's notes). Wired for completeness but only
+ * applied where a genuine <h4> already exists in the swept components; not
+ * used to invent new H4-level headings.
+ */
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta-sans",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500", "600", "700"],
 })
 
 /**
@@ -113,6 +146,8 @@ export default function RootLayout({
             ${newsreader.variable}
             ${martianMono.variable}
             ${instrumentSerif.variable}
+            ${satoshi.variable}
+            ${plusJakartaSans.variable}
             font-sans
             min-h-screen
             antialiased

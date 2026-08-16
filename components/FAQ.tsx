@@ -71,13 +71,13 @@ export function FaqSection() {
               </span>
             </div>
 
-            {/* Title - Signifier */}
-            <h2 className="font-serif font-bold text-4xl lg:text-6xl leading-[1.05] tracking-tight text-white mb-2">
+            {/* Title */}
+            <h2 className="font-heading font-bold text-4xl lg:text-6xl leading-[1.05] tracking-tight text-white mb-2">
               Frequently Asked Questions
             </h2>
 
             {/* Description */}
-            <p className="text-sm text-zinc-400 leading-relaxed font-light max-w-sm mb-4">
+            <p className="font-body text-[15px] text-zinc-400 leading-relaxed font-normal max-w-sm mb-4">
               Everything you need to know about working on Quickhands. Can't find what you're looking for? Contact our support team.
             </p>
 
@@ -137,7 +137,7 @@ export function FaqSection() {
                   >
                     {faq.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-[12.5px] text-zinc-400 leading-relaxed pb-5 border-t border-zinc-850/30 pt-4 font-light">
+                  <AccordionContent className="font-body text-[15px] text-zinc-400 leading-relaxed pb-5 border-t border-zinc-850/30 pt-4 font-normal">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -145,7 +145,7 @@ export function FaqSection() {
             </Accordion>
 
             {/* Bottom helper email link */}
-            <p className="mt-10 text-xs text-zinc-500 text-center font-sans font-light select-none">
+            <p className="mt-10 font-body text-[15px] text-zinc-500 text-center font-normal select-none">
               Still have questions?{" "}
               <a href="mailto:support@quickhands.com" className="text-primary hover:text-primary-hover transition-colors underline underline-offset-2">
                 Contact our support team →

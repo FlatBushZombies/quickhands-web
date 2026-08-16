@@ -52,14 +52,14 @@ export function TaskerSection() {
 
             <motion.h2
               variants={itemVariants}
-              className="font-serif text-4xl font-medium leading-[1.05] tracking-tight text-zinc-950 md:text-5xl lg:text-6xl"
+              className="font-heading text-4xl font-bold leading-[1.05] tracking-tight text-zinc-950 md:text-5xl lg:text-6xl"
             >
               Turn your skills into extra income.
             </motion.h2>
 
             <motion.p
               variants={itemVariants}
-              className="max-w-[440px] font-sans text-base leading-relaxed text-zinc-500"
+              className="max-w-[440px] font-body text-[18px] font-normal leading-relaxed text-zinc-500"
             >
               Join QuickHands, offer your skills locally, and connect with
               people who need your help. Customers get things done — you earn

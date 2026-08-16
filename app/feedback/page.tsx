@@ -63,8 +63,8 @@ export default function FeedbackPage() {
           >
             &larr; Back to home
           </Link>
-          <h1 className="text-4xl font-bold text-foreground tracking-tight mb-2">Feedback</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="font-heading text-4xl font-bold text-foreground tracking-tight mb-2">Feedback</h1>
+          <p className="font-body text-[15px] font-normal text-muted-foreground">
             Help us improve QuickHands &mdash; we&apos;d love to hear from you.
           </p>
         </div>
@@ -72,10 +72,10 @@ export default function FeedbackPage() {
         <div className="bg-card border border-border rounded-3xl shadow-sm p-8 sm:p-10">
           {status === "success" ? (
             <div className="rounded-2xl border border-primary/20 bg-primary-light p-6 text-center">
-              <h2 className="text-lg font-semibold text-primary-hover mb-2">
+              <h2 className="font-heading text-lg font-bold text-primary-hover mb-2">
                 Thank you for your feedback!
               </h2>
-              <p className="text-primary-hover/90 text-sm mb-4">
+              <p className="font-body text-[15px] font-normal text-primary-hover/90 mb-4">
                 We&apos;ve received your message and will review it shortly.
               </p>
               <button

@@ -58,7 +58,7 @@ export function CtaBand() {
 
           <motion.h2
             variants={itemVariants}
-            className="font-serif text-4xl font-medium leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
+            className="font-heading text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
           >
             Got something to do?
             <br />
@@ -67,7 +67,7 @@ export function CtaBand() {
 
           <motion.p
             variants={itemVariants}
-            className="max-w-md font-sans text-sm leading-relaxed text-white/80"
+            className="max-w-md font-body text-[15px] font-normal leading-relaxed text-white/80"
           >
             Post it, meet a nearby specialist, and get it handled — QuickHands
             makes finding trusted local help simple.

@@ -43,10 +43,10 @@ export function ClientFAQ() {
 
           {/* Section Header — sticky rail on desktop */}
           <div className="lg:col-span-5 lg:sticky lg:top-32 text-center lg:text-left space-y-4">
-            <h2 className="font-serif font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-zinc-950 leading-tight">
+            <h2 className="font-heading font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-zinc-950 leading-tight">
               Frequently Asked Questions
             </h2>
-            <p className="font-sans text-sm text-zinc-500 font-light max-w-md mx-auto lg:mx-0 leading-relaxed">
+            <p className="font-body text-[15px] font-normal text-zinc-500 max-w-md mx-auto lg:mx-0 leading-relaxed">
               Everything you need to know about secure client-specialist cooperation on Quickhands.
             </p>
           </div>
@@ -80,7 +80,7 @@ export function ClientFAQ() {
                 </AccordionTrigger>
 
                 <AccordionContent className="pt-1 pb-5 border-t border-zinc-200">
-                  <p className="font-sans text-[12.5px] text-zinc-500 leading-relaxed font-light mt-3">
+                  <p className="font-body text-[15px] text-zinc-500 leading-relaxed font-normal mt-3">
                     {faq.answer}
                   </p>
                 </AccordionContent>
@@ -91,7 +91,7 @@ export function ClientFAQ() {
 
         {/* Closing CTA band — bookends the page with the same promise and CTA the Hero opened with */}
         <div className="mt-28 rounded-[32px] border border-zinc-200 bg-[var(--primary-light)] shadow-sm px-8 py-14 md:px-16 md:py-16 text-center flex flex-col items-center gap-7">
-          <h3 className="font-serif text-3xl md:text-[48px] tracking-[-0.02em] leading-[1.08] text-zinc-950 font-bold max-w-2xl">
+          <h3 className="font-heading text-3xl md:text-4xl tracking-[-0.02em] leading-[1.08] text-zinc-950 font-bold max-w-2xl">
             Quickly find the right <Em>specialists</Em> for your tasks.
           </h3>
           <ClientLogin>

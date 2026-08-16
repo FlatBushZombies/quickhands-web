@@ -77,11 +77,11 @@ export function HowItWorks() {
         <div className="mb-16 flex flex-col items-start gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
           <div className="max-w-xl">
             <Eyebrow>How it works</Eyebrow>
-            <h2 className="mt-4 font-serif text-4xl font-medium leading-[1.05] tracking-tight text-zinc-950 md:text-5xl lg:text-6xl">
+            <h2 className="mt-4 font-heading text-4xl font-bold leading-[1.05] tracking-tight text-zinc-950 md:text-5xl lg:text-6xl">
               Four steps. No friction.
             </h2>
           </div>
-          <p className="max-w-xs font-sans text-sm font-light leading-relaxed text-zinc-500">
+          <p className="max-w-xs font-body text-[15px] font-normal leading-relaxed text-zinc-500">
             QuickHands strips out the back-and-forth. Post once, meet the right
             specialist, get it done.
           </p>
@@ -130,8 +130,8 @@ export function HowItWorks() {
                   <p className="font-sans text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
                     {step.label}
                   </p>
-                  <h3 className="mt-2 font-sans text-base font-bold text-zinc-950">{step.title}</h3>
-                  <p className="mt-1.5 font-sans text-[13px] leading-relaxed text-zinc-500">{step.description}</p>
+                  <h3 className="mt-2 font-heading text-2xl font-bold leading-tight text-zinc-950">{step.title}</h3>
+                  <p className="mt-1.5 font-body text-[15px] font-normal leading-relaxed text-zinc-500">{step.description}</p>
                 </div>
               </motion.li>
             )

@@ -61,9 +61,35 @@ export function Footer() {
               </span>
             </Link>
 
-            <p className="text-[13px] text-zinc-400 leading-relaxed font-sans font-light">
+            <p className="text-[15px] text-zinc-400 leading-relaxed font-body font-normal">
               The complete directory and secure matches platform for clients and specialists to connect, collaborate, and get jobs done.
             </p>
+
+            {/* Google Play badge — the app is Android-only right now, so only
+                a Play Store CTA appears here (no App Store badge). */}
+            {/* TODO: swap href="#" for the real Google Play Store listing URL before this goes live. */}
+            <Link
+              href="#"
+              aria-label="Get it on Google Play"
+              className="group inline-flex w-fit items-center gap-3 rounded-2xl border border-zinc-900 bg-zinc-950 px-4 py-2.5 shadow-sm transition-all duration-200 hover:border-zinc-800 hover:bg-zinc-900 active:scale-[0.97] cursor-pointer"
+            >
+              <Image
+                src="/icons/google-play.svg"
+                alt=""
+                width={22}
+                height={22}
+                aria-hidden="true"
+                className="shrink-0"
+              />
+              <span className="flex flex-col items-start leading-none font-sans">
+                <span className="text-[9px] font-medium uppercase tracking-[0.1em] text-zinc-400 transition-colors duration-200 group-hover:text-zinc-300">
+                  Get it on
+                </span>
+                <span className="mt-1 text-[13.5px] font-semibold text-white">
+                  Google Play
+                </span>
+              </span>
+            </Link>
 
             {/* Social Icons */}
             <div className="flex items-center gap-2 pt-1 font-sans">

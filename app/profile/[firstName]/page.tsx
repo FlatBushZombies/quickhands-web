@@ -56,12 +56,12 @@ export default async function ProfilePage({
                   <span className="font-mono text-sm text-primary font-medium">Welcome to Quickhands</span>
                 </div>
 
-                <h1 className="font-sans text-balance text-5xl font-bold leading-tight tracking-tight text-foreground sm:text-6xl">
+                <h1 className="font-heading text-balance text-[clamp(2.5rem,5vw+1.2rem,5.75rem)] font-bold leading-tight tracking-tight text-foreground">
                   Welcome, {user.first_name}!
                 </h1>
 
-                <p className="font-sans mt-6 text-balance text-lg leading-relaxed text-muted-foreground sm:text-xl">
-                  Your profile has been successfully created. You're now part of the Quickhands community platform. 
+                <p className="font-body mt-6 text-balance text-[18px] font-normal leading-relaxed text-muted-foreground">
+                  Your profile has been successfully created. You're now part of the Quickhands community platform.
                 </p>
               </div>
             </div>
@@ -81,9 +81,9 @@ export default async function ProfilePage({
                       </div>
                     </div>
 
-                    <h2 className="font-sans text-3xl font-bold tracking-tight mb-4">Mobile App Coming Soon</h2>
+                    <h2 className="font-heading text-3xl font-bold tracking-tight mb-4">Mobile App Coming Soon</h2>
 
-                    <p className="font-sans text-lg text-muted-foreground mb-6 leading-relaxed max-w-2xl mx-auto">
+                    <p className="font-body text-[18px] font-normal text-muted-foreground mb-6 leading-relaxed max-w-2xl mx-auto">
                       We're excited to announce that the quickhands mobile app will be launching soon.
                     </p>
 
@@ -117,7 +117,7 @@ export default async function ProfilePage({
           <section className="py-16">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
               <div className="mx-auto max-w-4xl">
-                <h2 className="font-sans text-3xl font-bold tracking-tight mb-8 text-center">Your Profile</h2>
+                <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-8 text-center">Your Profile</h2>
 
                 <div className="grid gap-6 md:grid-cols-2 mb-6">
                   <Card className="border-border bg-card hover:shadow-lg transition-shadow">
@@ -192,7 +192,7 @@ export default async function ProfilePage({
                       </div>
                       <div className="flex-1">
                         <p className="font-sans text-sm font-medium text-muted-foreground mb-2">About You</p>
-                        <p className="font-sans text-base text-foreground leading-relaxed">{user.relevant_info}</p>
+                        <p className="font-body text-[18px] font-normal text-foreground leading-relaxed">{user.relevant_info}</p>
                       </div>
                     </div>
                   </CardContent>

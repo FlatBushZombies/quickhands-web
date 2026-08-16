@@ -86,6 +86,18 @@
      still used at font-medium/font-bold weights Instrument Serif lacks. */
   --font-accent: var(--font-instrument-serif), "Instrument Serif", var(--font-newsreader), "Newsreader", "Georgia", serif;
 
+  /* Type-scale tokens (H1/H2/H3 + H4 + body copy pass) — deliberately
+     separate from --font-sans (Onest), which stays the UI-chrome family for
+     buttons/nav/labels/badges that this scale doesn't cover. */
+  --font-heading: var(--font-satoshi), "Satoshi", var(--font-sans), sans-serif;
+  /* H4 tier, marked "(deprecated)" in the spec — wired but only applied
+     where a genuine <h4> already existed in the swept components. */
+  --font-jakarta: var(--font-plus-jakarta-sans), "Plus Jakarta Sans", var(--font-sans), sans-serif;
+  /* Body-copy tier — Inter specifically. Google Fonts ships a single Inter
+     family (no separate "Inter Display" cut), so the spec's "Inter Display"
+     rows resolve to this same token, differentiated only by size/weight. */
+  --font-body: var(--font-inter), "Inter", sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

@@ -163,11 +163,11 @@ export default function QuickHandsHero() {
             Now available in your area
           </Eyebrow>
 
-          <h1 className="font-serif text-[42px] font-bold leading-[1.04] tracking-[-0.025em] text-white sm:text-6xl md:text-[68px]">
+          <h1 className="font-heading text-[42px] font-bold leading-[1.04] tracking-[-0.025em] text-white sm:text-[56px] md:text-[72px] lg:text-[92px]">
             Be your own <Em>boss</Em>.
           </h1>
 
-          <p className="max-w-[460px] font-sans text-sm font-light leading-relaxed text-white/80">
+          <p className="max-w-[460px] font-body text-[18px] font-normal leading-relaxed text-white/80">
             Whether you're a spreadsheet guru or a skilled carpenter, find your next gig on{" "}
             <strong className="font-semibold text-white">QuickHands</strong> and get paid doing what you
             love.
@@ -204,11 +204,11 @@ export default function QuickHandsHero() {
             ))}
           </ul>
 
-          <div className="space-y-2.5 font-sans md:max-w-xs md:border-l md:border-zinc-200 md:pl-8">
-            <p className="text-[11px] font-light text-zinc-400">
+          <div className="space-y-2.5 md:max-w-xs md:border-l md:border-zinc-200 md:pl-8">
+            <p className="font-body text-[15px] font-normal text-zinc-400">
               We'll send you a confirmation code — no spam, no advertising.
             </p>
-            <p className="text-[11px] font-light text-zinc-400">
+            <p className="font-body text-[15px] font-normal text-zinc-400">
               By signing up, you'll be automatically notified when the app launches soon.
             </p>
             <div className="pt-2">

@@ -64,10 +64,10 @@ export function MarketplacePreview() {
       <div className="relative mx-auto max-w-[1200px] px-6">
         <div className="mb-16 max-w-xl">
           <Eyebrow tone="dark">See it in action</Eyebrow>
-          <h2 className="mt-4 font-serif text-4xl font-medium leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl">
+          <h2 className="mt-4 font-heading text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl">
             Post a task. Meet your match.
           </h2>
-          <p className="mt-5 max-w-md font-sans text-sm font-light leading-relaxed text-zinc-400">
+          <p className="mt-5 max-w-md font-body text-[15px] font-normal leading-relaxed text-zinc-400">
             Here's what it looks like — a real task, matched with real local
             specialists ready to help.
           </p>
@@ -92,10 +92,10 @@ export function MarketplacePreview() {
               <span className="font-mono text-[10px] tabular-nums text-zinc-500">2 min ago</span>
             </div>
 
-            <h3 className="mt-4 font-sans text-lg font-bold text-white">
+            <h3 className="mt-4 font-heading text-3xl font-bold leading-tight text-white">
               Need help assembling furniture
             </h3>
-            <p className="mt-2 font-sans text-[13px] leading-relaxed text-zinc-400">
+            <p className="mt-2 font-body text-[15px] font-normal leading-relaxed text-zinc-400">
               Two wardrobes and a bed frame, flat-pack, everything's already in
               the boxes.
             </p>

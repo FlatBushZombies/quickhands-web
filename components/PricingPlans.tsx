@@ -49,10 +49,10 @@ export function PricingPlans() {
               Transparent pricing
             </span>
           </div>
-          <h2 className="font-serif font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-zinc-950 leading-tight mb-4">
+          <h2 className="font-heading font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-zinc-950 leading-tight mb-4">
             Tariffs
           </h2>
-          <p className="text-sm text-zinc-500 max-w-xs mx-auto leading-relaxed font-light">
+          <p className="font-body text-[15px] text-zinc-500 max-w-xs mx-auto leading-relaxed font-normal">
             Flexible tariff options to match your workspace workflow.
           </p>
         </div>
@@ -93,10 +93,10 @@ export function PricingPlans() {
                     </div>
 
                     {/* Title & Description */}
-                    <h3 className="text-md font-bold text-zinc-950 mb-1.5 tracking-tight">
+                    <h3 className="font-heading text-3xl font-bold text-zinc-950 mb-1.5 tracking-tight leading-tight">
                       {plan.title}
                     </h3>
-                    <p className="text-xs text-zinc-500 mb-6 leading-relaxed font-light">
+                    <p className="font-body text-[15px] text-zinc-500 mb-6 leading-relaxed font-normal">
                       {plan.subtitle}
                     </p>
 
@@ -135,7 +135,7 @@ export function PricingPlans() {
         </div>
 
         {/* Footer Note */}
-        <p className="mt-12 text-center text-xs text-zinc-400 font-sans font-light">
+        <p className="mt-12 text-center text-[15px] text-zinc-400 font-body font-normal">
           All pricing includes secure payment processing and platform support.
         </p>
       </div>

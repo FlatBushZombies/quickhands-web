@@ -130,10 +130,10 @@ export default function HowItWorks() {
           <Eyebrow tone="dark" animate={false} pulse className="mb-4">
             Simple Process
           </Eyebrow>
-          <h2 className="font-serif font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-white mb-4 leading-tight">
+          <h2 className="font-heading font-bold text-4xl md:text-5xl lg:text-6xl tracking-tight text-white mb-4 leading-tight">
             How It <Em>Works</Em>.
           </h2>
-          <p className="font-sans text-sm text-zinc-400 font-light leading-relaxed">
+          <p className="font-body text-[15px] text-zinc-400 font-normal leading-relaxed">
             Get started in minutes with our simple, transparent onboarding process for specialists.
           </p>
         </div>
@@ -276,13 +276,13 @@ export default function HowItWorks() {
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-md font-bold text-white mt-2 leading-none">
+                    <h3 className="font-heading text-3xl font-bold text-white mt-2 leading-tight">
                       {current.title}
                     </h3>
                   </div>
                 </div>
 
-                <p className="text-[12.5px] leading-relaxed text-zinc-400 font-sans font-light">
+                <p className="font-body text-[15px] leading-relaxed text-zinc-400 font-normal">
                   {current.description}
                 </p>
 
@@ -309,7 +309,7 @@ export default function HowItWorks() {
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
               Ready to get started?
             </p>
-            <h3 className="text-xl md:text-3xl font-bold text-white">
+            <h3 className="font-heading text-2xl md:text-4xl font-bold text-white">
               Join thousands of specialists and start earning.
             </h3>
           </div>

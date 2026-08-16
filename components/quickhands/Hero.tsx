@@ -102,7 +102,7 @@ export function Hero({ ready = true }: HeroProps) {
 
           <motion.h1
             variants={itemVariants}
-            className="font-serif text-[clamp(2.75rem,4.2vw+1.4rem,5rem)] font-medium leading-[1.03] tracking-[-0.02em] text-white"
+            className="font-heading text-[clamp(2.75rem,4.6vw+1.4rem,5.75rem)] font-bold leading-[1.03] tracking-[-0.02em] text-white"
           >
             Get tasks done.
             <br />
@@ -113,7 +113,7 @@ export function Hero({ ready = true }: HeroProps) {
 
           <motion.p
             variants={itemVariants}
-            className="max-w-[480px] font-sans text-base leading-relaxed text-white/80 sm:text-lg"
+            className="max-w-[480px] font-body text-[18px] font-normal leading-relaxed text-white/80"
           >
             You need something done. Someone nearby can help. QuickHands connects
             you with reliable local specialists for cleaning, repairs, beauty,
