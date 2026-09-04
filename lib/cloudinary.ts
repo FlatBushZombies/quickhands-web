@@ -1,5 +1,11 @@
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+// Same account/preset the mobile apps already use (EXPO_PUBLIC_CLOUDINARY_*
+// in client-app/.env) — unsigned presets are origin-agnostic, so this is
+// safe to share. Falls back to those values directly so attachment upload
+// works without a separate Vercel env var configuration step, same
+// pattern as NEXT_PUBLIC_API_URL's fallback in lib/fetch-client.ts. Still
+// overridable via env vars if a dedicated web account is ever wanted.
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ?? "annvck7c"
+const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "id_quickhands_now"
 
 export interface UploadedFile {
   url: string
