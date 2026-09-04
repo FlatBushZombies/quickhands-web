@@ -1,6 +1,17 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-export default clerkMiddleware();
+const isSignedInRequiredRoute = createRouteMatcher([
+  '/onboarding(.*)',
+  '/post-job(.*)',
+  '/dashboard(.*)',
+  '/messages(.*)',
+]);
+
+export default clerkMiddleware(async (auth, req) => {
+  if (isSignedInRequiredRoute(req)) {
+    await auth.protect();
+  }
+});
 
 export const config = {
   matcher: [
