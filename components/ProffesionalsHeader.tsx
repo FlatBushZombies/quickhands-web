@@ -2,18 +2,14 @@
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { useEffect, useState } from "react"
-import { LoginModal } from "./LoginModal"
-import { SignupModal } from "./SignupModal"
+import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 import Link from "next/link"
 import Image from "next/image"
 import { Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { OnboardingModal } from "./OnboardingModal"
 import { cn } from "@/lib/utils"
 
 export function ProfessionalsHeader() {
-  const [showLogin, setShowLogin] = useState(false)
-  const [showSignup, setShowSignup] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -98,14 +94,40 @@ export function ProfessionalsHeader() {
                 )}
               />
 
-              <OnboardingModal>
-                <Button
-                  size="sm"
-                  className="rounded-full px-5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover active:scale-[0.97] shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] transition-all duration-200 cursor-pointer border-0"
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button
+                    className={cn(
+                      "text-xs font-medium px-3.5 py-1.5 rounded-full transition-colors duration-200 cursor-pointer",
+                      scrolled ? "text-zinc-500 hover:text-zinc-950 hover:bg-zinc-50" : "text-white/80 hover:text-white hover:bg-white/10"
+                    )}
+                  >
+                    Sign in
+                  </button>
+                </SignInButton>
+
+                <SignUpButton mode="modal">
+                  <Button
+                    size="sm"
+                    className="rounded-full px-5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover active:scale-[0.97] shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] transition-all duration-200 cursor-pointer border-0"
+                  >
+                    Register
+                  </Button>
+                </SignUpButton>
+              </SignedOut>
+
+              <SignedIn>
+                <Link
+                  href="/dashboard"
+                  className={cn(
+                    "text-xs font-medium px-3.5 py-1.5 rounded-full transition-colors duration-200",
+                    scrolled ? "text-zinc-500 hover:text-zinc-950 hover:bg-zinc-50" : "text-white/80 hover:text-white hover:bg-white/10"
+                  )}
                 >
-                  Register
-                </Button>
-              </OnboardingModal>
+                  Dashboard
+                </Link>
+                <UserButton afterSignOutUrl="/" />
+              </SignedIn>
             </div>
 
             {/* Mobile menu */}
@@ -163,11 +185,28 @@ export function ProfessionalsHeader() {
                   </div>
 
                   <div className="mt-auto space-y-2 border-t border-zinc-200 pt-4 font-sans">
-                    <OnboardingModal>
-                      <Button className="w-full rounded-full text-xs font-semibold h-10 bg-primary text-white hover:bg-primary-hover shadow-sm">
-                        Register
-                      </Button>
-                    </OnboardingModal>
+                    <SignedOut>
+                      <SignInButton mode="modal">
+                        <Button variant="link" className="w-full text-xs font-semibold text-zinc-500 hover:text-zinc-900">
+                          Sign In
+                        </Button>
+                      </SignInButton>
+                      <SignUpButton mode="modal">
+                        <Button className="w-full rounded-full text-xs font-semibold h-10 bg-primary text-white hover:bg-primary-hover shadow-sm">
+                          Register
+                        </Button>
+                      </SignUpButton>
+                    </SignedOut>
+                    <SignedIn>
+                      <Link
+                        href="/dashboard"
+                        className={buttonVariants({
+                          className: "w-full rounded-full text-xs font-semibold h-10 bg-primary text-white hover:bg-primary-hover shadow-sm",
+                        })}
+                      >
+                        Dashboard
+                      </Link>
+                    </SignedIn>
                   </div>
                 </SheetContent>
               </Sheet>
@@ -176,23 +215,6 @@ export function ProfessionalsHeader() {
           </nav>
         </header>
       </div>
-
-      <LoginModal
-        open={showLogin}
-        onOpenChange={setShowLogin}
-        onSignupClick={() => {
-          setShowLogin(false)
-          setShowSignup(true)
-        }}
-      />
-      <SignupModal
-        open={showSignup}
-        onOpenChange={setShowSignup}
-        onLoginClick={() => {
-          setShowSignup(false)
-          setShowLogin(true)
-        }}
-      />
     </>
   )
 }
