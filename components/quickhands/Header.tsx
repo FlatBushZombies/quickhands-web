@@ -6,9 +6,8 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { Clock, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ClientLogin } from "@/components/ClientLogin"
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 import { PillButton } from "./PillButton"
-import { PostTaskModal } from "./PostTaskModal"
 import { MobileNav } from "./MobileNav"
 
 const NAV_LINKS = [
@@ -121,23 +120,39 @@ export function Header() {
               </span>
             )}
 
-            <ClientLogin>
-              <button
-                type="button"
+            <SignedOut>
+              <Link
+                href="/sign-in"
                 className={cn(
                   "hidden px-3 py-1.5 font-sans text-xs font-medium transition-colors duration-200 sm:inline-flex",
                   scrolled ? "text-zinc-500 hover:text-zinc-950" : "text-white/80 hover:text-white"
                 )}
               >
                 Sign in
-              </button>
-            </ClientLogin>
+              </Link>
 
-            <PostTaskModal>
-              <PillButton size="sm" className="hidden sm:inline-flex">
+              <PillButton href="/sign-up" size="sm" className="hidden sm:inline-flex">
                 Post a Task
               </PillButton>
-            </PostTaskModal>
+            </SignedOut>
+
+            <SignedIn>
+              <Link
+                href="/dashboard"
+                className={cn(
+                  "hidden px-3 py-1.5 font-sans text-xs font-medium transition-colors duration-200 sm:inline-flex",
+                  scrolled ? "text-zinc-500 hover:text-zinc-950" : "text-white/80 hover:text-white"
+                )}
+              >
+                Dashboard
+              </Link>
+
+              <PillButton href="/post-job" size="sm" className="hidden sm:inline-flex">
+                Post a Task
+              </PillButton>
+
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
 
             <button
               type="button"

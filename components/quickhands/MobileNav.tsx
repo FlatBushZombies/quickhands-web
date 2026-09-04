@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react"
 import Link from "next/link"
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion"
 import { X } from "lucide-react"
-import { PostTaskModal } from "./PostTaskModal"
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 import { PillButton } from "./PillButton"
 
 interface NavLink {
@@ -158,13 +158,36 @@ export function MobileNav({ open, onClose, links }: MobileNavProps) {
             variants={itemVariants}
             initial="hidden"
             animate="visible"
-            className="px-5 pb-8 pt-4 sm:px-6"
+            className="flex flex-col gap-3 px-5 pb-8 pt-4 sm:px-6"
           >
-            <PostTaskModal>
-              <PillButton size="lg" className="w-full" onClick={onClose}>
+            <SignedOut>
+              <Link
+                href="/sign-in"
+                onClick={onClose}
+                className="w-full py-2.5 text-center font-sans text-sm font-semibold text-zinc-600 transition-colors duration-200 hover:text-zinc-950"
+              >
+                Sign in
+              </Link>
+              <PillButton href="/sign-up" size="lg" className="w-full">
                 Post a Task
               </PillButton>
-            </PostTaskModal>
+            </SignedOut>
+
+            <SignedIn>
+              <Link
+                href="/dashboard"
+                onClick={onClose}
+                className="w-full py-2.5 text-center font-sans text-sm font-semibold text-zinc-600 transition-colors duration-200 hover:text-zinc-950"
+              >
+                Dashboard
+              </Link>
+              <PillButton href="/post-job" size="lg" className="w-full">
+                Post a Task
+              </PillButton>
+              <div className="flex justify-center pt-1">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </SignedIn>
           </motion.div>
         </motion.div>
       )}

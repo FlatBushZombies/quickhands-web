@@ -2,7 +2,7 @@
 
 import { Button, buttonVariants } from "@/components/ui/button"
 import { useEffect, useState } from "react"
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 import Link from "next/link"
 import Image from "next/image"
 import { Menu } from "lucide-react"
@@ -72,20 +72,22 @@ export function Header() {
               <div className="w-px h-4 bg-zinc-200/60 mx-2" />
 
               <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="text-xs font-medium text-zinc-500 hover:text-zinc-950 px-3.5 py-1.5 rounded-full hover:bg-zinc-50 active:scale-[0.97] transition-all duration-200 cursor-pointer">
-                    Sign in
-                  </button>
-                </SignInButton>
+                <Link
+                  href="/sign-in"
+                  className="text-xs font-medium text-zinc-500 hover:text-zinc-950 px-3.5 py-1.5 rounded-full hover:bg-zinc-50 active:scale-[0.97] transition-all duration-200"
+                >
+                  Sign in
+                </Link>
 
-                <SignUpButton mode="modal">
-                  <Button
-                    size="sm"
-                    className="rounded-full px-5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover active:scale-[0.97] shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] transition-all duration-200 cursor-pointer border-0"
-                  >
-                    Get Started
-                  </Button>
-                </SignUpButton>
+                <Link
+                  href="/sign-up"
+                  className={buttonVariants({
+                    size: "sm",
+                    className: "rounded-full px-5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover active:scale-[0.97] shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] transition-all duration-200 border-0",
+                  })}
+                >
+                  Get Started
+                </Link>
               </SignedOut>
 
               <SignedIn>
@@ -149,16 +151,23 @@ export function Header() {
 
                 <div className="mt-auto space-y-2 border-t border-zinc-200 pt-4 font-sans">
                   <SignedOut>
-                    <SignInButton mode="modal">
-                      <Button variant="link" className="w-full text-xs font-semibold text-zinc-500 hover:text-zinc-900">
-                        Sign In
-                      </Button>
-                    </SignInButton>
-                    <SignUpButton mode="modal">
-                      <Button className="w-full rounded-full text-xs font-semibold h-10 bg-primary text-white hover:bg-primary-hover shadow-sm">
-                        Get Started
-                      </Button>
-                    </SignUpButton>
+                    <Link
+                      href="/sign-in"
+                      className={buttonVariants({
+                        variant: "link",
+                        className: "w-full text-xs font-semibold text-zinc-500 hover:text-zinc-900",
+                      })}
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/sign-up"
+                      className={buttonVariants({
+                        className: "w-full rounded-full text-xs font-semibold h-10 bg-primary text-white hover:bg-primary-hover shadow-sm",
+                      })}
+                    >
+                      Get Started
+                    </Link>
                   </SignedOut>
                   <SignedIn>
                     <Link
