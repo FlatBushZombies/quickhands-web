@@ -7,17 +7,17 @@ export interface DetectedLocation {
 
 /**
  * Browser Geolocation only returns raw coordinates — there's no
- * `expo-location`-style native reverse-geocode on web. Nominatim
- * (OpenStreetMap) is free and needs no API key/signup, just a descriptive
- * identifier per its usage policy: https://operations.osmfoundation.org/policies/nominatim/
- * Never blocks job posting on this succeeding — callers should fall back
- * to a manual city input if this throws.
+ * `expo-location`-style native reverse-geocode on web. Reverse geocoding
+ * itself happens server-side via /api/geocode (a thin proxy to Nominatim)
+ * rather than calling Nominatim directly from here: their usage policy
+ * prohibits client-side calls (browsers can't set a custom User-Agent at
+ * all, which their policy requires), and doing it anyway got silently
+ * rate-limited/blocked in a way that looked like an intermittent "location
+ * detection is broken" bug. Never blocks job posting on this succeeding —
+ * callers should fall back to a manual city input if this throws.
  */
 async function reverseGeocode(latitude: number, longitude: number): Promise<{ label: string | null; city: string | null }> {
-  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1`
-
-  const response = await fetch(url, {
-    headers: { "Accept-Language": "en" },
+  const response = await fetch(`/api/geocode?lat=${latitude}&lon=${longitude}`, {
     signal: AbortSignal.timeout(8000),
   })
 
@@ -25,12 +25,7 @@ async function reverseGeocode(latitude: number, longitude: number): Promise<{ la
     throw new Error(`Reverse geocoding failed (HTTP ${response.status})`)
   }
 
-  const data = await response.json()
-  const address = data?.address || {}
-  const city: string | null = address.city || address.town || address.village || address.county || null
-  const label: string | null = data?.display_name ? String(data.display_name).split(",").slice(0, 2).join(",").trim() : city
-
-  return { label, city }
+  return response.json()
 }
 
 export function getCurrentPosition(): Promise<GeolocationPosition> {

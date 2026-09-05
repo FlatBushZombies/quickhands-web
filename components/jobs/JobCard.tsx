@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { MapPin, Star, Users, Clock } from "lucide-react"
+import { ArrowRight, MapPin, Star, Users, Clock } from "lucide-react"
 import type { Job } from "@/lib/jobs-api"
 
 function timeAgo(dateString: string) {
@@ -60,6 +60,13 @@ export function JobCard({ job }: { job: Job }) {
             {job.clientReviewSummary.averageRating.toFixed(1)} ({job.clientReviewSummary.reviewCount})
           </span>
         ) : null}
+      </div>
+
+      {/* Explicit CTA rather than relying on the whole card being a silent
+          link — makes "this is something you apply to" unambiguous. */}
+      <div className="mt-4 flex items-center justify-end gap-1 text-sm font-semibold text-primary">
+        Apply now
+        <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
       </div>
     </Link>
   )

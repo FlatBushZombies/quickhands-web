@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { UserButton } from "@clerk/nextjs"
 import { useAppRole } from "@/components/app/AppRoleContext"
+import { NotificationBell } from "@/components/app/NotificationBell"
 
 export function AppHeader() {
   const { appRole } = useAppRole()
@@ -52,7 +53,10 @@ export function AppHeader() {
           })}
         </nav>
 
-        <UserButton afterSignOutUrl="/" />
+        <div className="flex items-center gap-1">
+          <NotificationBell />
+          <UserButton afterSignOutUrl="/" />
+        </div>
       </div>
 
       {/* Mobile nav — simple wrapped row under the header bar */}

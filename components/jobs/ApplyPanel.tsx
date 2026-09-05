@@ -160,6 +160,9 @@ export function ApplyPanel({ job }: { job: Job }) {
       <Button className="mt-4 w-full" onClick={handleSubmit} disabled={screen === "submitting" || !quotation.trim()}>
         {screen === "submitting" ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit application"}
       </Button>
+      {!quotation.trim() && screen !== "submitting" ? (
+        <p className="mt-2 text-center text-xs text-muted-foreground">Enter your rate above to submit</p>
+      ) : null}
     </div>
   )
 }
