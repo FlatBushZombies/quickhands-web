@@ -41,48 +41,27 @@ function useHarareTime() {
 }
 
 export function Header() {
-  const [scrolled, setScrolled] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const harareTime = useHarareTime()
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener("scroll", onScroll)
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
-
   return (
     <div className="fixed inset-x-0 top-0 z-40">
+      {/* Solid, opaque bar at all times — kept clearly distinct from
+          whatever sits underneath it (a photo hero on this page) rather
+          than blending into it while unscrolled. */}
       <motion.header
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ type: "spring", bounce: 0, duration: 0.7, delay: 0.15 }}
-        className={cn(
-          "w-full border-b transition-all duration-300",
-          scrolled
-            ? "border-zinc-200 bg-white/95 shadow-[0_1px_0_0_rgba(0,0,0,0.04)] backdrop-blur-md"
-            : "border-transparent bg-transparent"
-        )}
+        className="w-full border-b border-zinc-200 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.04)]"
       >
         <div className="mx-auto flex w-full max-w-[1800px] items-center justify-between gap-4 px-5 py-4 sm:px-6 md:px-10 lg:px-14 xl:px-20 2xl:max-w-[1600px]">
-          {/* Logo — same asset/treatment as the existing site header */}
+          {/* Logo */}
           <Link href="/" className="group flex flex-shrink-0 items-center gap-2.5">
-            <div
-              className={cn(
-                "relative h-8 w-8 flex-shrink-0 overflow-hidden rounded-full shadow-sm transition-all duration-300 group-hover:scale-105 group-hover:rotate-3",
-                scrolled
-                  ? "border border-zinc-200/70 bg-zinc-50"
-                  : "border border-white/30 bg-white/90 backdrop-blur-sm"
-              )}
-            >
+            <div className="relative h-8 w-8 flex-shrink-0 overflow-hidden rounded-full border border-zinc-200/70 bg-zinc-50 shadow-sm transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
               <Image src="/quickhands.png" alt="QuickHands" fill className="object-contain p-1" />
             </div>
-            <span
-              className={cn(
-                "font-sans text-sm font-semibold tracking-tight transition-colors duration-200 group-hover:text-primary",
-                scrolled ? "text-zinc-950" : "text-white"
-              )}
-            >
+            <span className="font-sans text-sm font-semibold tracking-tight text-zinc-950 transition-colors duration-200 group-hover:text-primary">
               QuickHands
             </span>
           </Link>
@@ -93,10 +72,7 @@ export function Header() {
               <Link
                 key={link.label}
                 href={link.href}
-                className={cn(
-                  "px-3.5 py-1.5 text-xs font-medium transition-colors duration-200",
-                  scrolled ? "text-zinc-500 hover:text-zinc-950" : "text-white/80 hover:text-white"
-                )}
+                className="px-3.5 py-1.5 text-xs font-medium text-zinc-500 transition-colors duration-200 hover:text-zinc-950"
               >
                 {link.label}
               </Link>
@@ -107,26 +83,18 @@ export function Header() {
           <div className="flex flex-shrink-0 items-center gap-2 sm:gap-3">
             {harareTime && (
               <span
-                className={cn(
-                  "hidden items-center gap-1.5 rounded-full border px-3 py-1.5 font-sans text-[11px] font-medium transition-colors duration-300 xl:inline-flex",
-                  scrolled
-                    ? "border-zinc-200 bg-zinc-50 text-zinc-500"
-                    : "border-white/25 bg-white/10 text-white/85 backdrop-blur-sm"
-                )}
+                className="hidden items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 font-sans text-[11px] font-medium text-zinc-500 xl:inline-flex"
                 aria-label={`Local time in Harare: ${harareTime}`}
               >
-                <Clock className={cn("h-3 w-3", scrolled ? "text-zinc-400" : "text-white/60")} aria-hidden="true" />
-                {harareTime} <span className={scrolled ? "text-zinc-400" : "text-white/60"}>Harare</span>
+                <Clock className="h-3 w-3 text-zinc-400" aria-hidden="true" />
+                {harareTime} <span className="text-zinc-400">Harare</span>
               </span>
             )}
 
             <SignedOut>
               <Link
                 href="/sign-in"
-                className={cn(
-                  "hidden px-3 py-1.5 font-sans text-xs font-medium transition-colors duration-200 sm:inline-flex",
-                  scrolled ? "text-zinc-500 hover:text-zinc-950" : "text-white/80 hover:text-white"
-                )}
+                className="hidden px-3 py-1.5 font-sans text-xs font-medium text-zinc-500 transition-colors duration-200 hover:text-zinc-950 sm:inline-flex"
               >
                 Sign in
               </Link>
@@ -139,10 +107,7 @@ export function Header() {
             <SignedIn>
               <Link
                 href="/dashboard"
-                className={cn(
-                  "hidden px-3 py-1.5 font-sans text-xs font-medium transition-colors duration-200 sm:inline-flex",
-                  scrolled ? "text-zinc-500 hover:text-zinc-950" : "text-white/80 hover:text-white"
-                )}
+                className="hidden px-3 py-1.5 font-sans text-xs font-medium text-zinc-500 transition-colors duration-200 hover:text-zinc-950 sm:inline-flex"
               >
                 Dashboard
               </Link>
@@ -160,12 +125,7 @@ export function Header() {
               aria-haspopup="true"
               aria-expanded={mobileNavOpen}
               onClick={() => setMobileNavOpen((v) => !v)}
-              className={cn(
-                "inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors duration-200 active:scale-90 lg:hidden",
-                scrolled
-                  ? "border-zinc-200 text-zinc-700 hover:bg-zinc-50"
-                  : "border-white/30 bg-white/10 text-white hover:bg-white/20"
-              )}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-zinc-700 transition-colors duration-200 hover:bg-zinc-50 active:scale-90 lg:hidden"
             >
               {mobileNavOpen ? (
                 <X className="h-4 w-4" aria-hidden="true" />

@@ -8,6 +8,7 @@ import { AnimatedLink } from "./AnimatedLink"
 import { HeroMarketplaceCard } from "./HeroMarketplaceCard"
 import { Em } from "./Em"
 import { PostTaskModal } from "./PostTaskModal"
+import { HeroSearch } from "./HeroSearch"
 
 const TRUST_SIGNALS = [
   { icon: ShieldCheck, label: "Verified specialists" },
@@ -120,7 +121,11 @@ export function Hero({ ready = true }: HeroProps) {
             trades and everyday tasks — post what you need and hear back fast.
           </motion.p>
 
-          <motion.div variants={itemVariants} className="mt-2 flex flex-wrap items-center gap-x-7 gap-y-3">
+          <motion.div variants={itemVariants} className="mt-2 w-full">
+            <HeroSearch />
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-x-7 gap-y-3">
             <PostTaskModal>
               <PillButton size="lg">Post a Task</PillButton>
             </PostTaskModal>

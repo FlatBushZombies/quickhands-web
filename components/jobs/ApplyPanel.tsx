@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { applyToJob, type ApplyResult } from "@/lib/applications-api"
+import { ensureBackendUser } from "@/lib/user-api"
 import type { Job } from "@/lib/jobs-api"
 
 type ScreenState = "form" | "submitting" | "success" | "error" | "already_applied"
@@ -58,6 +59,16 @@ export function ApplyPanel({ job }: { job: Job }) {
       setScreen("error")
       return
     }
+
+    // A visitor can reach this panel straight from the hero search without
+    // ever going through /onboarding (that route only gates /dashboard,
+    // /post-job, /messages) — make sure a backend profile exists so their
+    // dashboard/reviews have something to attach to. Applying itself
+    // doesn't depend on this succeeding, so it's fire-and-forget.
+    ensureBackendUser(
+      { id: user!.id, fullName: user!.fullName, imageUrl: user!.imageUrl, primaryEmailAddress: user!.primaryEmailAddress },
+      "freelancer"
+    ).catch(() => {})
 
     const result = await applyToJob(
       job.id,

@@ -16,11 +16,13 @@ export function AppHeader() {
           { href: "/post-job", label: "Post a job" },
           { href: "/dashboard", label: "Dashboard" },
           { href: "/messages", label: "Messages" },
+          { href: "/settings", label: "Settings" },
         ]
       : [
           { href: "/jobs", label: "Browse jobs" },
           { href: "/dashboard", label: "My applications" },
           { href: "/messages", label: "Messages" },
+          { href: "/settings", label: "Settings" },
         ]
 
   return (
