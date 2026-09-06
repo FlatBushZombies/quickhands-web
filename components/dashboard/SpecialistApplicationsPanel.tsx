@@ -33,9 +33,16 @@ export function SpecialistApplicationsPanel() {
 
   useEffect(() => {
     refresh()
-    pollRef.current = setInterval(refresh, 10000)
+    // Only poll while this tab is actually visible — see the matching
+    // comment in ClientApplicationsPanel.tsx.
+    const tick = () => {
+      if (!document.hidden) refresh()
+    }
+    pollRef.current = setInterval(tick, 10000)
+    document.addEventListener("visibilitychange", tick)
     return () => {
       if (pollRef.current) clearInterval(pollRef.current)
+      document.removeEventListener("visibilitychange", tick)
     }
   }, [refresh])
 
@@ -110,7 +117,13 @@ export function SpecialistApplicationsPanel() {
               <ReviewForm
                 applicationId={application.id}
                 existingReview={matrix?.freelancerToClient ?? null}
-                onSubmitted={() => setOpenReviewId(null)}
+                onSubmitted={(saved) => {
+                  setReviewMatrices((current) => ({
+                    ...current,
+                    [application.id]: { ...(current[application.id] as ReviewMatrix), freelancerToClient: saved },
+                  }))
+                  setOpenReviewId(null)
+                }}
               />
             ) : null}
           </div>

@@ -2,11 +2,23 @@
 
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
+import { useAuth } from "@clerk/nextjs"
+import { io, type Socket } from "socket.io-client"
 import { Bell, MessageCircle, Star, Briefcase, CheckCircle2, XCircle } from "lucide-react"
 import { useAppRole } from "@/components/app/AppRoleContext"
+import { API_BASE_URL } from "@/lib/fetch-client"
 import { getMyNotifications, markAllNotificationsRead, markNotificationRead, type AppNotification } from "@/lib/notifications-api"
 
-const POLL_INTERVAL_MS = 15000
+// Backend already pushes a `notification:new` socket event to a user's own
+// sockets the moment something happens (see quickhands/src/services/
+// notifications.service.js's notifyUser -> emitToUser) — the same
+// mechanism messaging already relies on. Previously this bell ignored
+// that entirely and just polled every 15s from every open tab regardless
+// of whether anything changed or the tab was even visible, which meant
+// N idle tabs each triggered their own full DB round trip every 15s for
+// no reason. Now it listens live and only falls back to polling (and only
+// while the tab is actually visible) when the socket isn't connected.
+const FALLBACK_POLL_INTERVAL_MS = 20000
 
 function iconFor(notification: AppNotification) {
   const message = notification.message.toLowerCase()
@@ -30,23 +42,80 @@ function timeAgo(iso: string) {
 
 export function NotificationBell() {
   const { clerkId } = useAppRole()
+  const { getToken } = useAuth()
   const [notifications, setNotifications] = useState<AppNotification[]>([])
+  const [connected, setConnected] = useState(false)
   const [open, setOpen] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
 
+  // Initial load, always — the socket only delivers what happens *after*
+  // it connects, it's not a substitute for fetching existing history.
   useEffect(() => {
     let cancelled = false
+    getMyNotifications(clerkId).then((data) => {
+      if (!cancelled) setNotifications(data)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [clerkId])
+
+  // Live push over the same socket infrastructure messaging already uses.
+  useEffect(() => {
+    let socket: Socket | null = null
+    let cancelled = false
+
+    ;(async () => {
+      const token = await getToken()
+      if (!token || cancelled) return
+
+      socket = io(API_BASE_URL, {
+        auth: { token },
+        transports: ["websocket", "polling"],
+        reconnection: true,
+        reconnectionAttempts: 10,
+        reconnectionDelay: 1000,
+      })
+
+      socket.on("connect", () => setConnected(true))
+      socket.on("disconnect", () => setConnected(false))
+      socket.on("connect_error", () => setConnected(false))
+      socket.on("notification:new", (payload: { notification: AppNotification }) => {
+        setNotifications((current) => {
+          if (current.some((n) => n.id === payload.notification.id)) return current
+          return [payload.notification, ...current]
+        })
+      })
+    })()
+
+    return () => {
+      cancelled = true
+      socket?.removeAllListeners()
+      socket?.close()
+    }
+  }, [getToken])
+
+  // Fallback only: if the socket is down, poll — but only while this tab
+  // is actually visible, so a background tab doesn't keep hitting the
+  // backend on a timer for a user who isn't even looking at it.
+  useEffect(() => {
+    if (connected) return
+
+    let cancelled = false
     const load = async () => {
+      if (document.hidden) return
       const data = await getMyNotifications(clerkId)
       if (!cancelled) setNotifications(data)
     }
-    load()
-    const interval = setInterval(load, POLL_INTERVAL_MS)
+
+    const interval = setInterval(load, FALLBACK_POLL_INTERVAL_MS)
+    document.addEventListener("visibilitychange", load)
     return () => {
       cancelled = true
       clearInterval(interval)
+      document.removeEventListener("visibilitychange", load)
     }
-  }, [clerkId])
+  }, [clerkId, connected])
 
   useEffect(() => {
     if (!open) return

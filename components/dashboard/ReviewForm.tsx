@@ -14,7 +14,7 @@ export function ReviewForm({
 }: {
   applicationId: number
   existingReview: ReviewEntry | null
-  onSubmitted: () => void
+  onSubmitted: (saved: ReviewEntry) => void
 }) {
   const { getToken } = useAuth()
   const [rating, setRating] = useState(existingReview?.rating ?? 5)
@@ -27,9 +27,11 @@ export function ReviewForm({
     try {
       const token = await getToken()
       if (!token) throw new Error("Not signed in")
-      await submitApplicationReview(applicationId, { rating, comment: comment.trim() }, token)
+      // Use the response the write already returns instead of leaving the
+      // caller's cached review matrix stale until some later re-fetch.
+      const savedReview = await submitApplicationReview(applicationId, { rating, comment: comment.trim() }, token)
       setSaved(true)
-      onSubmitted()
+      onSubmitted(savedReview)
     } catch (error) {
       console.error("Failed to save review:", error)
     } finally {

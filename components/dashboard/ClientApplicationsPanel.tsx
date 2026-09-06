@@ -41,9 +41,18 @@ export function ClientApplicationsPanel() {
 
   useEffect(() => {
     refresh()
-    pollRef.current = setInterval(refresh, 10000)
+    // Only poll while this tab is actually visible — a background tab was
+    // previously still hitting the backend every 10s for no one to see,
+    // multiplied by every open tab across every client. Refreshing once
+    // immediately on regaining focus covers the gap instead.
+    const tick = () => {
+      if (!document.hidden) refresh()
+    }
+    pollRef.current = setInterval(tick, 10000)
+    document.addEventListener("visibilitychange", tick)
     return () => {
       if (pollRef.current) clearInterval(pollRef.current)
+      document.removeEventListener("visibilitychange", tick)
     }
   }, [refresh])
 
@@ -52,8 +61,25 @@ export function ClientApplicationsPanel() {
     try {
       const token = await getToken()
       if (!token) return
-      await updateApplicationStatus(application.id, status, token)
-      await refresh()
+      // The PATCH response already carries the fully updated application —
+      // patch it into local state directly instead of re-fetching every
+      // job and application from scratch, which was throwing away and
+      // re-requesting data this call already returned.
+      const updated = await updateApplicationStatus(application.id, status, token)
+      setJobs((current) =>
+        current.map((job) => {
+          if (job.id !== updated.jobId) return job
+          const applications = job.applications.map((app) => (app.id === updated.id ? updated : app))
+          const applicationSummary = {
+            total: applications.length,
+            pending: applications.filter((a) => a.status === "pending").length,
+            accepted: applications.filter((a) => a.status === "accepted").length,
+            rejected: applications.filter((a) => a.status === "rejected").length,
+            completed: applications.filter((a) => a.status === "completed").length,
+          }
+          return { ...job, applications, applicationSummary }
+        })
+      )
     } catch (error) {
       console.error("Failed to update application:", error)
     } finally {
@@ -164,7 +190,13 @@ export function ClientApplicationsPanel() {
                       <ReviewForm
                         applicationId={application.id}
                         existingReview={matrix?.clientToFreelancer ?? null}
-                        onSubmitted={() => setOpenReviewId(null)}
+                        onSubmitted={(saved) => {
+                          setReviewMatrices((current) => ({
+                            ...current,
+                            [application.id]: { ...(current[application.id] as ReviewMatrix), clientToFreelancer: saved },
+                          }))
+                          setOpenReviewId(null)
+                        }}
                       />
                     ) : null}
                   </div>
