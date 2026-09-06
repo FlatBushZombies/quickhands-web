@@ -131,7 +131,7 @@ export default async function BioPage({ params }: PageProps) {
     <main className="relative min-h-screen overflow-hidden bg-background">
       {/* Same soft-grid brand treatment used across the site's hero sections */}
       <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-background" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#26c08d1a_1px,transparent_1px),linear-gradient(to_bottom,#26c08d1a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_60%,transparent_105%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#14a8001a_1px,transparent_1px),linear-gradient(to_bottom,#14a8001a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_60%,transparent_105%)]" />
 
       <div className="relative mx-auto flex min-h-screen max-w-md flex-col items-center px-6 pb-16 pt-14">
         <Link href="/" className="mb-10 flex items-center gap-2 text-sm font-semibold text-foreground/70 transition-colors hover:text-primary">
@@ -145,10 +145,10 @@ export default async function BioPage({ params }: PageProps) {
             <img
               src={imageUrl}
               alt={name}
-              className="h-28 w-28 rounded-full border-4 border-background object-cover shadow-[0_8px_30px_-8px_rgba(38,192,141,0.45)]"
+              className="h-28 w-28 rounded-full border-4 border-background object-cover shadow-[0_8px_30px_-8px_rgba(20,168,0,0.45)]"
             />
           ) : (
-            <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-background bg-gradient-to-br from-primary to-primary/70 text-3xl font-bold text-primary-foreground shadow-[0_8px_30px_-8px_rgba(38,192,141,0.45)]">
+            <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-background bg-gradient-to-br from-primary to-primary/70 text-3xl font-bold text-primary-foreground shadow-[0_8px_30px_-8px_rgba(20,168,0,0.45)]">
               {initialsOf(name)}
             </div>
           )}

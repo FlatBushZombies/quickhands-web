@@ -165,7 +165,7 @@ export default function HowItWorks() {
                     <div className="relative shrink-0 select-none">
                       <div className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-300 border
                         ${isActive
-                          ? "bg-primary border-primary shadow-[0_4px_16px_rgba(38,192,141,0.25)] text-white"
+                          ? "bg-primary border-primary shadow-[0_4px_16px_rgba(20,168,0,0.25)] text-white"
                           : "bg-zinc-900 border-zinc-800 text-zinc-400 group-hover:text-zinc-300 group-hover:bg-zinc-850"
                         }`}>
                         <StepIcon className="h-4.5 w-4.5" />
@@ -261,7 +261,7 @@ export default function HowItWorks() {
 
                 {/* Stat tag if exists */}
                 {current.stat && (
-                  <div className="absolute top-5 right-5 bg-primary/95 backdrop-blur-sm rounded-full px-3.5 py-1.5 shadow-[0_4px_16px_rgba(38,192,141,0.25)] border border-primary/20">
+                  <div className="absolute top-5 right-5 bg-primary/95 backdrop-blur-sm rounded-full px-3.5 py-1.5 shadow-[0_4px_16px_rgba(20,168,0,0.25)] border border-primary/20">
                     <p className="text-white text-[10.5px] font-semibold tracking-wide font-sans">
                       {current.stat}
                     </p>
@@ -272,7 +272,7 @@ export default function HowItWorks() {
               {/* Card Footer Text */}
               <div className="p-7 font-sans text-left space-y-4">
                 <div className="flex items-start gap-3.5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-primary shadow-[0_4px_12px_rgba(38,192,141,0.1)]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-primary shadow-[0_4px_12px_rgba(20,168,0,0.1)]">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
@@ -315,7 +315,7 @@ export default function HowItWorks() {
           </div>
           <a
             href="#"
-            className="inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3.5 text-white text-xs font-semibold shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] hover:bg-primary-hover active:scale-[0.97] transition-all duration-200 select-none cursor-pointer"
+            className="inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3.5 text-white text-xs font-semibold shadow-[0_4px_14px_rgba(20,168,0,0.25)] hover:shadow-[0_6px_20px_rgba(20,168,0,0.35)] hover:bg-primary-hover active:scale-[0.97] transition-all duration-200 select-none cursor-pointer"
           >
             Get Started — It's Free
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

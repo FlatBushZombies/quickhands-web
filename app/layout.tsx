@@ -1,10 +1,11 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Newsreader, Inter, Martian_Mono, Onest, Instrument_Serif, Plus_Jakarta_Sans } from "next/font/google"
+import { Newsreader, Inter, Martian_Mono, Onest, Instrument_Serif, Plus_Jakarta_Sans, Playfair_Display } from "next/font/google"
 import localFont from "next/font/local"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
 import CookieConsent from "@/components/cookie-consent/CookieConsent"
+import { PostHogProvider } from "@/components/PostHogProvider"
 
 const newsreader = Newsreader({
   variable: "--font-newsreader",
@@ -80,6 +81,23 @@ const instrumentSerif = Instrument_Serif({
   style: ["normal", "italic"],
 })
 
+/**
+ * Playfair Display — the "RZA" display-serif role from the newest spec.
+ * RZA is a real paid Out of the Dark foundry release with no free web/app
+ * license, so this is the user's own stated fallback, wired the same way as
+ * the other 6 Google fonts above. Exposed as --font-playfair and remapped
+ * to the --font-editorial token in globals.css, used sparingly for hero
+ * headlines and editorial callouts only (see Hero.tsx, Quickhandshero.tsx,
+ * CtaBand.tsx) — not a replacement for --font-heading (Satoshi), which
+ * keeps its existing H1–H3 role everywhere else.
+ */
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500", "600", "700"],
+})
+
 export const metadata: Metadata = {
   title: {
     default: "QuickHands | Find Trusted  Specialists in Africa",
@@ -148,6 +166,7 @@ export default function RootLayout({
             ${instrumentSerif.variable}
             ${satoshi.variable}
             ${plusJakartaSans.variable}
+            ${playfairDisplay.variable}
             font-sans
             min-h-screen
             antialiased
@@ -155,7 +174,9 @@ export default function RootLayout({
             text-foreground
           `}
         >
-          <main>{children}</main>
+          <PostHogProvider>
+            <main>{children}</main>
+          </PostHogProvider>
           <CookieConsent />
 
           {/* =============================

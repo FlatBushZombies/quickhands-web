@@ -43,7 +43,7 @@ export function Stats() {
           className="relative overflow-hidden rounded-[32px] border border-zinc-900 bg-zinc-950 px-8 py-16 sm:px-14 sm:py-20"
         >
           <div
-            className="pointer-events-none absolute left-1/2 top-0 -z-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(38,192,141,0.14)_0%,rgba(38,192,141,0.01)_70%,transparent_100%)] blur-[100px]"
+            className="pointer-events-none absolute left-1/2 top-0 -z-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(20,168,0,0.14)_0%,rgba(20,168,0,0.01)_70%,transparent_100%)] blur-[100px]"
             aria-hidden="true"
           />
 

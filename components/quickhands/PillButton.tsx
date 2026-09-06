@@ -44,7 +44,7 @@ const sizeClasses: Record<PillButtonSize, string> = {
 
 const variantClasses: Record<PillButtonVariant, string> = {
   primary:
-    "bg-primary text-white shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:bg-primary-hover hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)]",
+    "bg-primary text-white shadow-[0_4px_14px_rgba(20,168,0,0.25)] hover:bg-primary-hover hover:shadow-[0_6px_20px_rgba(20,168,0,0.35)]",
   secondary:
     "bg-zinc-900 text-white shadow-sm hover:bg-zinc-800",
   outline:

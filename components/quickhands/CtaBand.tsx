@@ -58,7 +58,7 @@ export function CtaBand() {
 
           <motion.h2
             variants={itemVariants}
-            className="font-heading text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
+            className="font-editorial text-4xl font-semibold leading-[1.05] tracking-tight text-white md:text-5xl lg:text-6xl"
           >
             Got something to do?
             <br />

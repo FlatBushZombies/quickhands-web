@@ -112,7 +112,7 @@ export function FaqSection() {
                   <div className="w-full text-left bg-transparent px-3 text-[10px] text-zinc-500 font-light">
                     Type your question...
                   </div>
-                  <button className="h-6.5 w-6.5 rounded-full bg-primary flex items-center justify-center shrink-0 cursor-pointer shadow-[0_2px_8px_rgba(38,192,141,0.25)] hover:bg-primary-hover active:scale-95 transition-all">
+                  <button className="h-6.5 w-6.5 rounded-full bg-primary flex items-center justify-center shrink-0 cursor-pointer shadow-[0_2px_8px_rgba(20,168,0,0.25)] hover:bg-primary-hover active:scale-95 transition-all">
                     <ArrowRight className="h-3 w-3 text-white" />
                   </button>
                 </div>

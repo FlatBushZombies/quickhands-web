@@ -103,7 +103,7 @@ export function Hero({ ready = true }: HeroProps) {
 
           <motion.h1
             variants={itemVariants}
-            className="font-heading text-[clamp(2.75rem,4.6vw+1.4rem,5.75rem)] font-bold leading-[1.03] tracking-[-0.02em] text-white"
+            className="font-editorial text-[clamp(2.75rem,4.6vw+1.4rem,5.75rem)] font-semibold leading-[1.03] tracking-[-0.02em] text-white"
           >
             Get tasks done.
             <br />

@@ -34,7 +34,7 @@ export default async function ProfilePage({
         <Header />
         <main className="min-h-screen bg-background">
           <section className="relative overflow-hidden border-b border-border/40 bg-gradient-to-b from-primary/5 to-background">
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#26c08d20_1px,transparent_1px),linear-gradient(to_bottom,#26c08d20_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#14a80020_1px,transparent_1px),linear-gradient(to_bottom,#14a80020_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
 
             <div className="container relative mx-auto px-4 py-24 sm:px-6 lg:px-8">
               <div className="mx-auto max-w-4xl text-center">

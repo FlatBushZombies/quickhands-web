@@ -10,8 +10,8 @@ import { Em } from "./quickhands/Em";
 /* ── Icons ───────────────────────────────────────────────── */
 const CheckIcon = () => (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="shrink-0">
-    <circle cx="10" cy="10" r="10" fill="#26C08D" fillOpacity="0.1" />
-    <path d="M6 10l3 3 5-5" stroke="#26C08D" strokeWidth="2"
+    <circle cx="10" cy="10" r="10" fill="#14A800" fillOpacity="0.1" />
+    <path d="M6 10l3 3 5-5" stroke="#14A800" strokeWidth="2"
       strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
@@ -27,7 +27,7 @@ const BellIcon = () => (
 
 const TrendUpIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-    stroke="#26C08D" strokeWidth="2.5"
+    stroke="#14A800" strokeWidth="2.5"
     strokeLinecap="round" strokeLinejoin="round">
     <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
     <polyline points="17 6 23 6 23 12" />
@@ -55,13 +55,13 @@ const MiniChart = () => (
     fill="none" preserveAspectRatio="none">
     <defs>
       <linearGradient id="qhh-chart-grad" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#26C08D" stopOpacity="0.2" />
-        <stop offset="100%" stopColor="#26C08D" stopOpacity="0" />
+        <stop offset="0%" stopColor="#14A800" stopOpacity="0.2" />
+        <stop offset="100%" stopColor="#14A800" stopOpacity="0" />
       </linearGradient>
     </defs>
     <path
       d="M0 26 C30 24 50 20 75 14 C100 8 130 5 160 3 C180 2 190 3 200 1"
-      stroke="#26C08D" strokeWidth="2" fill="none" strokeLinecap="round"
+      stroke="#14A800" strokeWidth="2" fill="none" strokeLinecap="round"
     />
     <path
       d="M0 26 C30 24 50 20 75 14 C100 8 130 5 160 3 C180 2 190 3 200 1 L200 32 L0 32Z"
@@ -125,7 +125,7 @@ export default function QuickHandsHero() {
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ repeat: Infinity, repeatType: "mirror", duration: 3.2, ease: "easeInOut", delay: 0.4 }}
-            className="flex items-center gap-2.5 whitespace-nowrap rounded-full border border-white/25 bg-primary px-4.5 py-2.5 font-sans text-xs font-semibold text-white shadow-[0_4px_14px_rgba(38,192,141,0.35)] transition-transform active:scale-95"
+            className="flex items-center gap-2.5 whitespace-nowrap rounded-full border border-white/25 bg-primary px-4.5 py-2.5 font-sans text-xs font-semibold text-white shadow-[0_4px_14px_rgba(20,168,0,0.35)] transition-transform active:scale-95"
           >
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20">
               <BellIcon />
@@ -163,7 +163,7 @@ export default function QuickHandsHero() {
             Now available in your area
           </Eyebrow>
 
-          <h1 className="font-heading text-[42px] font-bold leading-[1.04] tracking-[-0.025em] text-white sm:text-[56px] md:text-[72px] lg:text-[92px]">
+          <h1 className="font-editorial text-[42px] font-semibold leading-[1.04] tracking-[-0.025em] text-white sm:text-[56px] md:text-[72px] lg:text-[92px]">
             Be your own <Em>boss</Em>.
           </h1>
 
@@ -177,7 +177,7 @@ export default function QuickHandsHero() {
             <OnboardingModal>
               <button
                 type="button"
-                className="group inline-flex items-center gap-3 rounded-full bg-primary px-7 py-3 text-xs font-semibold text-white shadow-[0_4px_14px_rgba(38,192,141,0.35)] transition-all duration-200 hover:bg-primary-hover hover:shadow-[0_6px_20px_rgba(38,192,141,0.45)] active:scale-[0.97]"
+                className="group inline-flex items-center gap-3 rounded-full bg-primary px-7 py-3 text-xs font-semibold text-white shadow-[0_4px_14px_rgba(20,168,0,0.35)] transition-all duration-200 hover:bg-primary-hover hover:shadow-[0_6px_20px_rgba(20,168,0,0.45)] active:scale-[0.97]"
               >
                 Register as a specialist
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20 transition-transform duration-200 group-hover:translate-x-0.5">

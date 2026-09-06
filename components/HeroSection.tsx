@@ -133,7 +133,7 @@ export function HeroSection() {
       aria-label="Hero section"
     >
       {/* Soft radial glow using brand green */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-[radial-gradient(circle_at_center,rgba(38,192,141,0.08)_0%,rgba(38,192,141,0.01)_70%,transparent_100%)] rounded-full blur-[110px] pointer-events-none -z-10" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[450px] bg-[radial-gradient(circle_at_center,rgba(20,168,0,0.08)_0%,rgba(20,168,0,0.01)_70%,transparent_100%)] rounded-full blur-[110px] pointer-events-none -z-10" />
 
       {/* Subtle grid overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#1a1a1a03_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a03_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] -z-20" />
@@ -146,7 +146,7 @@ export function HeroSection() {
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 bg-primary/5 border border-primary/15 rounded-full px-4 py-1.5 shadow-[0_2px_10px_rgba(38,192,141,0.04)] hover:bg-primary/8 transition-colors duration-200"
+          className="inline-flex items-center gap-2 bg-primary/5 border border-primary/15 rounded-full px-4 py-1.5 shadow-[0_2px_10px_rgba(20,168,0,0.04)] hover:bg-primary/8 transition-colors duration-200"
         >
           <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0 animate-pulse" />
           <span className="text-[10px] font-semibold text-primary tracking-[0.08em] uppercase font-sans">
@@ -171,7 +171,7 @@ export function HeroSection() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="w-full max-w-[540px] relative mt-1"
         >
-          <div className="relative w-full flex items-center bg-zinc-50/90 backdrop-blur-sm border border-zinc-200/80 rounded-full p-2 focus-within:bg-white focus-within:border-primary/50 focus-within:ring-4 focus-within:ring-primary/10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-zinc-300 focus-within:shadow-[0_12px_32px_rgba(38,192,141,0.08)] transition-all duration-300">
+          <div className="relative w-full flex items-center bg-zinc-50/90 backdrop-blur-sm border border-zinc-200/80 rounded-full p-2 focus-within:bg-white focus-within:border-primary/50 focus-within:ring-4 focus-within:ring-primary/10 shadow-[0_8px_30px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-zinc-300 focus-within:shadow-[0_12px_32px_rgba(20,168,0,0.08)] transition-all duration-300">
             <Search className="h-4.5 w-4.5 text-zinc-400 shrink-0 ml-3.5" />
             <input
               type="text"
@@ -187,7 +187,7 @@ export function HeroSection() {
             />
             <button
               type="button"
-              className="h-10 px-6 font-sans text-xs font-semibold rounded-full bg-primary text-white hover:bg-primary-hover active:scale-[0.97] shadow-[0_4px_12px_rgba(38,192,141,0.2)] hover:shadow-[0_6px_16px_rgba(38,192,141,0.3)] transition-all shrink-0 cursor-pointer"
+              className="h-10 px-6 font-sans text-xs font-semibold rounded-full bg-primary text-white hover:bg-primary-hover active:scale-[0.97] shadow-[0_4px_12px_rgba(20,168,0,0.2)] hover:shadow-[0_6px_16px_rgba(20,168,0,0.3)] transition-all shrink-0 cursor-pointer"
             >
               Search
             </button>
@@ -253,7 +253,7 @@ export function HeroSection() {
           <ClientLogin>
             <button
               type="button"
-              className="h-11 px-7 font-sans text-xs font-semibold rounded-full bg-primary text-white hover:bg-primary-hover active:scale-[0.97] transition-all duration-200 shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] cursor-pointer"
+              className="h-11 px-7 font-sans text-xs font-semibold rounded-full bg-primary text-white hover:bg-primary-hover active:scale-[0.97] transition-all duration-200 shadow-[0_4px_14px_rgba(20,168,0,0.25)] hover:shadow-[0_6px_20px_rgba(20,168,0,0.35)] cursor-pointer"
             >
               Get Started
             </button>

@@ -53,7 +53,7 @@ export function MarketplacePreview() {
     <section className="relative overflow-hidden bg-zinc-950 py-28 lg:py-36" aria-label="How the marketplace works">
       {/* Soft brand glow, same restrained-accent language as Hero */}
       <div
-        className="pointer-events-none absolute right-0 top-0 -z-0 h-[500px] w-[700px] rounded-full bg-[radial-gradient(circle_at_center,rgba(38,192,141,0.14)_0%,rgba(38,192,141,0.01)_70%,transparent_100%)] blur-[110px]"
+        className="pointer-events-none absolute right-0 top-0 -z-0 h-[500px] w-[700px] rounded-full bg-[radial-gradient(circle_at_center,rgba(20,168,0,0.14)_0%,rgba(20,168,0,0.01)_70%,transparent_100%)] blur-[110px]"
         aria-hidden="true"
       />
       <div

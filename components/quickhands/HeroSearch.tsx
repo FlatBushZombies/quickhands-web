@@ -35,7 +35,7 @@ export function HeroSearch() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex w-full max-w-[560px] items-center gap-2 rounded-full bg-white p-2 shadow-[0_12px_32px_-8px_rgba(0,0,0,0.35)]"
+      className="flex w-full max-w-[560px] items-center gap-2 rounded-full border border-zinc-200 bg-white p-2 shadow-[0_8px_24px_-10px_rgba(0,0,0,0.12)]"
       role="search"
       aria-label="Search jobs"
     >

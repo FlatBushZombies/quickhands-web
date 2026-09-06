@@ -84,7 +84,7 @@ export function TaskCategories() {
               variants={cardVariants}
               whileHover={prefersReducedMotion ? undefined : { y: -4 }}
               transition={{ type: "spring", bounce: 0, duration: 0.3 }}
-              className="group relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-zinc-200 shadow-sm transition-shadow duration-300 hover:shadow-[0_30px_60px_-20px_rgba(9,9,11,0.3)] sm:aspect-[16/11]"
+              className="group relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-zinc-200 shadow-sm transition-shadow duration-300 hover:shadow-[0_20px_45px_-18px_rgba(9,9,11,0.18)] sm:aspect-[16/11]"
               tabIndex={0}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -102,7 +102,7 @@ export function HowItWorks() {
                     <span className="text-[8px] text-zinc-400 mt-1 ml-1.5 font-light">10:14 AM</span>
                   </div>
                   <div className="flex flex-col items-end max-w-[85%] ml-auto">
-                    <div className="bg-primary text-white rounded-2xl rounded-tr-sm px-3.5 py-2 font-semibold shadow-[0_3px_10px_rgba(38,192,141,0.2)]">
+                    <div className="bg-primary text-white rounded-2xl rounded-tr-sm px-3.5 py-2 font-semibold shadow-[0_3px_10px_rgba(20,168,0,0.2)]">
                       Sounds great, Farai. Can we align on dimensions tomorrow morning?
                     </div>
                     <span className="text-[8px] text-zinc-400 mt-1 mr-1.5 font-light">10:16 AM</span>
@@ -114,7 +114,7 @@ export function HowItWorks() {
                   <div className="w-full text-left bg-transparent px-3 text-[10px] text-zinc-400 font-sans font-light">
                     Type a message...
                   </div>
-                  <button className="h-6.5 w-6.5 rounded-full bg-primary flex items-center justify-center shrink-0 cursor-pointer shadow-[0_2px_8px_rgba(38,192,141,0.25)] hover:bg-primary-hover active:scale-95 transition-all">
+                  <button className="h-6.5 w-6.5 rounded-full bg-primary flex items-center justify-center shrink-0 cursor-pointer shadow-[0_2px_8px_rgba(20,168,0,0.25)] hover:bg-primary-hover active:scale-95 transition-all">
                     <ArrowRight className="h-3 w-3 text-white" />
                   </button>
                 </div>
@@ -166,7 +166,7 @@ export function HowItWorks() {
             className="lg:col-span-4 flex flex-col"
           >
             <div className="flex-1 bg-zinc-950 border border-zinc-900 rounded-[24px] p-7 flex flex-col justify-between shadow-lg relative overflow-hidden group hover:border-zinc-800 transition-colors duration-300">
-              <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-[radial-gradient(circle_at_center,rgba(38,192,141,0.15)_0%,rgba(38,192,141,0.01)_70%,transparent_100%)] rounded-full blur-[40px] pointer-events-none -z-10" />
+              <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-[radial-gradient(circle_at_center,rgba(20,168,0,0.15)_0%,rgba(20,168,0,0.01)_70%,transparent_100%)] rounded-full blur-[40px] pointer-events-none -z-10" />
 
               <div className="space-y-4 text-left font-sans">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 transition-transform duration-300 group-hover:scale-105">

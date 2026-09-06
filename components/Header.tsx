@@ -83,7 +83,7 @@ export function Header() {
                   href="/sign-up"
                   className={buttonVariants({
                     size: "sm",
-                    className: "rounded-full px-5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover active:scale-[0.97] shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] transition-all duration-200 border-0",
+                    className: "rounded-full px-5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover active:scale-[0.97] shadow-[0_4px_14px_rgba(20,168,0,0.25)] hover:shadow-[0_6px_20px_rgba(20,168,0,0.35)] transition-all duration-200 border-0",
                   })}
                 >
                   Get Started

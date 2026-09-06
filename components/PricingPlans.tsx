@@ -36,7 +36,7 @@ export function PricingPlans() {
   return (
     <section className="relative py-32 bg-zinc-50/50 overflow-hidden">
       {/* Background ambient glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(38,192,141,0.04),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(20,168,0,0.04),transparent)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle,#1a1a1a01_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none -z-10" />
 
       <div className="max-w-[1200px] mx-auto px-6 relative z-10">
@@ -66,7 +66,7 @@ export function PricingPlans() {
                 key={plan.title}
                 className={`relative rounded-[24px] p-px overflow-hidden transition-all duration-300 hover:-translate-y-1 group ${
                   plan.accent
-                    ? "bg-gradient-to-br from-primary via-primary-hover to-[#1FA777] shadow-[0_10px_35px_-8px_rgba(38,192,141,0.25)] hover:shadow-[0_20px_45px_-10px_rgba(38,192,141,0.35)]"
+                    ? "bg-gradient-to-br from-primary via-primary-hover to-[#108600] shadow-[0_10px_35px_-8px_rgba(20,168,0,0.25)] hover:shadow-[0_20px_45px_-10px_rgba(20,168,0,0.35)]"
                     : "bg-zinc-200/80 hover:bg-zinc-300 hover:shadow-[0_10px_35px_-10px_rgba(0,0,0,0.03)]"
                 }`}
               >

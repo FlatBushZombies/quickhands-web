@@ -105,8 +105,8 @@ function matchCategory(profession: string): string {
 }
 
 function AfricaSilhouette({ forBanner = false }) {
-  const fill   = forBanner ? "rgba(255,255,255,0.03)" : "rgba(38,192,141,0.01)"
-  const stroke = forBanner ? "rgba(255,255,255,0.05)" : "rgba(38,192,141,0.03)"
+  const fill   = forBanner ? "rgba(255,255,255,0.03)" : "rgba(20,168,0,0.01)"
+  const stroke = forBanner ? "rgba(255,255,255,0.05)" : "rgba(20,168,0,0.03)"
   return (
     <svg 
       viewBox="0 0 400 520" 
@@ -371,7 +371,7 @@ export default function Marketplace() {
 
         {/* ── App Banner (Editorial Callout) ── */}
         <div className="mt-24 bg-zinc-950 border border-zinc-900 rounded-[32px] relative overflow-hidden text-white p-8 md:p-14 text-left group shadow-2xl">
-          <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-[radial-gradient(circle_at_center,rgba(38,192,141,0.14)_0%,rgba(38,192,141,0.01)_70%,transparent_100%)] rounded-full blur-[90px] pointer-events-none -z-10" />
+          <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-[radial-gradient(circle_at_center,rgba(20,168,0,0.14)_0%,rgba(20,168,0,0.01)_70%,transparent_100%)] rounded-full blur-[90px] pointer-events-none -z-10" />
           <div className="absolute inset-0 bg-[radial-gradient(circle,#ffffff01_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none -z-20" />
           <AfricaSilhouette forBanner={true} />
 

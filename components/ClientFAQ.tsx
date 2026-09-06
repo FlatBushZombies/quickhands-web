@@ -97,7 +97,7 @@ export function ClientFAQ() {
           <ClientLogin>
             <button
               type="button"
-              className="h-12 px-8 font-sans text-xs font-semibold rounded-full bg-primary text-white hover:bg-primary-hover active:scale-[0.97] transition-all duration-200 shadow-[0_4px_14px_rgba(38,192,141,0.25)] hover:shadow-[0_6px_20px_rgba(38,192,141,0.35)] cursor-pointer"
+              className="h-12 px-8 font-sans text-xs font-semibold rounded-full bg-primary text-white hover:bg-primary-hover active:scale-[0.97] transition-all duration-200 shadow-[0_4px_14px_rgba(20,168,0,0.25)] hover:shadow-[0_6px_20px_rgba(20,168,0,0.35)] cursor-pointer"
             >
               Get Started
             </button>
