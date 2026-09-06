@@ -31,6 +31,15 @@
   --primary-hover: #108600;
   --primary-light: #E3F1E8;
   --primary-foreground: #FFFFFF;
+  /* Specialist-side identity — deliberately distinct from --primary so the
+     "hire" (client) and "find work" (specialist) halves of the product
+     read as two different contexts rather than one undifferentiated
+     green experience. Used on the /professionals marketing page and the
+     freelancer-role authenticated app surfaces. */
+  --specialist: #2952E3;
+  --specialist-hover: #1E3FB8;
+  --specialist-light: #EAEFFD;
+  --specialist-foreground: #FFFFFF;
   --secondary: #F1F5F9;
   --secondary-foreground: #0F172A;
   --muted: #F1F5F9;
@@ -132,6 +141,17 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  /* Registers what was already being referenced sitewide (hover:bg-primary-
+     hover, bg-primary-light) but never actually mapped into the theme —
+     Tailwind v4 only generates a utility for a color name that has a
+     matching --color-* entry, so those hover states were silently no-ops
+     until now. */
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
+  --color-specialist: var(--specialist);
+  --color-specialist-foreground: var(--specialist-foreground);
+  --color-specialist-hover: var(--specialist-hover);
+  --color-specialist-light: var(--specialist-light);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);

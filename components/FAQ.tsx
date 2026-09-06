@@ -52,8 +52,8 @@ export function FaqSection() {
   return (
     <section className="relative py-32 bg-zinc-950 overflow-hidden">
       {/* Background ambient accents */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[130px] pointer-events-none -z-10" />
-      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/4 rounded-full blur-[110px] pointer-events-none -z-10" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-specialist/5 rounded-full blur-[130px] pointer-events-none -z-10" />
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-specialist/4 rounded-full blur-[110px] pointer-events-none -z-10" />
 
       {/* Background dot grid pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle,#ffffff01_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none -z-20" />
@@ -65,7 +65,7 @@ export function FaqSection() {
           <div className="lg:sticky lg:top-28 text-left font-sans flex flex-col gap-5">
             {/* Label */}
             <div className="inline-flex items-center gap-2 self-start select-none">
-              <MessageCircle className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+              <MessageCircle className="h-3.5 w-3.5 text-specialist" aria-hidden="true" />
               <span className="text-[10px] font-semibold text-zinc-400 tracking-[0.16em] uppercase font-sans">
                 Help Center
               </span>
@@ -85,7 +85,7 @@ export function FaqSection() {
             <OnboardingModal>
               <Button
                 size="lg"
-                className="h-11 px-7 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-full shadow-sm transition-all duration-200 group self-start cursor-pointer"
+                className="h-11 px-7 bg-specialist hover:bg-specialist-hover text-white text-xs font-semibold rounded-full shadow-sm transition-all duration-200 group self-start cursor-pointer"
               >
                 Sign Up
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
@@ -94,11 +94,11 @@ export function FaqSection() {
 
             {/* Custom Interactive Widget (Replaces static SVG Illustration) */}
             <div className="relative mt-8 max-w-xs select-none">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-[24px] blur-xl" />
+              <div className="absolute inset-0 bg-gradient-to-br from-specialist/10 to-transparent rounded-[24px] blur-xl" />
               <div className="relative rounded-[24px] border border-zinc-850 bg-zinc-900/90 backdrop-blur-md p-5 space-y-4 shadow-xl">
                 <div className="flex items-center gap-3">
-                  <div className="h-8.5 w-8.5 rounded-lg bg-zinc-800 flex items-center justify-center border border-zinc-750 transition-colors group-hover:border-primary/30">
-                    <MessageCircle className="h-4 w-4 text-primary" />
+                  <div className="h-8.5 w-8.5 rounded-lg bg-zinc-800 flex items-center justify-center border border-zinc-750 transition-colors group-hover:border-specialist/30">
+                    <MessageCircle className="h-4 w-4 text-specialist" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-white">Ask our helper bot</p>
@@ -112,7 +112,7 @@ export function FaqSection() {
                   <div className="w-full text-left bg-transparent px-3 text-[10px] text-zinc-500 font-light">
                     Type your question...
                   </div>
-                  <button className="h-6.5 w-6.5 rounded-full bg-primary flex items-center justify-center shrink-0 cursor-pointer shadow-[0_2px_8px_rgba(20,168,0,0.25)] hover:bg-primary-hover active:scale-95 transition-all">
+                  <button className="h-6.5 w-6.5 rounded-full bg-specialist flex items-center justify-center shrink-0 cursor-pointer shadow-[0_2px_8px_rgba(41,82,227,0.25)] hover:bg-specialist-hover active:scale-95 transition-all">
                     <ArrowRight className="h-3 w-3 text-white" />
                   </button>
                 </div>
@@ -128,7 +128,7 @@ export function FaqSection() {
                   key={index}
                   value={`item-${index}`}
                   className="group border border-zinc-900 bg-zinc-900/30 rounded-[24px] px-6 py-1
-                    data-[state=open]:bg-zinc-900 data-[state=open]:border-primary/20 data-[state=open]:border-l-primary data-[state=open]:border-l-2
+                    data-[state=open]:bg-zinc-900 data-[state=open]:border-specialist/20 data-[state=open]:border-l-specialist data-[state=open]:border-l-2
                     transition-all duration-300 hover:border-zinc-850 shadow-[0_4px_20px_rgba(0,0,0,0.01)]"
                 >
                   <AccordionTrigger
@@ -147,7 +147,7 @@ export function FaqSection() {
             {/* Bottom helper email link */}
             <p className="mt-10 font-body text-[15px] text-zinc-500 text-center font-normal select-none">
               Still have questions?{" "}
-              <a href="mailto:support@quickhands.com" className="text-primary hover:text-primary-hover transition-colors underline underline-offset-2">
+              <a href="mailto:support@quickhands.com" className="text-specialist hover:text-specialist-hover transition-colors underline underline-offset-2">
                 Contact our support team →
               </a>
             </p>

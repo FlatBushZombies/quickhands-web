@@ -125,7 +125,7 @@ export default function QuickHandsHero() {
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ repeat: Infinity, repeatType: "mirror", duration: 3.2, ease: "easeInOut", delay: 0.4 }}
-            className="flex items-center gap-2.5 whitespace-nowrap rounded-full border border-white/25 bg-primary px-4.5 py-2.5 font-sans text-xs font-semibold text-white shadow-[0_4px_14px_rgba(20,168,0,0.35)] transition-transform active:scale-95"
+            className="flex items-center gap-2.5 whitespace-nowrap rounded-full border border-white/25 bg-specialist px-4.5 py-2.5 font-sans text-xs font-semibold text-white shadow-[0_4px_14px_rgba(41,82,227,0.35)] transition-transform active:scale-95"
           >
             <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20">
               <BellIcon />
@@ -177,7 +177,7 @@ export default function QuickHandsHero() {
             <OnboardingModal>
               <button
                 type="button"
-                className="group inline-flex items-center gap-3 rounded-full bg-primary px-7 py-3 text-xs font-semibold text-white shadow-[0_4px_14px_rgba(20,168,0,0.35)] transition-all duration-200 hover:bg-primary-hover hover:shadow-[0_6px_20px_rgba(20,168,0,0.45)] active:scale-[0.97]"
+                className="group inline-flex items-center gap-3 rounded-full bg-specialist px-7 py-3 text-xs font-semibold text-white shadow-[0_4px_14px_rgba(41,82,227,0.35)] transition-all duration-200 hover:bg-specialist-hover hover:shadow-[0_6px_20px_rgba(41,82,227,0.45)] active:scale-[0.97]"
               >
                 Register as a specialist
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20 transition-transform duration-200 group-hover:translate-x-0.5">

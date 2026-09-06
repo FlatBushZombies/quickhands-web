@@ -68,15 +68,30 @@ export function Header() {
 
           {/* Desktop nav */}
           <nav aria-label="Primary" className="hidden items-center gap-1 font-sans lg:flex">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="px-3.5 py-1.5 text-xs font-medium text-zinc-500 transition-colors duration-200 hover:text-zinc-950"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) =>
+              // Deliberately louder than every other nav item — it's the
+              // one link that sends a client-side visitor across to the
+              // specialist-colored half of the product, so it gets a
+              // preview of that color plus real size/weight to make sure
+              // it isn't just skimmed past as one more gray label.
+              link.href === "/professionals" ? (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="px-3.5 py-1.5 text-sm font-bold text-specialist transition-colors duration-200 hover:text-specialist-hover"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  className="px-3.5 py-1.5 text-xs font-medium text-zinc-500 transition-colors duration-200 hover:text-zinc-950"
+                >
+                  {link.label}
+                </Link>
+              )
+            )}
           </nav>
 
           {/* Right cluster */}

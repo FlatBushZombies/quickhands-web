@@ -7,6 +7,10 @@ import Image from "next/image"
 import { Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
+// Specialist-side identity (--specialist, blue) instead of the client-side
+// --primary green used everywhere else — deliberately distinct so a
+// visitor always has a color cue for which half of the product they're
+// in, not just page copy.
 export function ProfessionalsHeader() {
   const links = [
     { label: "How It Works", href: "#how" },
@@ -31,7 +35,7 @@ export function ProfessionalsHeader() {
                   className="object-contain p-1"
                 />
               </div>
-              <span className="text-xs font-semibold tracking-tight text-zinc-900 transition-colors duration-200 group-hover:text-primary font-sans">
+              <span className="text-xs font-semibold tracking-tight text-zinc-900 transition-colors duration-200 group-hover:text-specialist font-sans">
                 Quickhands Africa
               </span>
             </Link>
@@ -62,7 +66,7 @@ export function ProfessionalsHeader() {
                   href="/sign-up"
                   className={buttonVariants({
                     size: "sm",
-                    className: "rounded-full px-5 text-xs font-semibold bg-primary text-white hover:bg-primary-hover active:scale-[0.97] shadow-[0_4px_14px_rgba(20,168,0,0.25)] hover:shadow-[0_6px_20px_rgba(20,168,0,0.35)] transition-all duration-200 border-0",
+                    className: "rounded-full px-5 text-xs font-semibold bg-specialist text-specialist-foreground hover:bg-specialist-hover active:scale-[0.97] shadow-[0_4px_14px_rgba(41,82,227,0.25)] hover:shadow-[0_6px_20px_rgba(41,82,227,0.35)] transition-all duration-200 border-0",
                   })}
                 >
                   Register
@@ -143,7 +147,7 @@ export function ProfessionalsHeader() {
                       <Link
                         href="/sign-up"
                         className={buttonVariants({
-                          className: "w-full rounded-full text-xs font-semibold h-10 bg-primary text-white hover:bg-primary-hover shadow-sm",
+                          className: "w-full rounded-full text-xs font-semibold h-10 bg-specialist text-specialist-foreground hover:bg-specialist-hover shadow-sm",
                         })}
                       >
                         Register
@@ -153,7 +157,7 @@ export function ProfessionalsHeader() {
                       <Link
                         href="/dashboard"
                         className={buttonVariants({
-                          className: "w-full rounded-full text-xs font-semibold h-10 bg-primary text-white hover:bg-primary-hover shadow-sm",
+                          className: "w-full rounded-full text-xs font-semibold h-10 bg-specialist text-specialist-foreground hover:bg-specialist-hover shadow-sm",
                         })}
                       >
                         Dashboard

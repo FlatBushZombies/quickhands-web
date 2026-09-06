@@ -37,14 +37,16 @@ export function AppHeader() {
         <nav className="hidden items-center gap-1 sm:flex">
           {navLinks.map((link) => {
             const active = pathname === link.href || pathname?.startsWith(`${link.href}/`)
+            // Same client/specialist color split as the marketing site —
+            // whichever role you're signed in as colors your whole
+            // in-app nav, not just the logged-out pages.
+            const activeClasses = appRole === "client" ? "bg-primary/10 text-primary" : "bg-specialist/10 text-specialist"
             return (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  active
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  active ? activeClasses : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                 }`}
               >
                 {link.label}

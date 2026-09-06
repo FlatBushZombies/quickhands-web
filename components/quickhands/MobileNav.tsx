@@ -136,7 +136,9 @@ export function MobileNav({ open, onClose, links }: MobileNavProps) {
             variants={listVariants}
             className="flex flex-1 flex-col justify-center gap-0.5 px-5 sm:px-6"
           >
-            {links.map((link, i) => (
+            {links.map((link, i) => {
+              const isSpecialistLink = link.href === "/professionals"
+              return (
               <motion.div key={link.label} variants={itemVariants} className="border-b border-zinc-100">
                 <Link
                   href={link.href}
@@ -146,12 +148,19 @@ export function MobileNav({ open, onClose, links }: MobileNavProps) {
                   <span className="font-mono text-[11px] tabular-nums text-zinc-400">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="font-serif text-3xl leading-none tracking-tight text-zinc-950 transition-colors duration-200 group-hover:text-primary sm:text-4xl">
+                  <span
+                    className={
+                      isSpecialistLink
+                        ? "font-serif text-3xl leading-none tracking-tight text-specialist transition-colors duration-200 group-hover:text-specialist-hover sm:text-4xl"
+                        : "font-serif text-3xl leading-none tracking-tight text-zinc-950 transition-colors duration-200 group-hover:text-primary sm:text-4xl"
+                    }
+                  >
                     {link.label}
                   </span>
                 </Link>
               </motion.div>
-            ))}
+              )
+            })}
           </motion.nav>
 
           <motion.div

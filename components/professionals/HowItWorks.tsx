@@ -120,8 +120,8 @@ export default function HowItWorks() {
       <div className="absolute inset-0 bg-[radial-gradient(circle,#ffffff01_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none -z-10" />
       
       {/* Soft dark ambient glows */}
-      <div className="pointer-events-none absolute -top-40 right-0 w-[550px] h-[550px] rounded-full bg-primary/5 blur-[120px] -z-10" />
-      <div className="pointer-events-none absolute -bottom-40 left-0 w-[500px] h-[500px] rounded-full bg-primary/3 blur-[100px] -z-10" />
+      <div className="pointer-events-none absolute -top-40 right-0 w-[550px] h-[550px] rounded-full bg-specialist/5 blur-[120px] -z-10" />
+      <div className="pointer-events-none absolute -bottom-40 left-0 w-[500px] h-[500px] rounded-full bg-specialist/3 blur-[100px] -z-10" />
 
       <div className="relative z-10 max-w-[1200px] w-full mx-auto px-6">
 
@@ -156,7 +156,7 @@ export default function HowItWorks() {
                   onClick={() => handleSelect(i)}
                   className={`group relative w-full text-left rounded-[24px] px-6 py-4.5 border transition-all duration-300 cursor-pointer focus:outline-none
                     ${isActive
-                      ? "bg-zinc-900 border-zinc-800 border-l-2 border-l-primary shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
+                      ? "bg-zinc-900 border-zinc-800 border-l-2 border-l-specialist shadow-[0_8px_30px_rgba(0,0,0,0.4)]"
                       : "bg-transparent border-transparent hover:bg-zinc-900/30 hover:border-zinc-900/80"
                     }`}
                 >
@@ -165,14 +165,14 @@ export default function HowItWorks() {
                     <div className="relative shrink-0 select-none">
                       <div className={`flex h-11 w-11 items-center justify-center rounded-2xl transition-all duration-300 border
                         ${isActive
-                          ? "bg-primary border-primary shadow-[0_4px_16px_rgba(20,168,0,0.25)] text-white"
+                          ? "bg-specialist border-specialist shadow-[0_4px_16px_rgba(41,82,227,0.25)] text-white"
                           : "bg-zinc-900 border-zinc-800 text-zinc-400 group-hover:text-zinc-300 group-hover:bg-zinc-850"
                         }`}>
                         <StepIcon className="h-4.5 w-4.5" />
                       </div>
                       <div className={`absolute -top-1.5 -right-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full text-[9px] font-bold border transition-all duration-300 font-sans
                         ${isActive
-                          ? "bg-primary border-zinc-900 text-white"
+                          ? "bg-specialist border-zinc-900 text-white"
                           : "bg-zinc-850 border-zinc-900 text-zinc-500 group-hover:text-zinc-400"
                         }`}>
                         {i + 1}
@@ -198,7 +198,7 @@ export default function HowItWorks() {
 
                     {/* Chevron Indicator */}
                     <svg
-                      className={`shrink-0 h-4.5 w-4.5 transition-all duration-300 ${isActive ? "text-primary opacity-100" : "text-zinc-700 opacity-0 group-hover:opacity-70"}`}
+                      className={`shrink-0 h-4.5 w-4.5 transition-all duration-300 ${isActive ? "text-specialist opacity-100" : "text-zinc-700 opacity-0 group-hover:opacity-70"}`}
                       viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                     >
                       <path d="M9 18l6-6-6-6" />
@@ -209,7 +209,7 @@ export default function HowItWorks() {
                   {isActive && !paused && (
                     <div className="absolute bottom-0 left-6 right-6 h-[2px] rounded-full bg-zinc-800 overflow-hidden">
                       <div
-                        className="h-full bg-primary rounded-full"
+                        className="h-full bg-specialist rounded-full"
                         style={{ width: `${progress}%`, transition: "none" }}
                       />
                     </div>
@@ -219,7 +219,7 @@ export default function HowItWorks() {
             })}
 
             <p className="text-center text-[10px] font-bold text-zinc-400 mt-2 uppercase tracking-widest select-none">
-              Step <span className="text-primary font-bold">{active + 1}</span> of {steps.length}
+              Step <span className="text-specialist font-bold">{active + 1}</span> of {steps.length}
             </p>
           </div>
 
@@ -251,7 +251,7 @@ export default function HowItWorks() {
 
                 {/* Custom Step badge */}
                 <div className="absolute top-5 left-5 flex items-center gap-2 bg-zinc-950/80 backdrop-blur-md rounded-full pl-2 pr-3.5 py-1.5 border border-zinc-900/80">
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-white text-[11px] font-bold font-sans">
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-specialist text-white text-[11px] font-bold font-sans">
                     {active + 1}
                   </div>
                   <span className="text-white text-[10.5px] font-semibold tracking-wide font-sans">
@@ -261,7 +261,7 @@ export default function HowItWorks() {
 
                 {/* Stat tag if exists */}
                 {current.stat && (
-                  <div className="absolute top-5 right-5 bg-primary/95 backdrop-blur-sm rounded-full px-3.5 py-1.5 shadow-[0_4px_16px_rgba(20,168,0,0.25)] border border-primary/20">
+                  <div className="absolute top-5 right-5 bg-specialist/95 backdrop-blur-sm rounded-full px-3.5 py-1.5 shadow-[0_4px_16px_rgba(41,82,227,0.25)] border border-specialist/20">
                     <p className="text-white text-[10.5px] font-semibold tracking-wide font-sans">
                       {current.stat}
                     </p>
@@ -272,7 +272,7 @@ export default function HowItWorks() {
               {/* Card Footer Text */}
               <div className="p-7 font-sans text-left space-y-4">
                 <div className="flex items-start gap-3.5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-primary shadow-[0_4px_12px_rgba(20,168,0,0.1)]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-900 border border-zinc-800 text-specialist shadow-[0_4px_12px_rgba(41,82,227,0.1)]">
                     <Icon className="h-5 w-5" />
                   </div>
                   <div>
@@ -292,7 +292,7 @@ export default function HowItWorks() {
                     <button
                       key={i}
                       onClick={() => handleSelect(i)}
-                      className={`transition-all duration-300 rounded-full cursor-pointer border-0 ${i === active ? "w-6 h-2 bg-primary" : "w-2 h-2 bg-zinc-800 hover:bg-zinc-700"}`}
+                      className={`transition-all duration-300 rounded-full cursor-pointer border-0 ${i === active ? "w-6 h-2 bg-specialist" : "w-2 h-2 bg-zinc-800 hover:bg-zinc-700"}`}
                     />
                   ))}
                 </div>
@@ -306,7 +306,7 @@ export default function HowItWorks() {
         {/* CTA callout band */}
         <div className="mt-20 rounded-[24px] border border-zinc-850 bg-zinc-900/20 backdrop-blur-sm px-6 py-12 text-center shadow-lg font-sans flex flex-col items-center justify-center gap-6">
           <div className="space-y-1">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-specialist">
               Ready to get started?
             </p>
             <h3 className="font-heading text-2xl md:text-4xl font-bold text-white">
@@ -315,7 +315,7 @@ export default function HowItWorks() {
           </div>
           <a
             href="#"
-            className="inline-flex items-center gap-2.5 rounded-full bg-primary px-7 py-3.5 text-white text-xs font-semibold shadow-[0_4px_14px_rgba(20,168,0,0.25)] hover:shadow-[0_6px_20px_rgba(20,168,0,0.35)] hover:bg-primary-hover active:scale-[0.97] transition-all duration-200 select-none cursor-pointer"
+            className="inline-flex items-center gap-2.5 rounded-full bg-specialist px-7 py-3.5 text-white text-xs font-semibold shadow-[0_4px_14px_rgba(41,82,227,0.25)] hover:shadow-[0_6px_20px_rgba(41,82,227,0.35)] hover:bg-specialist-hover active:scale-[0.97] transition-all duration-200 select-none cursor-pointer"
           >
             Get Started — It's Free
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

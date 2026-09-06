@@ -5,7 +5,7 @@ export function PricingPlans() {
     {
       icon: Percent,
       badge: "RECOMMENDED",
-      badgeColor: "bg-primary text-white",
+      badgeColor: "bg-specialist text-white",
       title: "Commission per order",
       subtitle: "You only pay after you receive an order — responding is free",
       priceLabel: "Pay on success",
@@ -36,7 +36,7 @@ export function PricingPlans() {
   return (
     <section className="relative py-32 bg-zinc-50/50 overflow-hidden">
       {/* Background ambient glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(20,168,0,0.04),transparent)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(41,82,227,0.04),transparent)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle,#1a1a1a01_1px,transparent_1px)] bg-[size:28px_28px] pointer-events-none -z-10" />
 
       <div className="max-w-[1200px] mx-auto px-6 relative z-10">
@@ -44,8 +44,8 @@ export function PricingPlans() {
         {/* Section Header */}
         <div className="text-center mb-20 font-sans">
           <div className="mb-5 inline-flex items-center gap-2 select-none">
-            <Zap className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-            <span className="text-[10px] font-semibold text-primary tracking-[0.16em] uppercase font-sans">
+            <Zap className="h-3.5 w-3.5 text-specialist" aria-hidden="true" />
+            <span className="text-[10px] font-semibold text-specialist tracking-[0.16em] uppercase font-sans">
               Transparent pricing
             </span>
           </div>
@@ -66,7 +66,7 @@ export function PricingPlans() {
                 key={plan.title}
                 className={`relative rounded-[24px] p-px overflow-hidden transition-all duration-300 hover:-translate-y-1 group ${
                   plan.accent
-                    ? "bg-gradient-to-br from-primary via-primary-hover to-[#108600] shadow-[0_10px_35px_-8px_rgba(20,168,0,0.25)] hover:shadow-[0_20px_45px_-10px_rgba(20,168,0,0.35)]"
+                    ? "bg-gradient-to-br from-specialist via-specialist-hover to-[#108600] shadow-[0_10px_35px_-8px_rgba(41,82,227,0.25)] hover:shadow-[0_20px_45px_-10px_rgba(41,82,227,0.35)]"
                     : "bg-zinc-200/80 hover:bg-zinc-300 hover:shadow-[0_10px_35px_-10px_rgba(0,0,0,0.03)]"
                 }`}
               >
@@ -75,7 +75,7 @@ export function PricingPlans() {
                     {/* Badge */}
                     {plan.badge && (
                       <div className="absolute top-6 right-6 select-none">
-                        <span className="bg-primary/10 border border-primary/20 text-primary text-[9px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full">
+                        <span className="bg-specialist/10 border border-specialist/20 text-specialist text-[9px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full">
                           {plan.badge}
                         </span>
                       </div>
@@ -85,7 +85,7 @@ export function PricingPlans() {
                     <div
                       className={`mb-6 inline-flex h-11 w-11 items-center justify-center rounded-2xl border ${
                         plan.accent 
-                          ? "bg-primary/5 border-primary/15 text-primary" 
+                          ? "bg-specialist/5 border-specialist/15 text-specialist" 
                           : "bg-zinc-50 border-zinc-150/80 text-zinc-650"
                       }`}
                     >
@@ -115,7 +115,7 @@ export function PricingPlans() {
                         <div
                           className={`mt-0.5 flex-shrink-0 h-4.5 w-4.5 rounded-full flex items-center justify-center border ${
                             plan.accent 
-                              ? "bg-primary/5 border-primary/15 text-primary" 
+                              ? "bg-specialist/5 border-specialist/15 text-specialist" 
                               : "bg-zinc-50 border-zinc-150/80 text-zinc-500"
                           }`}
                         >
