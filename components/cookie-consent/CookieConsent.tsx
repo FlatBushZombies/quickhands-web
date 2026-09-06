@@ -100,23 +100,22 @@ export default function CookieConsent() {
             transition={{ duration: 0.45, ease: softEase }}
             className="fixed inset-x-0 bottom-4 z-50 flex justify-center px-4 sm:bottom-6"
           >
-            <div className="relative w-full max-w-[620px] overflow-hidden rounded-2xl border border-border bg-card shadow-[0_2px_8px_rgba(15,23,42,0.04),0_24px_48px_-16px_rgba(15,23,42,0.18)]">
+            <div className="relative w-full max-w-[900px] overflow-hidden rounded-2xl border border-border bg-card shadow-[0_2px_8px_rgba(15,23,42,0.04),0_24px_48px_-16px_rgba(15,23,42,0.18)]">
               {/* A restrained brand touch — not a loud banner, just a thin
                   signal that this card belongs to the product. */}
               <div className="h-[3px] w-full bg-gradient-to-r from-primary via-primary to-primary-hover" />
 
-              <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:gap-5 sm:p-6">
-                <div className="flex items-start gap-3.5 sm:items-center">
-                  <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary sm:flex">
-                    <Cookie className="h-5 w-5" />
+              <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-4">
+                <div className="flex items-center gap-3.5">
+                  <div className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-light text-primary sm:flex">
+                    <Cookie className="h-4.5 w-4.5" />
                   </div>
-                  <div>
+                  <div className="flex flex-wrap items-baseline gap-x-2">
                     <h4 className="font-heading text-[15px] font-bold tracking-tight text-foreground">
-                      Your privacy, your call
+                      Your privacy, your call.
                     </h4>
-                    <p className="mt-1 font-body text-[13px] leading-relaxed text-muted-foreground sm:max-w-[380px]">
-                      We use cookies to keep you signed in and understand how Quickhands is used. Accept
-                      all, or choose exactly what you&apos;re comfortable with.
+                    <p className="font-body text-[13px] leading-relaxed text-muted-foreground">
+                      We use cookies to keep you signed in and understand how Quickhands is used.
                     </p>
                   </div>
                 </div>
