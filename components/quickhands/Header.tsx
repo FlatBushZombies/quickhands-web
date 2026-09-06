@@ -15,8 +15,6 @@ const NAV_LINKS = [
   { label: "How It Works", href: "#how-it-works" },
   { label: "Tasks", href: "#tasks" },
   { label: "Become a Specialist", href: "/professionals" },
-  { label: "About", href: "#" },
-  { label: "Contact", href: "#footer" },
 ]
 
 function useHarareTime() {
