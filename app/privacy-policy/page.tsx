@@ -1,4 +1,11 @@
+import type { Metadata } from "next"
 import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description:
+    "How Quickhands Africa collects, uses and protects your personal information across our website and mobile app.",
+}
 
 export default function PrivacyPolicy() {
   return (

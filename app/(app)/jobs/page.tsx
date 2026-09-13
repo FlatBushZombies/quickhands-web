@@ -1,7 +1,13 @@
+import type { Metadata } from "next"
 import { Briefcase } from "lucide-react"
 import { listJobs, searchJobs } from "@/lib/jobs-api"
 import { JobCard } from "@/components/jobs/JobCard"
 import { JobFilters } from "@/components/jobs/JobFilters"
+
+export const metadata: Metadata = {
+  title: "Browse Jobs",
+  description: "Find local jobs posted by clients across Africa — plumbing, electrical, cleaning, beauty and trade work near you.",
+}
 
 export const revalidate = 30
 

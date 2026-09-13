@@ -1,9 +1,18 @@
+import type { Metadata } from "next"
 import { neon } from "@neondatabase/serverless"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { Card, CardContent } from "@/components/ui/card"
 import { Mail, Phone, Briefcase, Sparkles, Calendar, CheckCircle2, Smartphone } from "lucide-react"
 import { notFound } from "next/navigation"
+
+// Personal post-signup welcome page that surfaces a user's own contact
+// details (email/phone) — kept out of search results.
+export const metadata: Metadata = {
+  title: "Welcome",
+  description: "Your Quickhands profile.",
+  robots: { index: false, follow: false },
+}
 
 const sql = neon(process.env.DATABASE_URL!)
 

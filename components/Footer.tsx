@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { OPEN_COOKIE_PREFERENCES_EVENT } from "@/components/cookie-consent/CookieConsent"
 
 const footerLinks = {
   forClients: [
@@ -193,6 +194,16 @@ export function Footer() {
                 {link.title}
               </Link>
             ))}
+            {/* Consent must stay changeable at any time, not just on first
+                visit — this reopens the same preferences modal the initial
+                banner uses. */}
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event(OPEN_COOKIE_PREFERENCES_EVENT))}
+              className="cursor-pointer hover:text-white transition-colors duration-150"
+            >
+              Cookie Preferences
+            </button>
           </div>
         </div>
       </div>

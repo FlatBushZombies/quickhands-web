@@ -1,9 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 import { Cookie, BarChart3, Megaphone, ShieldCheck, X } from "lucide-react"
 import { useCookieConsent, type ConsentCategories } from "./useCookieConsent"
+
+// Fired by any component (e.g. the Footer's "Cookie preferences" link) that
+// wants to reopen the preferences modal after the initial choice has already
+// been made — per cookie-banner best practice, consent must stay changeable
+// at any time, not just on first visit.
+export const OPEN_COOKIE_PREFERENCES_EVENT = "open-cookie-preferences"
 
 const softEase: [number, number, number, number] = [0.16, 1, 0.3, 1]
 
@@ -82,6 +89,12 @@ export default function CookieConsent() {
   const { status, categories, isInitialized, acceptAll, rejectAll, saveCustom } = useCookieConsent()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  useEffect(() => {
+    const openModal = () => setIsModalOpen(true)
+    window.addEventListener(OPEN_COOKIE_PREFERENCES_EVENT, openModal)
+    return () => window.removeEventListener(OPEN_COOKIE_PREFERENCES_EVENT, openModal)
+  }, [])
+
   if (!isInitialized) return null
 
   const toggleCategory = (key: keyof Omit<ConsentCategories, "essential">) => {
@@ -115,25 +128,35 @@ export default function CookieConsent() {
                       Your privacy, your call.
                     </h4>
                     <p className="font-body text-[13px] leading-relaxed text-muted-foreground">
-                      We use cookies to keep you signed in and understand how Quickhands is used.
+                      We use cookies to keep you signed in and understand how Quickhands is used.{" "}
+                      <Link
+                        href="/privacy-policy"
+                        className="font-semibold text-foreground underline decoration-border underline-offset-2 transition-colors hover:text-primary hover:decoration-primary"
+                      >
+                        Privacy policy
+                      </Link>
+                      .
                     </p>
                   </div>
                 </div>
 
+                {/* Reject and Accept get identical size/weight/shape — only
+                    the fill differs — so declining is exactly as easy as
+                    accepting, not a buried afterthought next to a bold CTA. */}
                 <div className="flex shrink-0 flex-wrap items-center gap-2 font-sans sm:ml-auto">
                   <button
                     type="button"
-                    onClick={rejectAll}
+                    onClick={() => setIsModalOpen(true)}
                     className="cursor-pointer rounded-full px-3.5 py-2 text-[12.5px] font-semibold text-muted-foreground transition-colors duration-150 hover:bg-secondary hover:text-foreground"
                   >
-                    Reject
+                    Manage preferences
                   </button>
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(true)}
-                    className="cursor-pointer rounded-full border border-border px-3.5 py-2 text-[12.5px] font-semibold text-foreground transition-colors duration-150 hover:bg-secondary"
+                    onClick={rejectAll}
+                    className="cursor-pointer rounded-full border border-border px-4.5 py-2 text-[12.5px] font-semibold text-foreground transition-colors duration-150 hover:bg-secondary"
                   >
-                    Manage preferences
+                    Reject all
                   </button>
                   <button
                     type="button"
@@ -187,7 +210,14 @@ export default function CookieConsent() {
               </h3>
               <p className="mt-1.5 font-body text-[13px] leading-relaxed text-muted-foreground">
                 Essential cookies keep the platform working and can&apos;t be turned off. Everything else
-                is entirely your choice — changes save instantly.
+                is entirely your choice, and you can change it here any time. Read our{" "}
+                <Link
+                  href="/privacy-policy"
+                  className="font-semibold text-foreground underline decoration-border underline-offset-2 transition-colors hover:text-primary hover:decoration-primary"
+                >
+                  privacy policy
+                </Link>{" "}
+                for details on what each category means.
               </p>
 
               <div className="mt-6 space-y-3">
@@ -215,18 +245,21 @@ export default function CookieConsent() {
                 />
               </div>
 
-              <div className="mt-6 flex items-center justify-between border-t border-border pt-5 font-sans">
+              {/* Reject all and Save preferences are sized/weighted the
+                  same — declining everything is never the visually weaker
+                  choice. */}
+              <div className="mt-6 flex items-center gap-2.5 border-t border-border pt-5 font-sans">
                 <button
                   type="button"
                   onClick={rejectAll}
-                  className="cursor-pointer text-[12.5px] font-semibold text-muted-foreground transition-colors duration-150 hover:text-foreground"
+                  className="cursor-pointer flex-1 rounded-full border border-border px-4 py-2.5 text-[12.5px] font-semibold text-foreground transition-colors duration-150 hover:bg-secondary"
                 >
                   Reject all
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="cursor-pointer rounded-full bg-primary px-5 py-2.5 text-[12.5px] font-semibold text-primary-foreground shadow-[0_4px_14px_rgba(20,168,0,0.25)] transition-all duration-200 hover:bg-primary-hover active:scale-[0.97]"
+                  className="cursor-pointer flex-1 rounded-full bg-primary px-4 py-2.5 text-[12.5px] font-semibold text-primary-foreground shadow-[0_4px_14px_rgba(20,168,0,0.25)] transition-all duration-200 hover:bg-primary-hover active:scale-[0.97]"
                 >
                   Save preferences
                 </button>
