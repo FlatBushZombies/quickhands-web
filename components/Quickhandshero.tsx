@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { OnboardingModal } from "./OnboardingModal";
 import ProfessionalCounter from "./professionals/ProfessionalsCounter";
-import { Eyebrow } from "./quickhands/Eyebrow";
 import { Em } from "./quickhands/Em";
 
 /* ── Icons ───────────────────────────────────────────────── */
@@ -71,7 +70,7 @@ const MiniChart = () => (
 );
 
 const HERO_IMAGE =
-  "https://images.pexels.com/photos/313776/pexels-photo-313776.jpeg?cs=srgb&dl=pexels-quintingellar-313776.jpg&fm=jpg";
+  "https://images.pexels.com/photos/8486966/pexels-photo-8486966.jpeg";
 const HERO_FALLBACK = "/worker-image.jpg";
 
 const FEATURES = [
@@ -90,7 +89,7 @@ export default function QuickHandsHero() {
       <div className="relative isolate flex min-h-[640px] w-full items-end overflow-hidden">
         <img
           src={imgSrc}
-          alt="A carpenter shaping wood in a sun-lit workshop"
+          alt="A confident Black construction professional in safety gear directing work at an outdoor site"
           onError={() => setImgSrc(HERO_FALLBACK)}
           className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
         />
@@ -152,18 +151,18 @@ export default function QuickHandsHero() {
           </motion.div>
         </div>
 
-        {/* Headline block */}
+        {/* Headline block. Top padding carries its own weight now that the
+            eyebrow above the H1 is gone (craft-floor bans a kicker sitting
+            directly above a heading) — bumped up from the old pt-40 to both
+            restore the breathing room the eyebrow+gap used to hold and clear
+            the taller fixed header now that AudienceTabs sits above it. */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="relative z-10 mx-auto flex w-full max-w-[1200px] flex-col items-start gap-5 px-6 pb-16 pt-40 sm:pb-20"
+          className="relative z-10 mx-auto flex w-full max-w-[1200px] flex-col items-start gap-5 px-6 pb-16 pt-48 sm:pb-20 sm:pt-52"
         >
-          <Eyebrow animate={false} pulse tone="dark" className="self-start">
-            Now available in your area
-          </Eyebrow>
-
-          <h1 className="font-editorial text-[42px] font-semibold leading-[1.04] tracking-[-0.025em] text-white sm:text-[56px] md:text-[72px] lg:text-[92px]">
+          <h1 className="font-heading text-[42px] font-semibold leading-[1.04] tracking-[-0.025em] text-white sm:text-[56px] md:text-[72px] lg:text-[92px]">
             Be your own <Em>boss</Em>.
           </h1>
 
@@ -177,7 +176,7 @@ export default function QuickHandsHero() {
             <OnboardingModal>
               <button
                 type="button"
-                className="group inline-flex items-center gap-3 rounded-full bg-specialist px-7 py-3 text-xs font-semibold text-white shadow-[0_4px_14px_rgba(41,82,227,0.35)] transition-all duration-200 hover:bg-specialist-hover hover:shadow-[0_6px_20px_rgba(41,82,227,0.45)] active:scale-[0.97]"
+                className="group inline-flex items-center gap-3 rounded-full bg-specialist px-7 py-3 text-xs font-semibold text-white shadow-[0_4px_14px_rgba(41,82,227,0.35)] transition-all duration-200 hover:bg-specialist-hover hover:shadow-[0_6px_20px_rgba(41,82,227,0.45)] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-specialist/60 focus-visible:ring-offset-2 focus-visible:ring-offset-black/40"
               >
                 Register as a specialist
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20 transition-transform duration-200 group-hover:translate-x-0.5">

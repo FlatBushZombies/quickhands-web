@@ -104,34 +104,18 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-onest), "Sohne", var(--font-inter), "Inter", "General Sans", "Untitled Sans", sans-serif;
-  --font-serif: "Signifier", var(--font-newsreader), "Newsreader", "Playfair Display", "Georgia", serif;
-  --font-mono: var(--font-martian-mono), monospace;
-  /* Dedicated editorial-accent token for Em.tsx — a high-contrast display
-     italic (Instrument Serif) distinct from the body serif above, which is
-     still used at font-medium/font-bold weights Instrument Serif lacks. */
-  --font-accent: var(--font-instrument-serif), "Instrument Serif", var(--font-newsreader), "Newsreader", "Georgia", serif;
-
-  /* Type-scale tokens (H1/H2/H3 + H4 + body copy pass) — deliberately
-     separate from --font-sans (Onest), which stays the UI-chrome family for
-     buttons/nav/labels/badges that this scale doesn't cover. */
+  /* One-family discipline (grey.co-style): Satoshi is the sole family for
+     both UI chrome and headings, carrying the whole hierarchy on
+     weight/size alone. --font-body is the same family as --font-sans — kept
+     as a separate token only because many components already reference it,
+     not because it names a different identity. The system-font chain below
+     is a load-failure fallback only, never a second active identity.
+     Martian Mono (--font-mono) is the one other family in the project,
+     reserved for tabular/numeric data it alone can render correctly. */
+  --font-sans: var(--font-satoshi), "Satoshi", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-heading: var(--font-satoshi), "Satoshi", var(--font-sans), sans-serif;
-  /* Editorial display serif — the "RZA" role from the newest spec. RZA
-     itself is a paid Out of the Dark release with no free-use license, so
-     this resolves to the user's own stated fallback, Playfair Display
-     (loaded via next/font/google in app/layout.tsx as --font-playfair).
-     Reserved for hero headlines / editorial callouts only — a different,
-     broader affordance than Em.tsx's single-word --font-accent italic, and
-     deliberately not merged into --font-heading (Satoshi) so that mechanism
-     stays untouched. */
-  --font-editorial: var(--font-playfair), "Playfair Display", "Signifier", var(--font-newsreader), Georgia, serif;
-  /* H4 tier, marked "(deprecated)" in the spec — wired but only applied
-     where a genuine <h4> already existed in the swept components. */
-  --font-jakarta: var(--font-plus-jakarta-sans), "Plus Jakarta Sans", var(--font-sans), sans-serif;
-  /* Body-copy tier — Inter specifically. Google Fonts ships a single Inter
-     family (no separate "Inter Display" cut), so the spec's "Inter Display"
-     rows resolve to this same token, differentiated only by size/weight. */
-  --font-body: var(--font-inter), "Inter", sans-serif;
+  --font-body: var(--font-satoshi), "Satoshi", var(--font-sans), sans-serif;
+  --font-mono: var(--font-martian-mono), monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

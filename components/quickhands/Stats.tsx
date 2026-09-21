@@ -63,7 +63,7 @@ export function Stats() {
                   variants={itemVariants}
                   className="flex flex-col items-center gap-2 py-8 sm:py-0"
                 >
-                  <p className="font-serif text-6xl font-medium leading-none tracking-tight text-white sm:text-7xl">
+                  <p className="font-heading text-6xl font-medium leading-none tracking-tight text-white sm:text-7xl">
                     {stat.value}
                   </p>
                   <p className="font-sans text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">

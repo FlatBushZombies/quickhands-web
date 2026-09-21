@@ -127,7 +127,7 @@ export default function CookieConsent() {
                     <h4 className="font-heading text-[15px] font-bold tracking-tight text-foreground">
                       Your privacy, your call.
                     </h4>
-                    <p className="font-body text-[13px] leading-relaxed text-muted-foreground">
+                    <p className="font-body text-base leading-relaxed text-muted-foreground">
                       We use cookies to keep you signed in and understand how Quickhands is used.{" "}
                       <Link
                         href="/privacy-policy"
@@ -208,7 +208,7 @@ export default function CookieConsent() {
               <h3 className="mt-4 font-heading text-xl font-bold tracking-tight text-foreground">
                 Cookie preferences
               </h3>
-              <p className="mt-1.5 font-body text-[13px] leading-relaxed text-muted-foreground">
+              <p className="mt-1.5 font-body text-base leading-relaxed text-muted-foreground">
                 Essential cookies keep the platform working and can&apos;t be turned off. Everything else
                 is entirely your choice, and you can change it here any time. Read our{" "}
                 <Link

@@ -2,7 +2,6 @@
 
 import { motion, useReducedMotion, type Variants } from "framer-motion"
 import { ShieldCheck, MapPin, MessageCircle, CalendarClock } from "lucide-react"
-import { Eyebrow } from "./Eyebrow"
 import { PillButton } from "./PillButton"
 import { AnimatedLink } from "./AnimatedLink"
 import { HeroMarketplaceCard } from "./HeroMarketplaceCard"
@@ -17,8 +16,7 @@ const TRUST_SIGNALS = [
   { icon: CalendarClock, label: "Flexible scheduling" },
 ]
 
-const HERO_IMAGE =
-  "https://images.pexels.com/photos/38524262/pexels-photo-38524262.jpeg?cs=srgb&dl=pexels-bulat843-1243575272-38524262.jpg&fm=jpg"
+const HERO_IMAGE = "https://images.pexels.com/photos/8820172/pexels-photo-8820172.jpeg"
 
 interface HeroProps {
   /**
@@ -71,7 +69,7 @@ export function Hero({ ready = true }: HeroProps) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={HERO_IMAGE}
-          alt="A specialist installing an outdoor light fixture during a home repair"
+          alt="A confident Black carpenter operating a circular saw at an outdoor construction site"
           className="absolute inset-0 -z-10 h-full w-full object-cover object-center"
         />
         <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/85 via-black/25 to-black/45" />
@@ -88,22 +86,21 @@ export function Hero({ ready = true }: HeroProps) {
           <HeroMarketplaceCard />
         </motion.div>
 
-        {/* Headline block */}
+        {/* Headline block. Top padding carries its own weight now that the
+            eyebrow above the H1 is gone (craft-floor bans a kicker sitting
+            directly above a heading) — bumped up from the old pt-40/44 to
+            both restore the breathing room the eyebrow+gap used to hold and
+            clear the taller fixed header now that AudienceTabs sits above
+            it. */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate={ready ? "visible" : "hidden"}
-          className="relative z-10 mx-auto flex w-full max-w-[1800px] flex-col items-start gap-6 px-5 pb-14 pt-40 sm:px-6 sm:pb-16 sm:pt-44 md:px-10 lg:px-14 lg:pb-20 xl:px-20 2xl:max-w-[1600px]"
+          className="relative z-10 mx-auto flex w-full max-w-[1800px] flex-col items-start gap-6 px-5 pb-14 pt-48 sm:px-6 sm:pb-16 sm:pt-52 md:px-10 lg:px-14 lg:pb-20 xl:px-20 2xl:max-w-[1600px]"
         >
-          <motion.div variants={itemVariants}>
-            <Eyebrow animate={false} tone="dark">
-              Local task marketplace
-            </Eyebrow>
-          </motion.div>
-
           <motion.h1
             variants={itemVariants}
-            className="font-editorial text-[clamp(2.75rem,4.6vw+1.4rem,5.75rem)] font-semibold leading-[1.03] tracking-[-0.02em] text-white"
+            className="font-heading text-[clamp(2.75rem,4.6vw+1.4rem,5.75rem)] font-semibold leading-[1.03] tracking-[-0.02em] text-white"
           >
             Get tasks done.
             <br />

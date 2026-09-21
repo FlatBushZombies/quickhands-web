@@ -2,22 +2,22 @@
 
 import { useEffect, useRef, useState } from "react"
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
-import { ClipboardList, UserSearch, CheckCircle2 } from "lucide-react"
+import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 const STEPS = [
   {
-    icon: ClipboardList,
+    icon: "/icons/clipboard.png",
     title: "Post a task",
     description: "Tell us what you need.",
   },
   {
-    icon: UserSearch,
+    icon: "/icons/user.png",
     title: "Find a specialist",
     description: "Choose the right person.",
   },
   {
-    icon: CheckCircle2,
+    icon: "/icons/verified.png",
     title: "Get it done",
     description: "Simple from start to finish.",
   },
@@ -51,7 +51,6 @@ export function HeroMarketplaceCard({ className }: HeroMarketplaceCardProps) {
   }, [prefersReducedMotion, paused])
 
   const step = STEPS[index]
-  const Icon = step.icon
 
   return (
     <motion.div
@@ -67,14 +66,9 @@ export function HeroMarketplaceCard({ className }: HeroMarketplaceCardProps) {
         className
       )}
     >
-      <div className="flex items-center justify-between">
-        <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
-          How QuickHands works
-        </span>
-        <span className="font-mono text-[10px] tabular-nums text-zinc-400">
-          {index + 1}/{STEPS.length}
-        </span>
-      </div>
+      <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+        How QuickHands works
+      </span>
 
       <div className="mt-4 min-h-[92px]">
         <AnimatePresence mode="wait" initial={false}>
@@ -86,8 +80,8 @@ export function HeroMarketplaceCard({ className }: HeroMarketplaceCardProps) {
             transition={{ type: "spring", bounce: 0, duration: 0.45 }}
             className="flex items-start gap-3"
           >
-            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <Icon className="h-5 w-5" aria-hidden="true" />
+            <span className="relative h-10 w-10 flex-shrink-0">
+              <Image src={step.icon} alt="" fill className="object-contain" sizes="40px" />
             </span>
             <div className="min-w-0">
               <p className="font-sans text-sm font-semibold text-zinc-950">{step.title}</p>

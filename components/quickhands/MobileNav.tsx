@@ -151,8 +151,8 @@ export function MobileNav({ open, onClose, links }: MobileNavProps) {
                   <span
                     className={
                       isSpecialistLink
-                        ? "font-serif text-3xl leading-none tracking-tight text-specialist transition-colors duration-200 group-hover:text-specialist-hover sm:text-4xl"
-                        : "font-serif text-3xl leading-none tracking-tight text-zinc-950 transition-colors duration-200 group-hover:text-primary sm:text-4xl"
+                        ? "font-heading text-3xl leading-none tracking-tight text-specialist transition-colors duration-200 group-hover:text-specialist-hover sm:text-4xl"
+                        : "font-heading text-3xl leading-none tracking-tight text-zinc-950 transition-colors duration-200 group-hover:text-primary sm:text-4xl"
                     }
                   >
                     {link.label}

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 import { PillButton } from "./PillButton"
 import { MobileNav } from "./MobileNav"
+import { AudienceTabs } from "./AudienceTabs"
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -44,6 +45,15 @@ export function Header() {
 
   return (
     <div className="fixed inset-x-0 top-0 z-40">
+      {/* Audience switch — grey.co-style utility row above the main nav.
+          Same permanently-solid treatment as the header below it (this page
+          has no transparent-over-photo state to branch from), so legibility
+          was never in question here. */}
+      <AudienceTabs
+        className="border-zinc-100 bg-zinc-50/70"
+        containerClassName="max-w-[1800px] px-5 sm:px-6 md:px-10 lg:px-14 xl:px-20 2xl:max-w-[1600px]"
+      />
+
       {/* Solid, opaque bar at all times — kept clearly distinct from
           whatever sits underneath it (a photo hero on this page) rather
           than blending into it while unscrolled. */}

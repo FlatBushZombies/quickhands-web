@@ -1,31 +1,11 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Newsreader, Inter, Martian_Mono, Onest, Instrument_Serif, Plus_Jakarta_Sans, Playfair_Display } from "next/font/google"
+import { Martian_Mono } from "next/font/google"
 import localFont from "next/font/local"
 import "./globals.css"
 import { ClerkProvider } from "@clerk/nextjs"
 import CookieConsent from "@/components/cookie-consent/CookieConsent"
 import { PostHogProvider } from "@/components/PostHogProvider"
-
-const newsreader = Newsreader({
-  variable: "--font-newsreader",
-  subsets: ["latin"],
-  display: "swap",
-  style: ["normal", "italic"],
-})
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-})
-
-const onest = Onest({
-  variable: "--font-onest",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "600", "700"],
-})
 
 const martianMono = Martian_Mono({
   variable: "--font-martian-mono",
@@ -34,13 +14,16 @@ const martianMono = Martian_Mono({
 })
 
 /**
- * Satoshi — the H1/H2/H3 heading family from the user's type-scale spec.
- * Not on Google Fonts (it's a Fontshare release), so it's wired via
- * next/font/local against the .woff2 files already sitting in
- * public/fonts/satoshi/. Exposed as --font-satoshi here and remapped to the
- * --font-heading token in globals.css, which stays separate from --font-sans
- * (Onest) — Onest is still correct for UI chrome (buttons, nav, badges),
- * which this type-scale spec doesn't cover.
+ * Satoshi — the SOLE heading + body family sitewide (grey.co-style
+ * one-family discipline). Not on Google Fonts (it's a Fontshare release),
+ * so it's wired via next/font/local against the .woff2 files already
+ * sitting in public/fonts/satoshi/. Exposed as --font-satoshi here and
+ * remapped to both --font-heading and --font-sans/--font-body in
+ * globals.css — weight (400/500/700) alone carries the full hierarchy,
+ * matching grey.co's own approach. Onest, Inter, Newsreader, Instrument
+ * Serif, Plus Jakarta Sans, and Playfair Display were all dropped in this
+ * pass; Martian Mono (below) is the only other family left, kept for its
+ * distinct tabular/numeric role that Satoshi can't perform.
  */
 const satoshi = localFont({
   src: [
@@ -52,55 +35,9 @@ const satoshi = localFont({
   display: "swap",
 })
 
-/**
- * Plus Jakarta Sans — the H4 tier of the spec ("Plus Jakarta Sans, Semibold,
- * 24 — (deprecated)" per the user's notes). Wired for completeness but only
- * applied where a genuine <h4> already exists in the swept components; not
- * used to invent new H4-level headings.
- */
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: "--font-plus-jakarta-sans",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["500", "600", "700"],
-})
-
-/**
- * Editorial accent italic — used exclusively via components/quickhands/Em.tsx
- * for single-word "startup accent" moments in headlines (the Worrki
- * reference's "*employers*" move). Instrument Serif only ships one weight
- * (400) in both roman and italic, so it's wired to its own --font-accent
- * token instead of replacing --font-serif, which other headlines still rely
- * on at font-medium/font-bold weights Instrument Serif can't render.
- */
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  display: "swap",
-  weight: "400",
-  style: ["normal", "italic"],
-})
-
-/**
- * Playfair Display — the "RZA" display-serif role from the newest spec.
- * RZA is a real paid Out of the Dark foundry release with no free web/app
- * license, so this is the user's own stated fallback, wired the same way as
- * the other 6 Google fonts above. Exposed as --font-playfair and remapped
- * to the --font-editorial token in globals.css, used sparingly for hero
- * headlines and editorial callouts only (see Hero.tsx, Quickhandshero.tsx,
- * CtaBand.tsx) — not a replacement for --font-heading (Satoshi), which
- * keeps its existing H1–H3 role everywhere else.
- */
-const playfairDisplay = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["500", "600", "700"],
-})
-
 export const metadata: Metadata = {
   title: {
-    default: "QuickHands | Find Trusted  Specialists in Africa",
+    default: "QuickHands - Find Trusted  Specialists in Africa",
     template: "%s | QuickHands",
   },
   description:
@@ -166,14 +103,8 @@ export default function RootLayout({
       <html lang="en">
         <body
           className={`
-            ${onest.variable}
-            ${inter.variable}
-            ${newsreader.variable}
             ${martianMono.variable}
-            ${instrumentSerif.variable}
             ${satoshi.variable}
-            ${plusJakartaSans.variable}
-            ${playfairDisplay.variable}
             font-sans
             min-h-screen
             antialiased

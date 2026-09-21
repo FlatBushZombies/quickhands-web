@@ -6,6 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { AudienceTabs } from "@/components/quickhands/AudienceTabs"
 
 // Specialist-side identity (--specialist, blue) instead of the client-side
 // --primary green used everywhere else — deliberately distinct so a
@@ -20,6 +21,15 @@ export function ProfessionalsHeader() {
   return (
     <>
       <div className="fixed inset-x-0 top-0 z-50 w-full">
+        {/* Audience switch — grey.co-style utility row above the main nav.
+            Same permanently-solid treatment as the header below it (this
+            page has no transparent-over-photo state to branch from), so
+            legibility against the hero photo was never in question here. */}
+        <AudienceTabs
+          className="border-zinc-100 bg-zinc-50/70"
+          containerClassName="max-w-[1200px] px-6"
+        />
+
         {/* Solid, opaque bar at all times — kept clearly distinct from the
             photo hero underneath rather than blending into it. */}
         <header className="w-full border-b border-zinc-200 bg-white shadow-[0_1px_0_0_rgba(0,0,0,0.04)]">

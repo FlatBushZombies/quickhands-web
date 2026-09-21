@@ -74,10 +74,10 @@ export function PostTaskModal({ children }: PostTaskModalProps) {
           <>
             <DialogHeader className="items-start gap-3 text-left">
               <Eyebrow animate={false}>Post a task</Eyebrow>
-              <DialogTitle className="font-serif text-2xl font-medium leading-tight tracking-tight text-zinc-950 sm:text-[26px]">
+              <DialogTitle className="font-heading text-2xl font-medium leading-tight tracking-tight text-zinc-950 sm:text-[26px]">
                 Tell us what you need done.
               </DialogTitle>
-              <DialogDescription className="font-sans text-[13px] leading-relaxed text-zinc-500">
+              <DialogDescription className="font-sans text-base leading-relaxed text-zinc-500">
                 We&rsquo;ll help you find the right person for the job.
               </DialogDescription>
             </DialogHeader>
@@ -150,10 +150,10 @@ export function PostTaskModal({ children }: PostTaskModalProps) {
               <span className="flex h-11 w-11 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
               </span>
-              <DialogTitle className="font-serif text-2xl font-medium leading-tight tracking-tight text-zinc-950 sm:text-[26px]">
+              <DialogTitle className="font-heading text-2xl font-medium leading-tight tracking-tight text-zinc-950 sm:text-[26px]">
                 Task posted
               </DialogTitle>
-              <DialogDescription className="font-sans text-[13px] leading-relaxed text-zinc-500">
+              <DialogDescription className="font-sans text-base leading-relaxed text-zinc-500">
                 Your task is ready to go. Browse available specialists and choose the right person for the job.
               </DialogDescription>
             </DialogHeader>
