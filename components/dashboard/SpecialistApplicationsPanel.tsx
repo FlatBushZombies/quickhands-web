@@ -1,10 +1,12 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@clerk/nextjs"
 import { MessageCircle, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Avatar } from "@/components/app-shell/Avatar"
+import { DateDivider, FeedSkeleton, dayBucket, timeAgo } from "@/components/app-shell/feed"
 import { ReviewForm } from "@/components/dashboard/ReviewForm"
 import { getApplicationReviews, getMyApplications, type Application, type ReviewMatrix } from "@/lib/applications-api"
 
@@ -61,12 +63,12 @@ export function SpecialistApplicationsPanel() {
   }
 
   if (loading) {
-    return <div className="h-40 animate-pulse rounded-2xl bg-secondary" />
+    return <FeedSkeleton />
   }
 
   if (applications.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-16 text-center">
+      <div className="rounded-[20px] border border-dashed border-border px-6 py-16 text-center">
         <p className="text-sm text-muted-foreground">You haven&apos;t applied to any jobs yet.</p>
         <Link href="/jobs" className="mt-3 inline-block text-sm font-semibold text-primary hover:underline">
           Browse jobs
@@ -76,59 +78,70 @@ export function SpecialistApplicationsPanel() {
   }
 
   return (
-    <div className="space-y-3">
-      {applications.map((application) => {
+    <ul>
+      {applications.map((application, index) => {
         const canReview = application.status === "accepted" || application.status === "completed"
         const matrix = reviewMatrices[application.id]
+        const title = application.job?.serviceType || "Job"
+        // Data arrives newest-first: label each run of same-day applications.
+        const bucket = dayBucket(application.createdAt)
+        const showDivider = index === 0 || bucket !== dayBucket(applications[index - 1].createdAt)
 
         return (
-          <div key={application.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="font-heading font-bold text-foreground">{application.job?.serviceType || "Job"}</p>
+          <Fragment key={application.id}>
+            {showDivider ? <DateDivider label={bucket} /> : null}
+            <li className="flex gap-3 border-b border-border/60 py-4 last:border-b-0">
+              <Avatar name={application.job?.clientName || title} size="lg" />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <p className="font-heading text-[17px] font-medium text-foreground">{title}</p>
+                  <span className="text-xs text-muted-foreground">{timeAgo(application.createdAt)}</span>
+                  <span className={`ml-auto shrink-0 rounded-full border border-border/60 px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[application.status]}`}>
+                    {application.status}
+                  </span>
+                </div>
                 {application.job?.clientName ? (
-                  <p className="text-sm text-muted-foreground">Client: {application.job.clientName}</p>
+                  <p className="mt-0.5 text-[15px] text-muted-foreground">Client: {application.job.clientName}</p>
                 ) : null}
-                {application.quotation ? <p className="mt-1 text-sm text-muted-foreground">Your quote: {application.quotation}</p> : null}
+                {application.quotation ? <p className="mt-1 text-[15px] text-muted-foreground">Your quote: {application.quotation}</p> : null}
+
+                {application.conversationId || canReview ? (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {application.conversationId ? (
+                      <Link href={`/messages/${application.conversationId}`}>
+                        <Button size="sm" variant="outline" className="rounded-full">
+                          <MessageCircle className="h-3.5 w-3.5" />
+                          Message
+                        </Button>
+                      </Link>
+                    ) : null}
+                    {canReview ? (
+                      <Button size="sm" variant="outline" className="rounded-full" onClick={() => toggleReview(application)}>
+                        <Star className="h-3.5 w-3.5" />
+                        {matrix?.freelancerToClient ? "Edit review" : "Rate client"}
+                      </Button>
+                    ) : null}
+                  </div>
+                ) : null}
+
+                {openReviewId === application.id ? (
+                  <ReviewForm
+                    applicationId={application.id}
+                    existingReview={matrix?.freelancerToClient ?? null}
+                    onSubmitted={(saved) => {
+                      setReviewMatrices((current) => ({
+                        ...current,
+                        [application.id]: { ...(current[application.id] as ReviewMatrix), freelancerToClient: saved },
+                      }))
+                      setOpenReviewId(null)
+                    }}
+                  />
+                ) : null}
               </div>
-              <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${STATUS_STYLES[application.status]}`}>
-                {application.status}
-              </span>
-            </div>
-
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {application.conversationId ? (
-                <Link href={`/messages/${application.conversationId}`}>
-                  <Button size="sm" variant="ghost">
-                    <MessageCircle className="h-3.5 w-3.5" />
-                    Message
-                  </Button>
-                </Link>
-              ) : null}
-              {canReview ? (
-                <Button size="sm" variant="ghost" onClick={() => toggleReview(application)}>
-                  <Star className="h-3.5 w-3.5" />
-                  {matrix?.freelancerToClient ? "Edit review" : "Rate client"}
-                </Button>
-              ) : null}
-            </div>
-
-            {openReviewId === application.id ? (
-              <ReviewForm
-                applicationId={application.id}
-                existingReview={matrix?.freelancerToClient ?? null}
-                onSubmitted={(saved) => {
-                  setReviewMatrices((current) => ({
-                    ...current,
-                    [application.id]: { ...(current[application.id] as ReviewMatrix), freelancerToClient: saved },
-                  }))
-                  setOpenReviewId(null)
-                }}
-              />
-            ) : null}
-          </div>
+            </li>
+          </Fragment>
         )
       })}
-    </div>
+    </ul>
   )
 }

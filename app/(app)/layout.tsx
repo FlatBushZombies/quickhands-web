@@ -1,12 +1,11 @@
 import { OnboardingGate } from "@/components/app/OnboardingGate"
-import { AppHeader } from "@/components/app/AppHeader"
+import { AppShell } from "@/components/app-shell/AppShell"
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-dvh bg-background">
       <OnboardingGate>
-        <AppHeader />
-        <main>{children}</main>
+        <AppShell>{children}</AppShell>
       </OnboardingGate>
     </div>
   )

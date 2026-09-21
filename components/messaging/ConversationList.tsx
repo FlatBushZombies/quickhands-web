@@ -87,9 +87,9 @@ export function ConversationList() {
         >
           {conversation.otherUser.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={conversation.otherUser.imageUrl} alt="" className="h-11 w-11 shrink-0 rounded-full object-cover" />
+            <img src={conversation.otherUser.imageUrl} alt="" className="h-11 w-11 shrink-0 rounded-[13px] object-cover" />
           ) : (
-            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${getAccent(conversation.otherUser.displayName)}`}>
+            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] text-sm font-bold ${getAccent(conversation.otherUser.displayName)}`}>
               {getInitials(conversation.otherUser.displayName)}
             </div>
           )}

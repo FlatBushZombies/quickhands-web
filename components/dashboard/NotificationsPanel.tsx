@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import Link from "next/link"
 import { Bell, MessageCircle, Star, Briefcase, CheckCircle2, XCircle } from "lucide-react"
 import { useAppRole } from "@/components/app/AppRoleContext"
+import { DateDivider, FeedSkeleton, dayBucket, timeAgo } from "@/components/app-shell/feed"
 import { getMyNotifications, markAllNotificationsRead, markNotificationRead, type AppNotification } from "@/lib/notifications-api"
 
 const POLL_INTERVAL_MS = 15000
@@ -16,16 +17,6 @@ function iconFor(notification: AppNotification) {
   if (message.includes("review")) return Star
   if (notification.conversationId) return MessageCircle
   return Bell
-}
-
-function timeAgo(iso: string) {
-  const diffMs = Date.now() - new Date(iso).getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  if (diffMins < 1) return "Just now"
-  if (diffMins < 60) return `${diffMins}m ago`
-  const diffHours = Math.floor(diffMins / 60)
-  if (diffHours < 24) return `${diffHours}h ago`
-  return `${Math.floor(diffHours / 24)}d ago`
 }
 
 export function NotificationsPanel() {
@@ -59,15 +50,15 @@ export function NotificationsPanel() {
   }
 
   if (loading) {
-    return <div className="h-32 animate-pulse rounded-2xl bg-secondary" />
+    return <FeedSkeleton />
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card shadow-sm">
-      <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
+    <div>
+      <div className="flex items-center justify-between gap-3 pb-1">
         <div className="flex items-center gap-2">
           <Bell className="h-4 w-4 text-muted-foreground" />
-          <p className="text-sm font-semibold text-foreground">Notifications</p>
+          <p className="text-sm font-medium text-foreground">Notifications</p>
         </div>
         {unreadCount > 0 ? (
           <button
@@ -76,7 +67,7 @@ export function NotificationsPanel() {
               setNotifications((current) => current.map((n) => ({ ...n, read: true })))
               markAllNotificationsRead(clerkId)
             }}
-            className="text-xs font-medium text-primary hover:underline"
+            className="rounded-full border border-border px-3 py-1 text-xs font-medium text-primary outline-none transition-colors hover:bg-secondary focus-visible:ring-2 focus-visible:ring-ring/60"
           >
             Mark all read
           </button>
@@ -84,35 +75,53 @@ export function NotificationsPanel() {
       </div>
 
       {notifications.length === 0 ? (
-        <p className="px-5 py-8 text-center text-sm text-muted-foreground">Nothing yet — you&apos;ll see updates here.</p>
+        <p className="py-10 text-center text-sm text-muted-foreground">Nothing yet — you&apos;ll see updates here.</p>
       ) : (
-        <div>
-          {notifications.map((notification) => {
+        <ul>
+          {notifications.map((notification, index) => {
             const Icon = iconFor(notification)
+            // Newest-first: a "Today" / "Earlier" divider where the day bucket changes.
+            const bucket = dayBucket(notification.createdAt)
+            const showDivider = index === 0 || bucket !== dayBucket(notifications[index - 1].createdAt)
             const content = (
-              <div className={`flex items-start gap-3 border-b border-border/50 px-5 py-3 last:border-0 ${notification.read ? "" : "bg-primary/5"}`}>
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Icon className="h-4 w-4" />
+              <div className={`flex items-start gap-3 rounded-[12px] px-3 py-3 transition-colors hover:bg-secondary/60 ${notification.read ? "" : "bg-primary/5"}`}>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-primary/10 text-primary">
+                  <Icon className="h-[18px] w-[18px]" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm text-foreground">{notification.message}</p>
+                  <p className="text-[15px] text-foreground">{notification.message}</p>
                   <p className="mt-0.5 text-xs text-muted-foreground">{timeAgo(notification.createdAt)}</p>
                 </div>
-                {!notification.read ? <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" /> : null}
+                {!notification.read ? <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" /> : null}
               </div>
             )
 
-            return notification.conversationId ? (
-              <Link key={notification.id} href={`/messages/${notification.conversationId}`} onClick={() => handleClick(notification)}>
-                {content}
-              </Link>
-            ) : (
-              <button key={notification.id} type="button" className="block w-full text-left" onClick={() => handleClick(notification)}>
-                {content}
-              </button>
+            return (
+              <Fragment key={notification.id}>
+                {showDivider ? <DateDivider label={bucket} /> : null}
+                <li className="border-b border-border/60 py-0.5 last:border-b-0">
+                  {notification.conversationId ? (
+                    <Link
+                      href={`/messages/${notification.conversationId}`}
+                      onClick={() => handleClick(notification)}
+                      className="block rounded-[12px] outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      className="block w-full rounded-[12px] text-left outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
+                      onClick={() => handleClick(notification)}
+                    >
+                      {content}
+                    </button>
+                  )}
+                </li>
+              </Fragment>
             )
           })}
-        </div>
+        </ul>
       )}
     </div>
   )

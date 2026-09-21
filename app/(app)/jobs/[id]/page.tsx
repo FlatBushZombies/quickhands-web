@@ -33,8 +33,11 @@ export default async function JobDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+    // Container query, not a viewport breakpoint: the pane is narrower than
+    // the window (sidebar + list panel), so two columns only when the pane
+    // itself is wide enough.
+    <div className="@container mx-auto max-w-4xl px-4 py-8 sm:px-6">
+      <div className="grid gap-6 @[820px]:grid-cols-[1fr_360px]">
         <div>
           <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-start justify-between gap-3">

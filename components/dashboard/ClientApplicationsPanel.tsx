@@ -1,10 +1,12 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { Fragment, useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@clerk/nextjs"
 import { CheckCircle2, Loader2, MessageCircle, Star, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Avatar } from "@/components/app-shell/Avatar"
+import { DateDivider, FeedSkeleton, dayBucket, timeAgo } from "@/components/app-shell/feed"
 import { ReviewForm } from "@/components/dashboard/ReviewForm"
 import {
   getApplicationReviews,
@@ -102,12 +104,12 @@ export function ClientApplicationsPanel() {
   }
 
   if (loading) {
-    return <div className="h-40 animate-pulse rounded-2xl bg-secondary" />
+    return <FeedSkeleton />
   }
 
   if (jobs.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-16 text-center">
+      <div className="rounded-[20px] border border-dashed border-border px-6 py-16 text-center">
         <p className="text-sm text-muted-foreground">You haven&apos;t posted any jobs yet.</p>
         <Link href="/post-job" className="mt-3 inline-block text-sm font-semibold text-primary hover:underline">
           Post your first job
@@ -117,94 +119,106 @@ export function ClientApplicationsPanel() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {jobs.map((job) => (
-        <div key={job.id} className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <div className="flex items-center justify-between">
-            <h3 className="font-heading text-lg font-bold text-foreground">{job.serviceType}</h3>
-            <span className="text-xs text-muted-foreground">
+        <section key={job.id} aria-labelledby={`client-job-${job.id}`}>
+          <div className="flex items-center gap-3">
+            <h3 id={`client-job-${job.id}`} className="font-heading text-[17px] font-medium text-foreground">
+              {job.serviceType}
+            </h3>
+            <span className="shrink-0 rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">
               {job.applicationSummary.total} applicant{job.applicationSummary.total === 1 ? "" : "s"}
             </span>
+            <span className="h-px flex-1 bg-border" aria-hidden="true" />
           </div>
 
-          <div className="mt-4 space-y-3">
-            {job.applications.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No applications yet.</p>
-            ) : (
-              job.applications.map((application) => {
+          {job.applications.length === 0 ? (
+            <p className="mt-3 text-sm text-muted-foreground">No applications yet.</p>
+          ) : (
+            <ul className="mt-1">
+              {job.applications.map((application, index) => {
                 const canReview = application.status === "accepted" || application.status === "completed"
                 const matrix = reviewMatrices[application.id]
+                // Data arrives newest-first, so a divider only needs to appear
+                // where the day bucket changes within this job.
+                const bucket = dayBucket(application.createdAt)
+                const showDivider = index > 0 && bucket !== dayBucket(job.applications[index - 1].createdAt)
 
                 return (
-                  <div key={application.id} className="rounded-xl border border-border p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">{application.freelancerName}</p>
+                  <Fragment key={application.id}>
+                    {showDivider ? <DateDivider label={bucket} /> : null}
+                    <li className="flex gap-3 border-b border-border/60 py-4 last:border-b-0">
+                      <Avatar name={application.freelancerName} size="lg" />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <p className="text-[17px] font-medium text-foreground">{application.freelancerName}</p>
+                          <span className="text-xs text-muted-foreground">{timeAgo(application.createdAt)}</span>
+                          <span className={`ml-auto shrink-0 rounded-full border border-border/60 px-2.5 py-0.5 text-xs font-semibold capitalize ${STATUS_STYLES[application.status]}`}>
+                            {application.status}
+                          </span>
+                        </div>
                         {application.quotation ? (
-                          <p className="text-sm text-muted-foreground">Quote: {application.quotation}</p>
+                          <p className="mt-0.5 text-[15px] text-muted-foreground">Quote: {application.quotation}</p>
                         ) : null}
                         {application.conditions ? (
-                          <p className="mt-1 text-xs text-muted-foreground">{application.conditions}</p>
+                          <p className="mt-1 text-[15px] text-muted-foreground">{application.conditions}</p>
+                        ) : null}
+
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {application.status === "pending" ? (
+                            <>
+                              <Button size="sm" className="rounded-full" onClick={() => handleStatus(application, "accepted")} disabled={busyId === application.id}>
+                                {busyId === application.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                                Accept
+                              </Button>
+                              <Button size="sm" variant="outline" className="rounded-full" onClick={() => handleStatus(application, "rejected")} disabled={busyId === application.id}>
+                                <XCircle className="h-3.5 w-3.5" />
+                                Reject
+                              </Button>
+                            </>
+                          ) : null}
+                          {application.status === "accepted" ? (
+                            <Button size="sm" variant="outline" className="rounded-full" onClick={() => handleStatus(application, "completed")} disabled={busyId === application.id}>
+                              {busyId === application.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Mark complete"}
+                            </Button>
+                          ) : null}
+                          {application.conversationId ? (
+                            <Link href={`/messages/${application.conversationId}`}>
+                              <Button size="sm" variant="outline" className="rounded-full">
+                                <MessageCircle className="h-3.5 w-3.5" />
+                                Message
+                              </Button>
+                            </Link>
+                          ) : null}
+                          {canReview ? (
+                            <Button size="sm" variant="outline" className="rounded-full" onClick={() => toggleReview(application)}>
+                              <Star className="h-3.5 w-3.5" />
+                              {matrix?.clientToFreelancer ? "Edit review" : "Rate specialist"}
+                            </Button>
+                          ) : null}
+                        </div>
+
+                        {openReviewId === application.id ? (
+                          <ReviewForm
+                            applicationId={application.id}
+                            existingReview={matrix?.clientToFreelancer ?? null}
+                            onSubmitted={(saved) => {
+                              setReviewMatrices((current) => ({
+                                ...current,
+                                [application.id]: { ...(current[application.id] as ReviewMatrix), clientToFreelancer: saved },
+                              }))
+                              setOpenReviewId(null)
+                            }}
+                          />
                         ) : null}
                       </div>
-                      <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${STATUS_STYLES[application.status]}`}>
-                        {application.status}
-                      </span>
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap items-center gap-2">
-                      {application.status === "pending" ? (
-                        <>
-                          <Button size="sm" onClick={() => handleStatus(application, "accepted")} disabled={busyId === application.id}>
-                            {busyId === application.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                            Accept
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => handleStatus(application, "rejected")} disabled={busyId === application.id}>
-                            <XCircle className="h-3.5 w-3.5" />
-                            Reject
-                          </Button>
-                        </>
-                      ) : null}
-                      {application.status === "accepted" ? (
-                        <Button size="sm" variant="outline" onClick={() => handleStatus(application, "completed")} disabled={busyId === application.id}>
-                          {busyId === application.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Mark complete"}
-                        </Button>
-                      ) : null}
-                      {application.conversationId ? (
-                        <Link href={`/messages/${application.conversationId}`}>
-                          <Button size="sm" variant="ghost">
-                            <MessageCircle className="h-3.5 w-3.5" />
-                            Message
-                          </Button>
-                        </Link>
-                      ) : null}
-                      {canReview ? (
-                        <Button size="sm" variant="ghost" onClick={() => toggleReview(application)}>
-                          <Star className="h-3.5 w-3.5" />
-                          {matrix?.clientToFreelancer ? "Edit review" : "Rate specialist"}
-                        </Button>
-                      ) : null}
-                    </div>
-
-                    {openReviewId === application.id ? (
-                      <ReviewForm
-                        applicationId={application.id}
-                        existingReview={matrix?.clientToFreelancer ?? null}
-                        onSubmitted={(saved) => {
-                          setReviewMatrices((current) => ({
-                            ...current,
-                            [application.id]: { ...(current[application.id] as ReviewMatrix), clientToFreelancer: saved },
-                          }))
-                          setOpenReviewId(null)
-                        }}
-                      />
-                    ) : null}
-                  </div>
+                    </li>
+                  </Fragment>
                 )
-              })
-            )}
-          </div>
-        </div>
+              })}
+            </ul>
+          )}
+        </section>
       ))}
     </div>
   )

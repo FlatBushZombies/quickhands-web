@@ -27,11 +27,11 @@ export default function ConversationClient({ conversationId }: { conversationId:
   }, [conversationId, getToken])
 
   if (loading) {
-    return <div className="mx-auto h-[calc(100vh-4rem)] max-w-2xl animate-pulse bg-secondary" />
+    return <div className="h-full min-h-0 animate-pulse bg-secondary motion-reduce:animate-none" />
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="h-full min-h-0">
       <ChatWindow
         conversationId={conversationId}
         otherDisplayName={conversation?.otherUser.displayName || "Conversation"}
