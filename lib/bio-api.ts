@@ -45,6 +45,8 @@ export interface BioLocation {
 
 export interface PublicBioProfile {
   username: string
+  /** Optional: only present once the backend exposes it (needed for Hire Now). */
+  clerkId?: string
   name: string
   imageUrl: string | null
   skills: string | null

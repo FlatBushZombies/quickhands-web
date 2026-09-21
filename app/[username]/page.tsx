@@ -8,10 +8,10 @@ import {
   MapPin,
   MessageCircle,
   Phone,
-  Sparkles,
   Star,
   Link2,
   ArrowUpRight,
+  ArrowRight,
 } from "lucide-react"
 import { getPublicBioProfile, type BioCustomLink, type BioTestimonial, type PortfolioProject } from "@/lib/bio-api"
 
@@ -101,13 +101,11 @@ export default async function BioPage({ params }: PageProps) {
   const memberSinceLabel = formatMemberSince(memberSince)
   const locationLabel = location?.label || location?.city || null
   const whatsappHref = phone ? `https://wa.me/${phone.replace(/\D/g, "")}` : null
+  const firstName = name.trim().split(/\s+/)[0] || "this specialist"
 
   const links: LinkButton[] = [
     hasPortfolio
       ? { key: "portfolio", label: "See my work", href: "#portfolio", icon: <Briefcase className="h-4 w-4" /> }
-      : null,
-    smartLinks.hireMe
-      ? { key: "hireMe", label: "Hire me on Quickhands", href: "/", icon: <Sparkles className="h-4 w-4" /> }
       : null,
     smartLinks.call && phone
       ? { key: "call", label: "Call me", href: `tel:${phone}`, icon: <Phone className="h-4 w-4" /> }
@@ -226,11 +224,16 @@ export default async function BioPage({ params }: PageProps) {
             </a>
           ))}
 
-          {links.length === 0 ? (
+          {links.length === 0 && !smartLinks.hireMe ? (
             <div className="rounded-2xl border border-dashed border-border bg-card/50 px-5 py-8 text-center">
               <p className="text-sm text-muted-foreground">This specialist hasn&apos;t added any links yet.</p>
             </div>
           ) : null}
+
+          {/* The last CTA of the link stack: opens a conversation (sign-in
+              first if needed — see /hire/[specialist]). Respects the
+              specialist's own "Hire me" toggle in Settings. */}
+          {smartLinks.hireMe ? <HireNowButton username={username} firstName={firstName} /> : null}
         </div>
 
         {/* ── Portfolio gallery ── */}
@@ -266,6 +269,18 @@ export default async function BioPage({ params }: PageProps) {
                   <p className="text-sm leading-relaxed text-muted-foreground">{testimonial.comment}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        ) : null}
+
+        {smartLinks.hireMe ? (
+          <div className="mt-12 w-full rounded-[24px] border border-primary/20 bg-primary-light p-6 text-center">
+            <p className="font-heading text-xl font-bold tracking-tight text-foreground">Ready to work with {firstName}?</p>
+            <p className="mt-1.5 text-[15px] text-muted-foreground">
+              Send {firstName} a message on QuickHands to talk through the job.
+            </p>
+            <div className="mt-5">
+              <HireNowButton username={username} firstName={firstName} />
             </div>
           </div>
         ) : null}
@@ -312,4 +327,25 @@ function ProjectCard({ project }: { project: PortfolioProject }) {
   }
 
   return content
+}
+
+function HireNowButton({ username, firstName }: { username: string; firstName: string }) {
+  return (
+    <Link
+      href={`/hire/${encodeURIComponent(username)}`}
+      className="group flex w-full items-center gap-3 rounded-2xl bg-primary px-5 py-4 text-primary-foreground shadow-[0_8px_24px_-8px_rgba(20,168,0,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20">
+        <MessageCircle className="h-4 w-4" aria-hidden="true" />
+      </span>
+      <span className="flex-1 text-left">
+        <span className="block text-[15px] font-bold leading-tight">Hire Now</span>
+        <span className="block text-xs font-medium text-primary-foreground/85">Message {firstName} on QuickHands</span>
+      </span>
+      <ArrowRight
+        className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
+        aria-hidden="true"
+      />
+    </Link>
+  )
 }

@@ -5,6 +5,9 @@ const isSignedInRequiredRoute = createRouteMatcher([
   '/post-job(.*)',
   '/dashboard(.*)',
   '/messages(.*)',
+  // "Hire Now" — signed-out visitors are sent to sign in and land straight
+  // back on this route, which then opens the conversation.
+  '/hire/(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

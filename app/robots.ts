@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard", "/messages", "/settings", "/onboarding", "/post-job", "/api/"],
+      disallow: ["/dashboard", "/messages", "/settings", "/onboarding", "/post-job", "/hire", "/api/"],
     },
     sitemap: "https://quickhandsafrica.com/sitemap.xml",
   }

@@ -42,3 +42,31 @@ export async function getConversationMessages(
   }
   return { conversation: data.conversation ?? null, messages: data.messages ?? [] }
 }
+
+export type OpenConversationResult = { conversationId: string } | { error: string }
+
+/**
+ * Finds or creates the direct conversation with another user
+ * (GET /api/messaging/conversation-with/:otherClerkId). The backend derives a
+ * deterministic conversation id, so calling this repeatedly — including a
+ * retry after a cold-start timeout — always lands on the same conversation
+ * rather than creating duplicates.
+ */
+export async function getConversationWithUser(otherClerkId: string, token: string): Promise<OpenConversationResult> {
+  try {
+    const response = await fetchWithRetry(
+      getApiUrl(`/api/messaging/conversation-with/${encodeURIComponent(otherClerkId)}`),
+      { headers: { Authorization: `Bearer ${token}` } },
+      { retries: 2, timeoutMs: 30000 }
+    )
+    const data = await parseJsonSafely(response)
+
+    if (response.ok && data?.success && typeof data.conversationId === "string") {
+      return { conversationId: data.conversationId }
+    }
+
+    return { error: data?.message || `Couldn't open the conversation (${response.status})` }
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Network error" }
+  }
+}
