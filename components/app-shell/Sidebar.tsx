@@ -35,8 +35,10 @@ export function Sidebar({
 
   return (
     <div className="flex h-full min-h-0 w-full flex-col px-1">
-      {/* Wordmark + list-panel toggle */}
-      <div className="flex items-center justify-between gap-2 py-1">
+      {/* Wordmark + list-panel toggle — h-[60px] to align with the list
+          panel's and pane header's own 60px header band, so all three
+          columns' top sections line up on the same horizontal line. */}
+      <div className="flex h-[60px] shrink-0 items-center justify-between gap-2 border-b border-border">
         <Link
           href="/dashboard"
           onClick={onNavigate}
@@ -61,10 +63,8 @@ export function Sidebar({
         ) : null}
       </div>
 
-      <div className="my-3 h-px shrink-0 bg-border" />
-
       {/* Account card — informational only, roles aren't switchable */}
-      <div className="flex shrink-0 items-center gap-3 rounded-[12px] border border-border bg-card p-2.5 shadow-sm">
+      <div className="mt-3 flex shrink-0 items-center gap-3 rounded-[12px] border border-border bg-card p-2.5 shadow-sm">
         <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] ${role.tile}`}>
           <AccountIcon className="h-5 w-5" />
         </div>

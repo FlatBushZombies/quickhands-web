@@ -5,6 +5,7 @@ import Link from "next/link"
 import { AnimatePresence, motion, useReducedMotion, type Variants } from "framer-motion"
 import { X } from "lucide-react"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
+import { cn } from "@/lib/utils"
 import { PillButton } from "./PillButton"
 
 interface NavLink {
@@ -16,6 +17,13 @@ interface MobileNavProps {
   open: boolean
   onClose: () => void
   links: readonly NavLink[]
+  /** Client-side identity (green) by default; "specialist" swaps every
+   *  accent to the specialist blue for the /professionals nav. */
+  variant?: "client" | "specialist"
+  /** Wordmark shown top-left; the second segment gets the variant's accent color. */
+  brand?: [string, string]
+  signedOutCta?: { label: string; href: string }
+  signedInCta?: { label: string; href: string }
 }
 
 const FOCUSABLE_SELECTOR =
@@ -26,9 +34,21 @@ const FOCUSABLE_SELECTOR =
  * open, closes on Escape, and staggers each link in with a numbered
  * editorial treatment that echoes HowItWorks' large serif numerals.
  */
-export function MobileNav({ open, onClose, links }: MobileNavProps) {
+export function MobileNav({
+  open,
+  onClose,
+  links,
+  variant = "client",
+  brand = ["Quick", "Hands"],
+  signedOutCta = { label: "Post a Task", href: "/sign-up" },
+  signedInCta = { label: "Post a Task", href: "/post-job" },
+}: MobileNavProps) {
   const prefersReducedMotion = useReducedMotion()
   const panelRef = useRef<HTMLDivElement>(null)
+  const isSpecialist = variant === "specialist"
+  const accentText = isSpecialist ? "text-specialist" : "text-primary"
+  const groupHoverAccent = isSpecialist ? "group-hover:text-specialist" : "group-hover:text-primary"
+  const pillVariant = isSpecialist ? "specialist" : "primary"
 
   // Body scroll lock while open.
   useEffect(() => {
@@ -117,7 +137,8 @@ export function MobileNav({ open, onClose, links }: MobileNavProps) {
         >
           <div className="flex items-center justify-between px-5 pt-5 sm:px-6">
             <span className="font-sans text-sm font-semibold tracking-tight text-zinc-950">
-              Quick<span className="text-primary">Hands</span>
+              {brand[0]}
+              <span className={accentText}>{brand[1]}</span>
             </span>
             <button
               type="button"
@@ -147,7 +168,12 @@ export function MobileNav({ open, onClose, links }: MobileNavProps) {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   {/* One neutral treatment for every link — no second accent colour. */}
-                  <span className="font-heading text-3xl leading-none tracking-tight text-zinc-950 transition-colors duration-200 group-hover:text-primary sm:text-4xl">
+                  <span
+                    className={cn(
+                      "font-heading text-3xl leading-none tracking-tight text-zinc-950 transition-colors duration-200 sm:text-4xl",
+                      groupHoverAccent
+                    )}
+                  >
                     {link.label}
                   </span>
                 </Link>
@@ -169,8 +195,8 @@ export function MobileNav({ open, onClose, links }: MobileNavProps) {
               >
                 Sign in
               </Link>
-              <PillButton href="/sign-up" size="lg" className="w-full">
-                Post a Task
+              <PillButton href={signedOutCta.href} variant={pillVariant} size="lg" className="w-full">
+                {signedOutCta.label}
               </PillButton>
             </SignedOut>
 
@@ -182,8 +208,8 @@ export function MobileNav({ open, onClose, links }: MobileNavProps) {
               >
                 Dashboard
               </Link>
-              <PillButton href="/post-job" size="lg" className="w-full">
-                Post a Task
+              <PillButton href={signedInCta.href} variant={pillVariant} size="lg" className="w-full">
+                {signedInCta.label}
               </PillButton>
               <div className="flex justify-center pt-1">
                 <UserButton afterSignOutUrl="/" />

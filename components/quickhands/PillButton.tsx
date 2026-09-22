@@ -6,7 +6,7 @@ import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-type PillButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "dark"
+type PillButtonVariant = "primary" | "specialist" | "secondary" | "outline" | "ghost" | "dark"
 type PillButtonSize = "sm" | "md" | "lg"
 
 interface SharedProps {
@@ -45,6 +45,11 @@ const sizeClasses: Record<PillButtonSize, string> = {
 const variantClasses: Record<PillButtonVariant, string> = {
   primary:
     "bg-primary text-white shadow-[0_4px_14px_rgba(20,168,0,0.25)] hover:bg-primary-hover hover:shadow-[0_6px_20px_rgba(20,168,0,0.35)]",
+  // Specialist-side identity (--specialist, blue) for the /professionals nav
+  // — same shadow/hover shape as "primary", swapped to the specialist tokens
+  // and a matching focus ring so it doesn't flash primary-green on focus.
+  specialist:
+    "bg-specialist text-specialist-foreground shadow-[0_4px_14px_rgba(41,82,227,0.25)] hover:bg-specialist-hover hover:shadow-[0_6px_20px_rgba(41,82,227,0.35)] focus-visible:ring-specialist/50",
   secondary:
     "bg-zinc-900 text-white shadow-sm hover:bg-zinc-800",
   outline:
@@ -64,7 +69,7 @@ export function PillButton(props: PillButtonProps) {
     variant = "primary",
     size = "md",
     className,
-    showArrow = variant === "primary",
+    showArrow = variant === "primary" || variant === "specialist",
     icon,
   } = props
 

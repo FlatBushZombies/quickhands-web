@@ -73,31 +73,37 @@ export default function DashboardClient() {
 
       {/* Both panels stay mounted (inactive one is just hidden) so an
           in-progress review form or loaded data survives a tab switch and
-          each panel keeps its existing visibility-aware refresh behaviour. */}
-      <div className={`min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 ${SCROLL_THIN}`}>
-        <div
-          role="tabpanel"
-          id={panelId(ID_PREFIX, "main")}
-          aria-labelledby={tabId(ID_PREFIX, "main")}
-          hidden={activeTab !== "main"}
-        >
-          {isClient ? <ClientApplicationsPanel /> : <SpecialistApplicationsPanel />}
-        </div>
-        <div
-          role="tabpanel"
-          id={panelId(ID_PREFIX, "discover")}
-          aria-labelledby={tabId(ID_PREFIX, "discover")}
-          hidden={activeTab !== "discover"}
-        >
-          {isClient ? <SpecialistsForYouPanel /> : <JobsForYouPanel />}
-        </div>
-        <div
-          role="tabpanel"
-          id={panelId(ID_PREFIX, "notifications")}
-          aria-labelledby={tabId(ID_PREFIX, "notifications")}
-          hidden={activeTab !== "notifications"}
-        >
-          <NotificationsPanel />
+          each panel keeps its existing visibility-aware refresh behaviour.
+          Content column matches every sibling in-shell page (/jobs,
+          /messages, /settings all use mx-auto max-w-* px-4 py-8 sm:px-6) —
+          the dashboard was the one page stretching its lists edge-to-edge
+          across the pane instead of sitting in the same centered column. */}
+      <div className={`min-h-0 flex-1 overflow-y-auto px-4 py-8 sm:px-6 ${SCROLL_THIN}`}>
+        <div className="mx-auto w-full max-w-4xl">
+          <div
+            role="tabpanel"
+            id={panelId(ID_PREFIX, "main")}
+            aria-labelledby={tabId(ID_PREFIX, "main")}
+            hidden={activeTab !== "main"}
+          >
+            {isClient ? <ClientApplicationsPanel /> : <SpecialistApplicationsPanel />}
+          </div>
+          <div
+            role="tabpanel"
+            id={panelId(ID_PREFIX, "discover")}
+            aria-labelledby={tabId(ID_PREFIX, "discover")}
+            hidden={activeTab !== "discover"}
+          >
+            {isClient ? <SpecialistsForYouPanel /> : <JobsForYouPanel />}
+          </div>
+          <div
+            role="tabpanel"
+            id={panelId(ID_PREFIX, "notifications")}
+            aria-labelledby={tabId(ID_PREFIX, "notifications")}
+            hidden={activeTab !== "notifications"}
+          >
+            <NotificationsPanel />
+          </div>
         </div>
       </div>
     </div>
