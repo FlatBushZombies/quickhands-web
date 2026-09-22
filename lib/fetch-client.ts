@@ -17,6 +17,12 @@ export function getApiUrl(path: string) {
  * explicitly at the call site instead of these defaults, since a retried
  * "merely slow, not failed" request risks a duplicate with no idempotency
  * key to de-dupe on the backend.
+ *
+ * A 429 resolves as a normal Response, not a thrown error, so it's handled
+ * separately from the network-failure path below: same opt-in `retries`
+ * budget, but honoring the backend's `Retry-After` header when present
+ * (falling back to `retryDelayMs`) instead of racing straight back into the
+ * limiter.
  */
 export async function fetchWithRetry(
   input: string,
@@ -33,6 +39,16 @@ export async function fetchWithRetry(
     try {
       const response = await fetch(input, { ...init, signal: controller.signal })
       clearTimeout(timeoutId)
+
+      if (response.status === 429 && attempt < retries) {
+        const retryAfterHeader = Number(response.headers.get("Retry-After"))
+        const delayMs = Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+          ? retryAfterHeader * 1000
+          : retryDelayMs
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
+        continue
+      }
+
       return response
     } catch (error) {
       clearTimeout(timeoutId)
