@@ -9,6 +9,8 @@ export interface MyBioSettings {
   smartLinks: BioSmartLinks
   customLinks: BioCustomLink[]
   isPublished: boolean
+  /** Total public page views recorded so far. */
+  viewCount: number
   profile: {
     name: string | null
     imageUrl: string | null

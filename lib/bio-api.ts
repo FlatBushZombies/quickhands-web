@@ -22,8 +22,11 @@ export interface BioSmartLinks {
 }
 
 export interface BioCustomLink {
+  /** Missing on older/other data — treat as "link" wherever this branches. */
+  type?: "link" | "heading"
   label: string
-  url: string
+  /** Only present on "link" entries; "heading" entries are label-only dividers. */
+  url?: string
 }
 
 export interface BioReviewSummary {

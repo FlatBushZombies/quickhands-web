@@ -10,10 +10,13 @@ import {
   Phone,
   Star,
   Link2,
-  ArrowUpRight,
   ArrowRight,
 } from "lucide-react"
 import { getPublicBioProfile, type BioCustomLink, type BioTestimonial, type PortfolioProject } from "@/lib/bio-api"
+import { BioAvatar } from "@/components/bio/BioAvatar"
+import { BioIconRow, type BioIconLink } from "@/components/bio/BioIconRow"
+import { BioLinkCard, BioHeadingDivider } from "@/components/bio/BioLinkCard"
+import { BioShareButton } from "@/components/bio/BioShareButton"
 
 export const revalidate = 60
 
@@ -42,12 +45,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-function initialsOf(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return "Q"
-  return (parts[0][0] + (parts[1]?.[0] ?? "")).toUpperCase()
-}
-
 function formatHourlyRate(rate: number | string | null) {
   const value = typeof rate === "string" ? Number(rate) : rate
   if (!value || Number.isNaN(value)) return null
@@ -60,13 +57,9 @@ function formatMemberSince(dateString: string) {
   return date.toLocaleDateString("en-US", { month: "long", year: "numeric" })
 }
 
-type LinkButton = {
-  key: string
-  label: string
-  href: string
-  icon: React.ReactNode
-  external?: boolean
-}
+type StackEntry =
+  | { kind: "link"; key: string; label: string; href: string; icon: React.ReactNode; external?: boolean }
+  | { kind: "heading"; key: string; label: string }
 
 export default async function BioPage({ params }: PageProps) {
   const { username } = await params
@@ -103,10 +96,10 @@ export default async function BioPage({ params }: PageProps) {
   const whatsappHref = phone ? `https://wa.me/${phone.replace(/\D/g, "")}` : null
   const firstName = name.trim().split(/\s+/)[0] || "this specialist"
 
-  const links: LinkButton[] = [
-    hasPortfolio
-      ? { key: "portfolio", label: "See my work", href: "#portfolio", icon: <Briefcase className="h-4 w-4" /> }
-      : null,
+  // Quick-contact actions render as a compact icon-only row (reference's
+  // social row); portfolio + custom entries render as the full-width card
+  // stack below, with "heading" custom entries as plain text dividers.
+  const contactLinks: BioIconLink[] = [
     smartLinks.call && phone
       ? { key: "call", label: "Call me", href: `tel:${phone}`, icon: <Phone className="h-4 w-4" /> }
       : null,
@@ -116,46 +109,48 @@ export default async function BioPage({ params }: PageProps) {
     smartLinks.email && email
       ? { key: "email", label: "Email me", href: `mailto:${email}`, icon: <Mail className="h-4 w-4" /> }
       : null,
-    ...customLinks.map((link: BioCustomLink, index: number) => ({
-      key: `custom-${index}`,
-      label: link.label,
-      href: link.url,
-      icon: <Link2 className="h-4 w-4" />,
-      external: true,
-    })),
-  ].filter(Boolean) as LinkButton[]
+  ].filter(Boolean) as BioIconLink[]
+
+  const stackEntries: StackEntry[] = [
+    hasPortfolio
+      ? { kind: "link", key: "portfolio", label: "See my work", href: "#portfolio", icon: <Briefcase className="h-4 w-4" /> }
+      : null,
+    ...customLinks.map((link: BioCustomLink, index: number) => {
+      if (link.type === "heading") {
+        return { kind: "heading" as const, key: `heading-${index}`, label: link.label }
+      }
+      return {
+        kind: "link" as const,
+        key: `custom-${index}`,
+        label: link.label,
+        href: link.url || "#",
+        icon: <Link2 className="h-4 w-4" />,
+        external: true,
+      }
+    }),
+  ].filter(Boolean) as StackEntry[]
+
+  const hasNoLinks = stackEntries.length === 0 && contactLinks.length === 0 && !smartLinks.hireMe
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-background">
-      {/* Same soft-grid brand treatment used across the site's hero sections */}
-      <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-primary/5 to-background" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#14a8001a_1px,transparent_1px),linear-gradient(to_bottom,#14a8001a_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_60%,transparent_105%)]" />
+      {/* Soft diagonal wash in the brand green only — toned down further than the
+          in-app hero treatment (lower opacity, no grid) for the smoother, more
+          restrained Linktree-style read the public page wants. */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/9 via-background to-primary/5" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_45%_at_50%_0%,rgba(20,168,0,0.08),transparent_70%)]" />
 
-      <div className="relative mx-auto flex min-h-screen max-w-md flex-col items-center px-6 pb-16 pt-14">
-        <Link href="/" className="mb-10 flex items-center gap-2 text-sm font-semibold text-foreground/70 transition-colors hover:text-primary">
-          <img src="/quickhands.png" alt="" className="h-6 w-6 rounded-md" />
-          quickhands
-        </Link>
+      <div className="relative mx-auto flex min-h-screen max-w-md flex-col items-center px-6 pb-16 pt-8">
+        <div className="mb-8 flex w-full items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 text-sm font-semibold text-foreground/70 transition-colors hover:text-primary">
+            <img src="/quickhands.png" alt="" className="h-6 w-6 rounded-md" />
+            quickhands
+          </Link>
+          <BioShareButton name={name} />
+        </div>
 
         {/* ── Identity ── */}
-        <div className="relative">
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={name}
-              className="h-28 w-28 rounded-full border-4 border-background object-cover shadow-[0_8px_30px_-8px_rgba(20,168,0,0.45)]"
-            />
-          ) : (
-            <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-background bg-gradient-to-br from-primary to-primary/70 text-3xl font-bold text-primary-foreground shadow-[0_8px_30px_-8px_rgba(20,168,0,0.45)]">
-              {initialsOf(name)}
-            </div>
-          )}
-          {isVerified ? (
-            <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full border-4 border-background bg-primary">
-              <CheckCircle2 className="h-4 w-4 text-primary-foreground" />
-            </div>
-          ) : null}
-        </div>
+        <BioAvatar name={name} imageUrl={imageUrl} isVerified={isVerified} />
 
         <h1 className="font-heading mt-4 text-center text-2xl font-bold tracking-tight text-foreground">{name}</h1>
 
@@ -175,6 +170,9 @@ export default async function BioPage({ params }: PageProps) {
             <span>{locationLabel}</span>
           </div>
         ) : null}
+
+        {/* ── Quick contact (icon-only row) ── */}
+        <BioIconRow links={contactLinks} />
 
         {/* ── Stat pills ── */}
         <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
@@ -206,25 +204,15 @@ export default async function BioPage({ params }: PageProps) {
 
         {/* ── Link stack ── */}
         <div className="mt-8 w-full space-y-3">
-          {links.map((link) => (
-            <a
-              key={link.key}
-              href={link.href}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              className="group flex w-full items-center gap-3 rounded-2xl border border-primary/15 bg-card px-5 py-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
-            >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                {link.icon}
-              </span>
-              <span className="flex-1 truncate text-[15px] font-semibold text-foreground">{link.label}</span>
-              {link.external ? (
-                <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              ) : null}
-            </a>
-          ))}
+          {stackEntries.map((entry) =>
+            entry.kind === "heading" ? (
+              <BioHeadingDivider key={entry.key} label={entry.label} />
+            ) : (
+              <BioLinkCard key={entry.key} href={entry.href} label={entry.label} icon={entry.icon} external={entry.external} />
+            )
+          )}
 
-          {links.length === 0 && !smartLinks.hireMe ? (
+          {hasNoLinks ? (
             <div className="rounded-2xl border border-dashed border-border bg-card/50 px-5 py-8 text-center">
               <p className="text-sm text-muted-foreground">This specialist hasn&apos;t added any links yet.</p>
             </div>
