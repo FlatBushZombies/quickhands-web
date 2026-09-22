@@ -111,6 +111,66 @@ export interface CreateJobResult {
   matchingSummary: { nearbyFreelancerCount: number; inYourArea: boolean }
 }
 
+export interface RecommendedJobProximity {
+  distanceKm: number | null
+}
+
+/**
+ * A job surfaced by GET /api/jobs/recommended-for-me. Same underlying job
+ * fields as `Job`, but deliberately its own type rather than reusing `Job`:
+ * `proximity` has no `inYourArea` flag here, and `skillMatch` (whether this
+ * job matched the caller's listed skills, vs. a generic fallback list) has
+ * no equivalent on `Job` at all.
+ */
+export interface RecommendedJob {
+  id: number
+  serviceType: string
+  selectedServices: string[]
+  startDate: string
+  endDate: string
+  maxPrice: number
+  specialistChoice: string | null
+  additionalInfo: string | null
+  documents: string[]
+  clerkId: string
+  userName: string
+  userAvatar: string | null
+  createdAt: string
+  updatedAt: string | null
+  location: JobLocation | null
+  proximity: RecommendedJobProximity | null
+  clientReviewSummary: ClientReviewSummary
+  applicantCount: number
+  skillMatch: boolean
+}
+
+export interface RecommendedJobsResult {
+  jobs: RecommendedJob[]
+  /** True when the list was matched against the specialist's own skills; false when it fell back to a generic/newest listing. */
+  matchedBySkill: boolean
+}
+
+/**
+ * GET /api/jobs/recommended-for-me — requires a Clerk auth bearer token, so
+ * (unlike the public GETs above) this follows lib/applications-api.ts's
+ * client-fetch shape: fetchWithRetry + parseJsonSafely.
+ */
+export async function getRecommendedJobsForMe(token: string, limit = 10): Promise<RecommendedJobsResult> {
+  try {
+    const response = await fetchWithRetry(getApiUrl(`/api/jobs/recommended-for-me?limit=${limit}`), {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    const data = await parseJsonSafely(response)
+    if (!response.ok || !data?.success || !Array.isArray(data.data)) {
+      return { jobs: [], matchedBySkill: false }
+    }
+    return { jobs: data.data as RecommendedJob[], matchedBySkill: Boolean(data.matchedBySkill) }
+  } catch (error) {
+    console.error("[jobs] Failed to load recommended jobs:", error)
+    return { jobs: [], matchedBySkill: false }
+  }
+}
+
 // Deliberately no retries: this creates a resource. A slow-but-successful
 // request retried blindly risks posting the same job twice with no
 // idempotency key to de-dupe on — same reasoning as the mobile apps'

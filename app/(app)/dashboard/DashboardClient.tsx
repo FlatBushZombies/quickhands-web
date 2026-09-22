@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Bell, Briefcase, Send } from "lucide-react"
+import { Bell, Briefcase, Compass, Send, Users } from "lucide-react"
 import { useAppRole } from "@/components/app/AppRoleContext"
 import { Button } from "@/components/ui/button"
 import { PaneTabs, panelId, tabId, type PaneTab } from "@/components/app-shell/PaneTabs"
@@ -10,16 +10,19 @@ import { SCROLL_THIN } from "@/components/app-shell/role-styles"
 import { ClientApplicationsPanel } from "@/components/dashboard/ClientApplicationsPanel"
 import { SpecialistApplicationsPanel } from "@/components/dashboard/SpecialistApplicationsPanel"
 import { NotificationsPanel } from "@/components/dashboard/NotificationsPanel"
+import { SpecialistsForYouPanel } from "@/components/dashboard/SpecialistsForYouPanel"
+import { JobsForYouPanel } from "@/components/dashboard/JobsForYouPanel"
 
 const ID_PREFIX = "dashboard"
 
 export default function DashboardClient() {
   const { appRole } = useAppRole()
   const isClient = appRole === "client"
-  const [activeTab, setActiveTab] = useState<"main" | "notifications">("main")
+  const [activeTab, setActiveTab] = useState<"main" | "discover" | "notifications">("main")
 
   const tabs: PaneTab[] = [
     isClient ? { id: "main", label: "Jobs", icon: Briefcase } : { id: "main", label: "Applications", icon: Send },
+    isClient ? { id: "discover", label: "Specialists", icon: Users } : { id: "discover", label: "Jobs for you", icon: Compass },
     { id: "notifications", label: "Notifications", icon: Bell },
   ]
 
@@ -63,7 +66,7 @@ export default function DashboardClient() {
       <PaneTabs
         tabs={tabs}
         value={activeTab}
-        onChange={(id) => setActiveTab(id as "main" | "notifications")}
+        onChange={(id) => setActiveTab(id as "main" | "discover" | "notifications")}
         idPrefix={ID_PREFIX}
         label="Dashboard sections"
       />
@@ -79,6 +82,14 @@ export default function DashboardClient() {
           hidden={activeTab !== "main"}
         >
           {isClient ? <ClientApplicationsPanel /> : <SpecialistApplicationsPanel />}
+        </div>
+        <div
+          role="tabpanel"
+          id={panelId(ID_PREFIX, "discover")}
+          aria-labelledby={tabId(ID_PREFIX, "discover")}
+          hidden={activeTab !== "discover"}
+        >
+          {isClient ? <SpecialistsForYouPanel /> : <JobsForYouPanel />}
         </div>
         <div
           role="tabpanel"
