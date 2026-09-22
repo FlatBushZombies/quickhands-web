@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "components/app-shell/PaneTabs.tsx"
+        ],
+        "createdAt": "2026-09-21T17:32:24.599Z",
+        "reason": "orchestrator: false positive — tab has rounded-t only (top corners, for the focus ring) while the 2px accent border is border-b-2 on the bottom edge, so the radius never meets the border; matches the reference tab underline"
+      }
+    ]
+  }
+}

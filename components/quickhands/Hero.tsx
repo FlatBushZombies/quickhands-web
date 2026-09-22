@@ -1,20 +1,13 @@
 "use client"
 
 import { motion, useReducedMotion, type Variants } from "framer-motion"
-import { ShieldCheck, MapPin, MessageCircle, CalendarClock } from "lucide-react"
 import { PillButton } from "./PillButton"
 import { AnimatedLink } from "./AnimatedLink"
 import { HeroMarketplaceCard } from "./HeroMarketplaceCard"
 import { Em } from "./Em"
 import { PostTaskModal } from "./PostTaskModal"
 import { HeroSearch } from "./HeroSearch"
-
-const TRUST_SIGNALS = [
-  { icon: ShieldCheck, label: "Verified specialists" },
-  { icon: MapPin, label: "Local professionals" },
-  { icon: MessageCircle, label: "Secure communication" },
-  { icon: CalendarClock, label: "Flexible scheduling" },
-]
+import { TrustBand } from "./TrustBand"
 
 const HERO_IMAGE = "https://images.pexels.com/photos/8820172/pexels-photo-8820172.jpeg"
 
@@ -142,21 +135,9 @@ export function Hero({ ready = true }: HeroProps) {
       </div>
 
       {/* ══════════ Secondary band — trust signals ══════════
-          Mirrors Quickhandshero's feature band beneath its own full-bleed
-          panel: the same four trust signals that used to sit under the
-          headline now get their own calm, light-surface row. */}
-      <div className="relative w-full border-b border-zinc-200 bg-white py-10 sm:py-12">
-        <div className="mx-auto w-full max-w-[1800px] px-5 sm:px-6 md:px-10 lg:px-14 xl:px-20 2xl:max-w-[1600px]">
-          <ul className="flex flex-wrap items-center gap-x-8 gap-y-3" aria-label="Why QuickHands">
-            {TRUST_SIGNALS.map(({ icon: Icon, label }) => (
-              <li key={label} className="flex items-center gap-2 font-sans text-xs font-medium text-zinc-500">
-                <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                {label}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+          The same four trust signals that used to sit under the headline,
+          now a single container beneath the full-bleed panel. */}
+      <TrustBand />
     </section>
   )
 }

@@ -25,10 +25,7 @@ export function ProfessionalsHeader() {
             Same permanently-solid treatment as the header below it (this
             page has no transparent-over-photo state to branch from), so
             legibility against the hero photo was never in question here. */}
-        <AudienceTabs
-          className="border-zinc-100 bg-zinc-50/70"
-          containerClassName="max-w-[1200px] px-6"
-        />
+        <AudienceTabs containerClassName="max-w-[1200px] px-6" />
 
         {/* Solid, opaque bar at all times — kept clearly distinct from the
             photo hero underneath rather than blending into it. */}
