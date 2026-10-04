@@ -19,6 +19,8 @@ import {
   MyJobsView,
   OverviewView,
   ProfileView,
+  isInProgress,
+  isJobDone,
   type SetupStep,
 } from "@/components/pro-account/ProAccountViews"
 import {
@@ -36,6 +38,7 @@ import {
 } from "@/components/pro-account/professions"
 import {
   applyToJob,
+  confirmApplicationCompletion,
   getApplicationReviews,
   getMyApplications,
   submitApplicationReview,
@@ -123,7 +126,7 @@ export function ProAccountView() {
     ;(async () => {
       const token = await getToken()
       if (!token) return
-      const completed = applications.filter((a) => a.status === "completed" && !(a.id in matrices))
+      const completed = applications.filter((a) => isJobDone(a) && !(a.id in matrices))
       if (completed.length === 0) return
       const results = await Promise.all(completed.map((a) => getApplicationReviews(a.id, token)))
       if (cancelled) return
@@ -153,7 +156,7 @@ export function ProAccountView() {
     return map
   }, [applications])
   const openJobs = jobs.filter((j) => !appliedByJob.has(j.id))
-  const active = applications.filter((a) => a.status === "accepted")
+  const active = applications.filter(isInProgress)
 
   const setupDone = (hasProfession ? 1 : 0) + (experience.length > 0 ? 1 : 0)
   const setupTotal = 2
@@ -161,7 +164,7 @@ export function ProAccountView() {
   // Prompt for the first completed job that has no review from this specialist yet.
   const pendingReview = applications.find(
     (a) =>
-      a.status === "completed" &&
+      isJobDone(a) &&
       matrices[a.id]?.canFreelancerReview === true &&
       !matrices[a.id]?.freelancerToClient &&
       !dismissedReviews[a.id]
@@ -191,6 +194,24 @@ export function ProAccountView() {
       act: () => setModal({ kind: "experience" }),
     },
   ]
+
+  const [confirmingId, setConfirmingId] = useState<number | null>(null)
+  const [confirmError, setConfirmError] = useState<string | null>(null)
+
+  const confirmCompletion = async (app: Application) => {
+    setConfirmingId(app.id)
+    setConfirmError(null)
+    try {
+      const token = await getToken()
+      if (!token) throw new Error("Not signed in")
+      await confirmApplicationCompletion(app.id, token)
+      await refreshApplications()
+    } catch (error) {
+      setConfirmError(error instanceof Error ? error.message : "Could not confirm completion")
+    } finally {
+      setConfirmingId(null)
+    }
+  }
 
   const openProfession = () => {
     setModalError(null)
@@ -430,6 +451,9 @@ export function ProAccountView() {
                   setModal({ kind: "review", app })
                 }}
                 onBrowse={() => setView("jobs")}
+                onConfirm={confirmCompletion}
+                confirmingId={confirmingId}
+                confirmError={confirmError}
               />
             ) : (
               <ProfileView

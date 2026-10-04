@@ -419,22 +419,38 @@ function ApplicationRow({ app, onOpen }: { app: Application; onOpen: () => void 
   )
 }
 
+/** Accepted, or marked complete by the client but not yet confirmed by the specialist. */
+export function isInProgress(a: Application) {
+  return a.status === "accepted" || (a.status === "completed" && !a.completion?.freelancerConfirmed)
+}
+
+/** Both the specialist and the client have confirmed the job is finished. */
+export function isJobDone(a: Application) {
+  return Boolean(a.completion?.freelancerConfirmed && a.completion?.clientConfirmed)
+}
+
 export function MyJobsView({
   applications,
   matrices,
   onOpenThread,
   onReview,
   onBrowse,
+  onConfirm,
+  confirmingId,
+  confirmError,
 }: {
   applications: Application[]
   matrices: Record<number, ReviewMatrix | null>
   onOpenThread: (app: Application) => void
   onReview: (app: Application) => void
   onBrowse: () => void
+  onConfirm: (app: Application) => void
+  confirmingId: number | null
+  confirmError: string | null
 }) {
-  const active = applications.filter((a) => a.status === "accepted")
+  const active = applications.filter(isInProgress)
   const applied = applications.filter((a) => a.status === "pending" || a.status === "rejected")
-  const done = applications.filter((a) => a.status === "completed")
+  const done = applications.filter(isJobDone)
   const empty = applications.length === 0
 
   return (
@@ -500,12 +516,35 @@ export function MyJobsView({
               <div style={css("padding:18px;border-radius:var(--radius-lg);background:var(--ink-50)")}>
                 <div style={css("font:500 16px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>Is the job done?</div>
                 <div style={css("font:var(--text-small);color:var(--fg-2);margin-top:4px;text-wrap:pretty")}>
-                  The client marks the job as completed when the work is finished. You can leave a review after that.
+                  When you both confirm, the task moves to completed.
                 </div>
-                <div style={css("display:flex;align-items:center;gap:10px;margin-top:16px;font:var(--text-small);color:var(--fg-2)")}>
-                  <span style={css(`width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink-200);border-top-color:${G};animation:qhSpin 900ms linear infinite;flex-shrink:0`)} />
-                  Waiting for the client to mark it complete.
-                </div>
+                {a.completion?.freelancerConfirmed ? (
+                  <div style={css("display:flex;align-items:center;gap:10px;margin-top:16px;font:var(--text-small);color:var(--fg-2)")}>
+                    <span style={css(`width:14px;height:14px;border-radius:50%;border:1.5px solid var(--ink-200);border-top-color:${G};animation:qhSpin 900ms linear infinite;flex-shrink:0`)} />
+                    Waiting for the client
+                  </div>
+                ) : (
+                  <div style={css("margin-top:16px")}>
+                    {a.completion?.clientConfirmed ? (
+                      <p style={css("margin:0 0 12px;font:var(--text-small);color:var(--fg-2)")}>
+                        The client has marked this job complete. Confirm to finish it.
+                      </p>
+                    ) : null}
+                    <Ix
+                      disabled={confirmingId === a.id}
+                      onClick={() => onConfirm(a)}
+                      base={`height:44px;padding:0 20px;border:0;border-radius:999px;background:${G};color:var(--white);font:500 14px/1 var(--font-sans);cursor:${confirmingId === a.id ? "default" : "pointer"};display:inline-flex;align-items:center;gap:8px`}
+                      hover="background:#142C7A"
+                      active="transform:scale(0.98)"
+                    >
+                      <Ico name="check" size={15} />
+                      {confirmingId === a.id ? "Confirming…" : "Confirm completion"}
+                    </Ix>
+                    {confirmError && confirmingId === null ? (
+                      <p style={css("margin:12px 0 0;font:var(--text-small);color:var(--danger-600)")}>{confirmError}</p>
+                    ) : null}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -539,7 +578,8 @@ export function MyJobsView({
                     <Ico name="check" size={20} />
                   </span>
                   <div style={css("min-width:0")}>
-                    <div style={css("font:500 17px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>{c.job?.serviceType || "Job"}</div>
+                    <div style={css("font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:var(--fg-3)")}>Completed</div>
+                    <div style={css("font:500 17px/1.3 var(--font-sans);letter-spacing:var(--ls-tight);margin-top:4px")}>{c.job?.serviceType || "Job"}</div>
                     <div style={css("font:var(--text-small);color:var(--fg-3);margin-top:4px")}>
                       {shortName(counterpart)} · {new Date(c.updatedAt).toLocaleDateString()} · {c.quotation || ""}
                     </div>

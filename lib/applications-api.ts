@@ -2,6 +2,13 @@ import { fetchWithRetry, getApiUrl, parseJsonSafely } from "@/lib/fetch-client"
 
 export type ApplicationStatus = "pending" | "accepted" | "rejected" | "completed"
 
+export interface ApplicationCompletion {
+  freelancerConfirmed: boolean
+  clientConfirmed: boolean
+  freelancerConfirmedAt: string | null
+  clientConfirmedAt: string | null
+}
+
 export interface Application {
   id: number
   jobId: number
@@ -14,6 +21,7 @@ export interface Application {
   createdAt: string
   updatedAt: string
   conversationId?: string
+  completion?: ApplicationCompletion
   freelancerReviewSummary?: { averageRating: number; reviewCount: number }
   job?: {
     serviceType: string | null
@@ -158,4 +166,25 @@ export async function submitApplicationReview(
     throw new Error(data?.message || "Failed to save review")
   }
   return data.data as ReviewEntry
+}
+
+/**
+ * POST /api/applications/:id/confirm-completion. The specialist confirms the
+ * accepted job is finished. The job counts as completed once the client has
+ * confirmed too.
+ */
+export async function confirmApplicationCompletion(id: number, token: string): Promise<Application> {
+  const response = await fetchWithRetry(
+    getApiUrl(`/api/applications/${id}/confirm-completion`),
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    },
+    { retries: 0, timeoutMs: 45000 }
+  )
+  const data = await parseJsonSafely(response)
+  if (!response.ok || !data?.success) {
+    throw new Error(data?.message || "Failed to confirm completion")
+  }
+  return data.data as Application
 }
