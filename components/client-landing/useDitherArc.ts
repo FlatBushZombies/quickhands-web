@@ -21,7 +21,7 @@ function smoothstep(a: number, b: number, x: number) {
 }
 
 /** Animated ordered-dither arc drawn into the returned canvas ref. Still frame under reduced motion. */
-export function useDitherArc() {
+export function useDitherArc(palette: readonly string[] = PALETTE) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -34,8 +34,8 @@ export function useDitherArc() {
 
     const image = ctx.createImageData(W, H)
     const data = image.data
-    const palette = PALETTE.map(hexToRgb)
-    const colors = palette.length
+    const rgbPalette = palette.map(hexToRgb)
+    const colors = rgbPalette.length
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
     const cx = W * 1.14
     const cy = -H * 0.2
@@ -61,7 +61,7 @@ export function useDitherArc() {
           }
           const p = Math.max(0, e) * (colors - 1) * (0.92 + 0.08 * Math.sin(t * 0.7 + ang * 4))
           const k = Math.min(colors - 1, Math.floor(p + threshold))
-          const [red, green, blue] = palette[k]
+          const [red, green, blue] = rgbPalette[k]
           data[i] = red
           data[i + 1] = green
           data[i + 2] = blue
@@ -87,7 +87,7 @@ export function useDitherArc() {
     }
     frame = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(frame)
-  }, [])
+  }, [palette])
 
   return canvasRef
 }
