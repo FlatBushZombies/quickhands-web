@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type CSSProperties } from "react"
+import { useEffect, useState, type CSSProperties } from "react"
 import Link from "next/link"
 import { useAuth, useUser } from "@clerk/nextjs"
 import {
@@ -12,8 +12,6 @@ import {
   GraduationCap,
   ImagePlus,
   Loader2,
-  Locate,
-  MapPin,
   Plus,
   Scissors,
   Search,
@@ -21,7 +19,6 @@ import {
   Sparkles,
   Trees,
   Truck,
-  Wallet,
   Wrench,
   X,
   Zap,
@@ -29,8 +26,7 @@ import {
 } from "lucide-react"
 import { authFontClassName } from "@/components/auth/fonts"
 import { RoleGate } from "@/components/app/RoleGate"
-import { createJob, type CreateJobPayload, type CreateJobResult } from "@/lib/jobs-api"
-import { detectLocation, type DetectedLocation } from "@/lib/geocoding"
+import { createJob, type CreateJobPayload, type CreateJobResult, type PreferredTime } from "@/lib/jobs-api"
 import { uploadToCloudinary } from "@/lib/cloudinary"
 
 const SANS = "var(--font-geist), ui-sans-serif, system-ui, sans-serif"
@@ -38,11 +34,13 @@ const MONO = "var(--font-geist-mono), ui-monospace, Menlo, monospace"
 const SERIF = "var(--font-instrument-serif), ui-serif, Georgia, serif"
 const GREEN = "#108600"
 const GREEN_HOVER = "#0D6E00"
+const GREEN_TINT = "#F1F8EF"
 
-/** Design tokens from the Post a task artifact, scoped to this page. */
+/** Design tokens from the Post a task design, scoped to this page. */
 const TOKENS = {
   "--ink-950": "#0A0A0B",
   "--ink-800": "#1F1F22",
+  "--ink-600": "#4A4A50",
   "--ink-400": "#9A9AA0",
   "--ink-300": "#C7C7CB",
   "--ink-100": "#EFEFF0",
@@ -51,7 +49,7 @@ const TOKENS = {
   "--white": "#FFFFFF",
   "--danger-600": "#C9302C",
   "--fg-1": "var(--ink-950)",
-  "--fg-2": "#4A4A50",
+  "--fg-2": "var(--ink-600)",
   "--fg-3": "var(--ink-400)",
   "--border-hairline": "rgba(10,10,11,.08)",
   "--border-default": "rgba(10,10,11,.12)",
@@ -63,22 +61,31 @@ const TOKENS = {
   "--surface-glass": "rgba(251,251,250,.72)",
   "--blur-glass": "saturate(1.4) blur(14px)",
   "--ease-out": "cubic-bezier(.22,1,.36,1)",
+  "--container-max": "1200px",
+  "--gutter": "24px",
+  "--radius-md": "10px",
+  "--radius-lg": "14px",
+  "--radius-xl": "20px",
+  "--dur-fast": "140ms",
+  "--dur-base": "240ms",
+  "--ls-mono": "0.06em",
 } as CSSProperties
 
 const PAGE_CSS = `
 @keyframes qhFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes qhSpin{to{transform:rotate(360deg)}}
 input::placeholder,textarea::placeholder{color:var(--ink-400)}
 ::selection{background:var(--ink-950);color:var(--white)}
 :focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 .pt-card{transition:box-shadow 140ms var(--ease-out),background 140ms var(--ease-out)}
 .pt-card:hover{box-shadow:inset 0 0 0 1.5px var(--ink-950) !important}
 .pt-card:active,.pt-press:active{transform:scale(0.98)}
-.pt-ghost:hover{background:var(--ink-100) !important;color:var(--fg-1) !important}
-.pt-chip:hover{background:var(--ink-100) !important;color:var(--fg-1) !important}
+.pt-ghost:hover,.pt-skip:hover,.pt-chip:hover,.pt-close:hover{background:var(--ink-100) !important;color:var(--fg-1) !important}
 .pt-attach:hover{background:var(--ink-50) !important}
 .pt-secondary:hover{background:var(--ink-50) !important}
 .pt-primary:hover{background:${GREEN_HOVER} !important}
-.pt-skip:hover{background:var(--ink-100) !important;color:var(--fg-1) !important}
+.pt-field:focus{box-shadow:inset 0 0 0 1.5px var(--ink-950) !important;outline:none}
+@media (max-width: 727px){ .pt-form{grid-column:auto !important} }
 `
 
 const MICRO: CSSProperties = {
@@ -92,13 +99,14 @@ const MICRO: CSSProperties = {
 
 const SMALL: CSSProperties = { fontFamily: SANS, fontWeight: 400, fontSize: 13, lineHeight: 1.45 }
 
-const HEADING: CSSProperties = {
+const H1: CSSProperties = {
   fontFamily: SANS,
   fontWeight: 500,
   fontSize: "clamp(36px, 4.6vw, 56px)",
   lineHeight: 1.05,
   letterSpacing: "-0.035em",
   margin: "14px 0 0",
+  textWrap: "balance",
 }
 
 const EM: CSSProperties = {
@@ -109,29 +117,23 @@ const EM: CSSProperties = {
   color: GREEN,
 }
 
-const CARD_TITLE: CSSProperties = { fontFamily: SANS, fontWeight: 500, fontSize: 15, lineHeight: 1.25, letterSpacing: "-0.015em" }
+const LABEL_500: CSSProperties = { fontFamily: SANS, fontWeight: 500, fontSize: 15, lineHeight: 1.25, letterSpacing: "-0.015em" }
 
-const SUB_TITLE: CSSProperties = { ...MICRO, color: "var(--fg-3)", marginBottom: 12 }
-
-const ROW_LABEL: CSSProperties = { ...MICRO, color: "var(--fg-3)" }
-
-const STEP_KICKER: CSSProperties = { ...MICRO, color: GREEN }
-
-const FADE_IN = (ms: number): CSSProperties => ({ animation: `qhFade ${ms}ms var(--ease-out) both` })
-
-function choiceStyle(on: boolean): CSSProperties {
-  return {
-    background: on ? "var(--ink-950)" : "var(--white)",
-    color: on ? "var(--white)" : "var(--fg-1)",
-    boxShadow: on ? "none" : "inset 0 0 0 1px var(--border-default)",
-  }
-}
-
-function cardStyle(on: boolean): CSSProperties {
-  return {
-    background: on ? "#F1F8EF" : "var(--white)",
-    boxShadow: on ? `inset 0 0 0 1.5px ${GREEN}` : "inset 0 0 0 1px var(--border-default)",
-  }
+const BUTTON_LG: CSSProperties = {
+  height: 52,
+  padding: "0 24px",
+  border: 0,
+  borderRadius: 999,
+  fontFamily: SANS,
+  fontWeight: 500,
+  fontSize: 15,
+  lineHeight: 1,
+  letterSpacing: "-0.01em",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  textDecoration: "none",
+  cursor: "pointer",
 }
 
 const CATS: { id: string; label: string; icon: LucideIcon; subs: string[] }[] = [
@@ -143,12 +145,14 @@ const CATS: { id: string; label: string; icon: LucideIcon; subs: string[] }[] = 
   { id: "other", label: "Tutoring & other", icon: GraduationCap, subs: ["Tutoring", "Admin help", "Tech support", "Something else"] },
 ]
 
-const TIMES = [
+const TIMES: { id: PreferredTime; label: string; range: string }[] = [
   { id: "morning", label: "Morning", range: "8–12" },
   { id: "afternoon", label: "Afternoon", range: "12–5" },
   { id: "evening", label: "Evening", range: "5–8" },
   { id: "any", label: "Any time", range: "" },
 ]
+
+type WhenId = "asap" | "date" | "flex"
 
 const WHEN_OPTIONS: { id: WhenId; label: string; hint: string; icon: LucideIcon }[] = [
   { id: "asap", label: "As soon as possible", hint: "Today or tomorrow", icon: Zap },
@@ -159,26 +163,28 @@ const WHEN_OPTIONS: { id: WhenId; label: string; hint: string; icon: LucideIcon 
 /** Quick-add lines from the design's details step. */
 const QUICK_ADD = ["Size of the job", "Tools or materials needed", "Access & parking", "Budget in mind"]
 
-/** No specialist-preference control in the design; the API still receives the existing default. */
-const SPECIALIST_CHOICE_DEFAULT = "Any Specialist"
+/** The design allows up to five task photos. */
 const PHOTO_LIMIT = 5
-/** "Within the next few weeks" has no backend equivalent; the request window is this many days. */
-const FLEXIBLE_WINDOW_DAYS = 21
 const DETAILS_MAX = 1000
+/**
+ * "Within the next few weeks" is stored as a window from today. The design
+ * gives no exact date, so this is the length of that window in days.
+ */
+const FLEXIBLE_WINDOW_DAYS = 21
 
-type WhenId = "asap" | "date" | "flex"
-
-interface Attachment {
-  url: string
-  name: string
-  image: boolean
+function choiceStyle(on: boolean): CSSProperties {
+  return {
+    background: on ? "var(--ink-950)" : "var(--white)",
+    color: on ? "var(--white)" : "var(--fg-1)",
+    boxShadow: on ? "none" : "inset 0 0 0 1px var(--border-default)",
+  }
 }
 
-interface SubmittedSummary {
-  category: string
-  service: string
-  when: string
-  city: string | null
+function cardStyle(on: boolean): CSSProperties {
+  return {
+    background: on ? GREEN_TINT : "var(--white)",
+    boxShadow: on ? `inset 0 0 0 1.5px ${GREEN}` : "inset 0 0 0 1px var(--border-default)",
+  }
 }
 
 function readHashParam(name: string): string | null {
@@ -208,10 +214,9 @@ function formatDay(date: Date): string {
   return date.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
 }
 
-function sentLine(count: number, city: string | null): string {
+function sentLine(count: number): string {
   if (count > 0) {
-    const noun = count === 1 ? "specialist" : "specialists"
-    return city ? `We've sent it to ${count} ${noun} in ${city}.` : `We've sent it to ${count} ${noun} nearby.`
+    return `We've sent it to ${count} ${count === 1 ? "specialist" : "specialists"}.`
   }
   return "We'll notify matching specialists as they become available."
 }
@@ -248,67 +253,57 @@ function PostTaskForm() {
   const { getToken } = useAuth()
 
   const [step, setStep] = useState(1)
-  const [cat, setCat] = useState<string | null>(() => {
-    const requested = readHashParam("cat")
-    return CATS.some((c) => c.id === requested) ? requested : null
-  })
+  const [cat, setCat] = useState<string | null>(null)
   const [sub, setSub] = useState<string | null>(null)
-  const [query, setQuery] = useState(() => readHashParam("q") ?? "")
+  const [query, setQuery] = useState("")
   const [when, setWhen] = useState<WhenId | null>(null)
   const [day, setDay] = useState<number | null>(null)
-  const [time, setTime] = useState<string | null>(null)
+  const [time, setTime] = useState<PreferredTime | null>(null)
   const [details, setDetails] = useState("")
-  const [budget, setBudget] = useState("")
-
-  const [location, setLocation] = useState<DetectedLocation | null>(null)
-  const [manualCity, setManualCity] = useState("")
-  const [locating, setLocating] = useState(false)
-  const [locationFailed, setLocationFailed] = useState(false)
-
-  const [attachments, setAttachments] = useState<Attachment[]>([])
+  /** Cloudinary URLs of uploaded photos, in the order they were added. */
+  const [photos, setPhotos] = useState<string[]>([])
   const [pendingUploads, setPendingUploads] = useState(0)
-  const [attachError, setAttachError] = useState<string | null>(null)
+  const [photoError, setPhotoError] = useState<string | null>(null)
 
   const [submitting, setSubmitting] = useState(false)
-  const [showSlowHint, setShowSlowHint] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [result, setResult] = useState<CreateJobResult | null>(null)
-  const [submitted, setSubmitted] = useState<SubmittedSummary | null>(null)
+  const [submitted, setSubmitted] = useState<{ category: string; service: string; when: string } | null>(null)
 
-  const categoryObj = CATS.find((c) => c.id === cat)
-  const service = query.trim() || sub || null
-  const step1Ok = !!(query.trim() || (categoryObj && sub))
+  // The design prefills from "#q=...&cat=..." when the page is opened from a link.
+  useEffect(() => {
+    const requestedQuery = readHashParam("q")
+    const requestedCat = readHashParam("cat")
+    if (requestedQuery) setQuery(requestedQuery)
+    if (requestedCat && CATS.some((c) => c.id === requestedCat)) setCat(requestedCat)
+  }, [])
+
+  const category = CATS.find((c) => c.id === cat) ?? null
+  const trimmedQuery = query.trim()
+  const service = trimmedQuery || sub || null
+  const step1Ok = !!(trimmedQuery || (category && sub))
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
   const dayList = Array.from({ length: 14 }, (_, i) => addDays(today, i))
-  const timeChoice = TIMES.find((t) => t.id === time)
+  const timeChoice = TIMES.find((t) => t.id === time) ?? null
 
-  const step2Ok = when === "asap" || when === "flex" || (when === "date" && day !== null && !!time)
-  const whenText =
+  const step2Ok = when === "asap" || when === "flex" || (when === "date" && day !== null && time !== null)
+  const whenText: string | null =
     when === "asap"
       ? "As soon as possible"
       : when === "flex"
         ? "I'm flexible"
         : when === "date" && day !== null
-          ? formatDay(dayList[day]) + (timeChoice ? ` · ${timeChoice.label}${timeChoice.range ? ` (${timeChoice.range})` : ""}` : "")
+          ? formatDay(dayList[day]) +
+            (timeChoice ? ` · ${timeChoice.label}${timeChoice.range ? ` (${timeChoice.range})` : ""}` : "")
           : null
-
-  const budgetNumber = budget.trim() === "" ? Number.NaN : Number(budget)
-  const budgetOk = Number.isFinite(budgetNumber) && budgetNumber >= 0
-  const budgetInvalid = budget.trim() !== "" && !budgetOk
-
-  const city = location?.city || manualCity.trim() || null
-  const whereText = location ? location.label || location.city || manualCity.trim() || "Location detected" : null
 
   const stepOk = [step1Ok, step2Ok, !!details.trim()]
   const maxReach = step1Ok ? (step2Ok ? 3 : 2) : 1
-  const nextDisabled =
-    submitting ||
-    pendingUploads > 0 ||
-    (step === 1 && !step1Ok) ||
-    (step === 2 && !step2Ok) ||
-    (step === 3 && !budgetOk)
+  const busy = submitting || pendingUploads > 0
+  const nextDisabled = busy || (step === 1 && !step1Ok) || (step === 2 && !step2Ok)
+  const photoRoomFull = photos.length + pendingUploads >= PHOTO_LIMIT
 
   const steps = [
     { n: 1, label: "Service" },
@@ -327,6 +322,7 @@ function PostTaskForm() {
     setSub(null)
   }
 
+  /** Start and end dates for the request, derived from the When step. */
   const scheduleWindow = (): { startDate: string; endDate: string } | null => {
     if (when === "asap") return { startDate: toDayString(today), endDate: toDayString(addDays(today, 1)) }
     if (when === "flex") {
@@ -339,99 +335,62 @@ function PostTaskForm() {
     return null
   }
 
-  const handleDetectLocation = async () => {
-    setLocating(true)
-    setLocationFailed(false)
-    try {
-      setLocation(await detectLocation())
-    } catch (detectError) {
-      console.error("Location detection failed:", detectError)
-      setLocationFailed(true)
-    } finally {
-      setLocating(false)
-    }
-  }
-
-  const addFiles = async (fileList: FileList | null) => {
+  const addPhotos = async (fileList: FileList | null) => {
     if (!fileList) return
-    const room = PHOTO_LIMIT - attachments.length - pendingUploads
-    const picked = Array.from(fileList).slice(0, Math.max(0, room))
+    const images = Array.from(fileList).filter((file) => file.type.startsWith("image/"))
+    const room = PHOTO_LIMIT - photos.length - pendingUploads
+    const picked = images.slice(0, Math.max(0, room))
+
+    if (images.length < fileList.length) setPhotoError("Only image files can be added.")
+    else if (images.length > picked.length) setPhotoError(`A task can have up to ${PHOTO_LIMIT} photos.`)
+    else setPhotoError(null)
     if (picked.length === 0) return
 
-    setAttachError(null)
     setPendingUploads((count) => count + picked.length)
-    const results = await Promise.allSettled(
-      picked.map(async (file) => {
-        const image = file.type.startsWith("image/")
-        const uploaded = await uploadToCloudinary(file, { resourceType: image ? "image" : "auto" })
-        return { url: uploaded.url, name: uploaded.name, image }
-      })
-    )
-    const uploaded: Attachment[] = []
-    results.forEach((entry) => {
-      if (entry.status === "fulfilled") uploaded.push(entry.value)
-      else console.error("[post-job] Upload failed:", entry.reason)
+    const settled = await Promise.allSettled(picked.map((file) => uploadToCloudinary(file, { resourceType: "image" })))
+    const uploaded: string[] = []
+    settled.forEach((entry) => {
+      if (entry.status === "fulfilled") uploaded.push(entry.value.url)
+      else console.error("[post-job] Photo upload failed:", entry.reason)
     })
-    if (uploaded.length < picked.length) setAttachError("Some files could not be uploaded. Try again.")
-    setAttachments((current) => [...current, ...uploaded].slice(0, PHOTO_LIMIT))
+    if (uploaded.length < picked.length) setPhotoError("Some photos could not be uploaded. Try again.")
+    setPhotos((current) => [...current, ...uploaded].slice(0, PHOTO_LIMIT))
     setPendingUploads((count) => count - picked.length)
   }
 
   const submit = async () => {
-    if (!user || submitting || !step1Ok || !step2Ok || !budgetOk || pendingUploads > 0) return
     const range = scheduleWindow()
-    if (!range || !service) return
-
-    const detailsText = [
-      details.trim(),
-      when === "date" && timeChoice
-        ? `Preferred time: ${timeChoice.label}${timeChoice.range ? ` (${timeChoice.range})` : ""}`
-        : "",
-    ]
-      .filter(Boolean)
-      .join("\n")
+    if (!user || busy || !step1Ok || !step2Ok || !service || !range) return
 
     const payload: CreateJobPayload = {
       serviceType: service,
       selectedServices: [service],
       startDate: range.startDate,
       endDate: range.endDate,
-      maxPrice: budgetNumber,
-      specialistChoice: SPECIALIST_CHOICE_DEFAULT,
-      additionalInfo: detailsText,
-      documents: attachments.map((a) => a.url),
+      additionalInfo: details.trim(),
+      preferredTime: when === "date" ? time : null,
+      documents: photos,
       clerkId: user.id,
       userName: user.fullName || "Anonymous",
       userAvatar: user.imageUrl || null,
-      location: {
-        label: location?.label ?? null,
-        city,
-        latitude: location?.latitude ?? null,
-        longitude: location?.longitude ?? null,
-      },
     }
 
     setSubmitting(true)
     setSubmitError(null)
-    setShowSlowHint(false)
-    const slowTimer = setTimeout(() => setShowSlowHint(true), 4000)
     try {
       const token = await getToken()
       if (!token) throw new Error("Could not verify your session. Please try again.")
       const response = await createJob(payload, token)
       setSubmitted({
-        category: categoryObj && !query.trim() ? categoryObj.label : "Your task",
+        category: category && !trimmedQuery ? category.label : "Your task",
         service,
-        when: whenText || "",
-        city,
+        when: whenText ?? "",
       })
       setResult(response)
     } catch (submitFailure) {
       setSubmitError(submitFailure instanceof Error ? submitFailure.message : "Something went wrong. Please try again.")
     } finally {
-      clearTimeout(slowTimer)
       setSubmitting(false)
-      setShowSlowHint(false)
     }
   }
 
@@ -450,24 +409,25 @@ function PostTaskForm() {
     setDay(null)
     setTime(null)
     setDetails("")
-    setBudget("")
-    setAttachments([])
-    setAttachError(null)
+    setPhotos([])
+    setPhotoError(null)
     setSubmitError(null)
     setResult(null)
     setSubmitted(null)
   }
 
+  const addQuickLine = (label: string) =>
+    setDetails((current) => ((current ? current.replace(/\s*$/, "") + "\n" : "") + label + ": ").slice(0, DETAILS_MAX))
+
   const summaryRows = [
     {
       key: "Service",
       icon: Wrench,
-      value: service ? (categoryObj && !query.trim() ? `${categoryObj.label} — ${service}` : service) : "Not chosen yet",
+      value: service ? (category && !trimmedQuery ? `${category.label} — ${service}` : service) : "Not chosen yet",
       ok: !!service,
       edit: () => go(1),
     },
     { key: "When", icon: Calendar, value: whenText || "Not chosen yet", ok: !!whenText, edit: () => go(2) },
-    { key: "Where", icon: MapPin, value: whereText || "Optional", ok: !!location, edit: () => go(2) },
     {
       key: "Details",
       icon: FileText,
@@ -475,10 +435,9 @@ function PostTaskForm() {
       ok: !!details.trim(),
       edit: () => go(3),
     },
-    { key: "Budget", icon: Wallet, value: budgetOk ? `US$ ${budget.trim()}` : "Not chosen yet", ok: budgetOk, edit: () => go(3) },
   ]
 
-  const sentToText = result ? sentLine(result.matchingSummary.nearbyFreelancerCount, submitted?.city ?? null) : ""
+  const sentToText = result ? sentLine(result.matchingSummary.nearbyFreelancerCount) : ""
 
   return (
     <>
@@ -495,9 +454,9 @@ function PostTaskForm() {
       >
         <div
           style={{
-            maxWidth: 1200,
+            maxWidth: "var(--container-max)",
             margin: "0 auto",
-            padding: "0 24px",
+            padding: "0 var(--gutter)",
             height: 64,
             display: "flex",
             alignItems: "center",
@@ -507,15 +466,20 @@ function PostTaskForm() {
         >
           <Link
             href="/"
-            style={{ font: "600 20px/1 " + SANS, letterSpacing: "-0.05em", textDecoration: "none", color: "var(--fg-1)" }}
+            style={{
+              font: "600 20px/1 var(--font-sans)",
+              letterSpacing: "-0.05em",
+              textDecoration: "none",
+              color: "var(--fg-1)",
+            }}
           >
             quickhands
           </Link>
-          <span style={{ ...MICRO, color: "var(--fg-3)" }}>Post a task</span>
+          <span style={{ ...MICRO, letterSpacing: "var(--ls-mono)", color: "var(--fg-3)" }}>Post a task</span>
           <Link
-            href="/dashboard"
+            href="/"
             aria-label="Close"
-            className="pt-ghost"
+            className="pt-close"
             style={{
               width: 36,
               height: 36,
@@ -525,6 +489,7 @@ function PostTaskForm() {
               justifyContent: "center",
               color: "var(--fg-2)",
               boxShadow: "inset 0 0 0 1px var(--border-default)",
+              transition: "background var(--dur-fast) var(--ease-out)",
             }}
           >
             <X size={16} strokeWidth={1.5} />
@@ -536,7 +501,7 @@ function PostTaskForm() {
               height: 2,
               width: progressPct,
               background: GREEN,
-              transition: "width 240ms var(--ease-out)",
+              transition: "width var(--dur-base) var(--ease-out)",
             }}
           />
         </div>
@@ -547,9 +512,9 @@ function PostTaskForm() {
           style={{
             flex: 1,
             width: "100%",
-            maxWidth: 1200,
+            maxWidth: "var(--container-max)",
             margin: "0 auto",
-            padding: "56px 24px 64px",
+            padding: "56px var(--gutter) 64px",
             boxSizing: "border-box",
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 340px), 1fr))",
@@ -557,18 +522,21 @@ function PostTaskForm() {
             alignItems: "start",
           }}
         >
-          <div style={{ gridColumn: "span 2", minWidth: 0, maxWidth: 720 }}>
+          {/* Form column */}
+          <div className="pt-form" style={{ gridColumn: "span 2", minWidth: 0, maxWidth: 720 }}>
             <ol style={{ listStyle: "none", margin: "0 0 40px", padding: 0, display: "flex", flexWrap: "wrap", gap: 8 }}>
               {steps.map((s) => {
-                const cur = s.n === step
+                const current = s.n === step
                 const past = s.n < step && stepOk[s.n - 1]
                 const locked = s.n > maxReach
                 return (
                   <li key={s.n}>
                     <button
                       type="button"
+                      onClick={() => {
+                        if (!locked) go(s.n)
+                      }}
                       disabled={locked}
-                      onClick={() => !locked && go(s.n)}
                       style={{
                         display: "inline-flex",
                         alignItems: "center",
@@ -577,12 +545,15 @@ function PostTaskForm() {
                         padding: "0 14px 0 6px",
                         border: 0,
                         borderRadius: 999,
-                        background: cur ? "var(--white)" : "transparent",
+                        background: current ? "var(--white)" : "transparent",
                         color: locked ? "var(--fg-3)" : "var(--fg-1)",
-                        boxShadow: cur ? "var(--shadow-sm), inset 0 0 0 1px var(--border-hairline)" : "none",
-                        font: "500 13px/1 " + SANS,
+                        boxShadow: current ? "var(--shadow-sm), inset 0 0 0 1px var(--border-hairline)" : "none",
+                        fontFamily: SANS,
+                        fontWeight: 500,
+                        fontSize: 13,
+                        lineHeight: 1,
                         cursor: locked ? "default" : "pointer",
-                        transition: "background 140ms var(--ease-out)",
+                        transition: "background var(--dur-fast) var(--ease-out)",
                       }}
                     >
                       <span
@@ -593,11 +564,9 @@ function PostTaskForm() {
                           display: "inline-flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          background: cur ? "var(--ink-950)" : past ? GREEN : "var(--ink-100)",
-                          color: cur || past ? "var(--white)" : "var(--fg-3)",
-                          fontFamily: MONO,
-                          fontSize: 11,
-                          lineHeight: 1.3,
+                          background: current ? "var(--ink-950)" : past ? GREEN : "var(--ink-100)",
+                          color: current || past ? "var(--white)" : "var(--fg-3)",
+                          ...MICRO,
                           letterSpacing: 0,
                         }}
                       >
@@ -610,10 +579,11 @@ function PostTaskForm() {
               })}
             </ol>
 
+            {/* Step 1: service */}
             {step === 1 ? (
-              <div style={FADE_IN(260)}>
-                <span style={STEP_KICKER}>Step 01 / 03</span>
-                <h1 className="text-balance" style={HEADING}>
+              <div style={{ animation: "qhFade 260ms var(--ease-out) both" }}>
+                <span style={{ ...MICRO, color: GREEN }}>Step 01 / 03</span>
+                <h1 style={H1}>
                   What do you need <em style={EM}>done</em>?
                 </h1>
                 <p style={{ margin: "12px 0 0", color: "var(--fg-2)" }}>Pick a service, or type it in your own words.</p>
@@ -626,7 +596,7 @@ function PostTaskForm() {
                     gap: 12,
                     height: 56,
                     padding: "0 18px",
-                    borderRadius: 14,
+                    borderRadius: "var(--radius-lg)",
                     background: "var(--white)",
                     boxShadow: "var(--shadow-float)",
                   }}
@@ -635,7 +605,7 @@ function PostTaskForm() {
                   <input
                     type="text"
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={(event) => setQuery(event.target.value)}
                     placeholder="e.g. Fix a leaking kitchen tap"
                     aria-label="Describe the service you need"
                     style={{
@@ -645,6 +615,7 @@ function PostTaskForm() {
                       outline: "none",
                       background: "transparent",
                       fontFamily: SANS,
+                      fontWeight: 400,
                       fontSize: 16,
                       lineHeight: 1.55,
                       color: "var(--fg-1)",
@@ -667,9 +638,9 @@ function PostTaskForm() {
                       <button
                         key={c.id}
                         type="button"
-                        className="pt-card"
-                        aria-pressed={on}
                         onClick={() => pickCategory(c.id)}
+                        aria-pressed={on}
+                        className="pt-card"
                         style={{
                           display: "flex",
                           flexDirection: "column",
@@ -677,7 +648,7 @@ function PostTaskForm() {
                           gap: 14,
                           padding: 16,
                           border: 0,
-                          borderRadius: 14,
+                          borderRadius: "var(--radius-lg)",
                           textAlign: "left",
                           cursor: "pointer",
                           color: "var(--fg-1)",
@@ -685,24 +656,26 @@ function PostTaskForm() {
                         }}
                       >
                         <Icon size={20} strokeWidth={1.5} style={{ color: on ? GREEN : "var(--fg-2)" }} />
-                        <span style={CARD_TITLE}>{c.label}</span>
+                        <span style={LABEL_500}>{c.label}</span>
                       </button>
                     )
                   })}
                 </div>
 
-                {categoryObj ? (
-                  <div style={{ marginTop: 28, ...FADE_IN(220) }}>
-                    <div style={SUB_TITLE}>{`${categoryObj.label} · choose one`}</div>
+                {category ? (
+                  <div style={{ marginTop: 28, animation: "qhFade 220ms var(--ease-out) both" }}>
+                    <div style={{ ...MICRO, color: "var(--fg-3)", marginBottom: 12 }}>
+                      {`${category.label} · choose one`}
+                    </div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                      {categoryObj.subs.map((s) => {
-                        const on = sub === s
+                      {category.subs.map((label) => {
+                        const on = sub === label
                         return (
                           <button
-                            key={s}
+                            key={label}
                             type="button"
+                            onClick={() => setSub(label)}
                             aria-pressed={on}
-                            onClick={() => setSub(s)}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
@@ -711,13 +684,16 @@ function PostTaskForm() {
                               padding: "0 14px",
                               border: 0,
                               borderRadius: 999,
-                              font: "500 14px/1 " + SANS,
-                              cursor: "pointer",
-                              transition: "background 140ms var(--ease-out)",
                               ...choiceStyle(on),
+                              fontFamily: SANS,
+                              fontWeight: 500,
+                              fontSize: 14,
+                              lineHeight: 1,
+                              cursor: "pointer",
+                              transition: "background var(--dur-fast) var(--ease-out)",
                             }}
                           >
-                            {s}
+                            {label}
                           </button>
                         )
                       })}
@@ -727,13 +703,16 @@ function PostTaskForm() {
               </div>
             ) : null}
 
+            {/* Step 2: when */}
             {step === 2 ? (
-              <div style={FADE_IN(260)}>
-                <span style={STEP_KICKER}>Step 02 / 03</span>
-                <h1 className="text-balance" style={HEADING}>
+              <div style={{ animation: "qhFade 260ms var(--ease-out) both" }}>
+                <span style={{ ...MICRO, color: GREEN }}>Step 02 / 03</span>
+                <h1 style={H1}>
                   When do you need <em style={EM}>it</em>?
                 </h1>
-                <p style={{ margin: "12px 0 0", color: "var(--fg-2)" }}>Specialists see this before they send you an offer.</p>
+                <p style={{ margin: "12px 0 0", color: "var(--fg-2)" }}>
+                  Specialists see this before they send you an offer.
+                </p>
 
                 <div
                   style={{
@@ -750,9 +729,9 @@ function PostTaskForm() {
                       <button
                         key={w.id}
                         type="button"
-                        className="pt-card"
-                        aria-pressed={on}
                         onClick={() => setWhen(w.id)}
+                        aria-pressed={on}
+                        className="pt-card"
                         style={{
                           display: "flex",
                           flexDirection: "column",
@@ -760,7 +739,7 @@ function PostTaskForm() {
                           gap: 6,
                           padding: 18,
                           border: 0,
-                          borderRadius: 14,
+                          borderRadius: "var(--radius-lg)",
                           textAlign: "left",
                           cursor: "pointer",
                           color: "var(--fg-1)",
@@ -768,7 +747,7 @@ function PostTaskForm() {
                         }}
                       >
                         <Icon size={18} strokeWidth={1.5} style={{ color: on ? GREEN : "var(--fg-2)", marginBottom: 8 }} />
-                        <span style={CARD_TITLE}>{w.label}</span>
+                        <span style={LABEL_500}>{w.label}</span>
                         <span style={{ ...SMALL, color: "var(--fg-3)" }}>{w.hint}</span>
                       </button>
                     )
@@ -776,8 +755,8 @@ function PostTaskForm() {
                 </div>
 
                 {when === "date" ? (
-                  <div style={{ marginTop: 32, ...FADE_IN(220) }}>
-                    <div style={SUB_TITLE}>Pick a day</div>
+                  <div style={{ marginTop: 32, animation: "qhFade 220ms var(--ease-out) both" }}>
+                    <div style={{ ...MICRO, color: "var(--fg-3)", marginBottom: 12 }}>Pick a day</div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }}>
                       {dayList.map((d, i) => {
                         const on = day === i
@@ -785,9 +764,9 @@ function PostTaskForm() {
                           <button
                             key={i}
                             type="button"
+                            onClick={() => setDay(i)}
                             aria-pressed={on}
                             aria-label={formatDay(d)}
-                            onClick={() => setDay(i)}
                             style={{
                               display: "flex",
                               flexDirection: "column",
@@ -795,13 +774,13 @@ function PostTaskForm() {
                               gap: 6,
                               padding: "10px 0",
                               border: 0,
-                              borderRadius: 10,
-                              cursor: "pointer",
-                              transition: "background 140ms var(--ease-out)",
+                              borderRadius: "var(--radius-md)",
                               ...choiceStyle(on),
+                              cursor: "pointer",
+                              transition: "background var(--dur-fast) var(--ease-out)",
                             }}
                           >
-                            <span style={{ ...MICRO, opacity: 0.7 }}>
+                            <span style={{ ...MICRO, letterSpacing: "var(--ls-mono)", opacity: 0.7 }}>
                               {i === 0 ? "Today" : d.toLocaleDateString("en-GB", { weekday: "short" })}
                             </span>
                             <span style={{ fontFamily: SANS, fontWeight: 500, fontSize: 17, lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
@@ -815,8 +794,8 @@ function PostTaskForm() {
                 ) : null}
 
                 {when === "date" && day !== null ? (
-                  <div style={{ marginTop: 28, ...FADE_IN(220) }}>
-                    <div style={SUB_TITLE}>Preferred time</div>
+                  <div style={{ marginTop: 28, animation: "qhFade 220ms var(--ease-out) both" }}>
+                    <div style={{ ...MICRO, color: "var(--fg-3)", marginBottom: 12 }}>Preferred time</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                       {TIMES.map((tm) => {
                         const on = time === tm.id
@@ -824,8 +803,8 @@ function PostTaskForm() {
                           <button
                             key={tm.id}
                             type="button"
-                            aria-pressed={on}
                             onClick={() => setTime(tm.id)}
+                            aria-pressed={on}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
@@ -834,92 +813,30 @@ function PostTaskForm() {
                               padding: "0 16px",
                               border: 0,
                               borderRadius: 999,
-                              font: "500 14px/1 " + SANS,
-                              cursor: "pointer",
                               ...choiceStyle(on),
+                              fontFamily: SANS,
+                              fontWeight: 500,
+                              fontSize: 14,
+                              lineHeight: 1,
+                              cursor: "pointer",
                             }}
                           >
                             {tm.label}
-                            <span style={{ ...MICRO, letterSpacing: "0.06em", opacity: 0.6 }}>{tm.range}</span>
+                            {tm.range ? <span style={{ ...MICRO, letterSpacing: "var(--ls-mono)", opacity: 0.6 }}>{tm.range}</span> : null}
                           </button>
                         )
                       })}
                     </div>
                   </div>
                 ) : null}
-
-                <div style={{ marginTop: 28 }}>
-                  <div style={SUB_TITLE}>Where</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-                    <button
-                      type="button"
-                      className="pt-chip"
-                      onClick={handleDetectLocation}
-                      disabled={locating}
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: 6,
-                        height: 36,
-                        padding: "0 14px",
-                        border: 0,
-                        borderRadius: 999,
-                        background: "var(--white)",
-                        boxShadow: "inset 0 0 0 1px var(--border-default)",
-                        font: "500 14px/1 " + SANS,
-                        color: "var(--fg-2)",
-                        cursor: locating ? "default" : "pointer",
-                      }}
-                    >
-                      {locating ? <Loader2 size={14} className="animate-spin" /> : <Locate size={14} strokeWidth={1.5} />}
-                      Detect my location
-                    </button>
-                    {location ? (
-                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6, font: "500 14px/1 " + SANS, color: GREEN }}>
-                        <MapPin size={14} strokeWidth={1.5} />
-                        {location.label || location.city || "Location detected"}
-                      </span>
-                    ) : null}
-                  </div>
-                  {locationFailed ? (
-                    <p style={{ ...SMALL, margin: "10px 0 0", color: "var(--danger-600)" }}>
-                      Could not detect your location. Try again, or enter a city below.
-                    </p>
-                  ) : null}
-                  {location && !location.city ? (
-                    <input
-                      type="text"
-                      value={manualCity}
-                      onChange={(e) => setManualCity(e.target.value)}
-                      placeholder="City / area name"
-                      aria-label="City or area"
-                      style={{
-                        display: "block",
-                        marginTop: 10,
-                        width: "100%",
-                        maxWidth: 320,
-                        height: 44,
-                        boxSizing: "border-box",
-                        padding: "0 14px",
-                        borderRadius: 14,
-                        border: 0,
-                        outline: "none",
-                        background: "var(--white)",
-                        boxShadow: "inset 0 0 0 1px var(--border-default)",
-                        fontFamily: SANS,
-                        fontSize: 16,
-                        color: "var(--fg-1)",
-                      }}
-                    />
-                  ) : null}
-                </div>
               </div>
             ) : null}
 
+            {/* Step 3: details */}
             {step === 3 ? (
-              <div style={FADE_IN(260)}>
-                <span style={STEP_KICKER}>Step 03 / 03 · Optional</span>
-                <h1 className="text-balance" style={HEADING}>
+              <div style={{ animation: "qhFade 260ms var(--ease-out) both" }}>
+                <span style={{ ...MICRO, color: GREEN }}>Step 03 / 03 · Optional</span>
+                <h1 style={H1}>
                   Anything <em style={EM}>else</em> they should know?
                 </h1>
                 <p style={{ margin: "12px 0 0", color: "var(--fg-2)" }}>
@@ -927,28 +844,29 @@ function PostTaskForm() {
                 </p>
 
                 <div style={{ marginTop: 32, display: "flex", flexDirection: "column", gap: 8 }}>
-                  <label htmlFor="pt-details" style={{ ...ROW_LABEL, marginBottom: 4 }}>
+                  <label htmlFor="pt-details" style={{ ...SMALL, fontWeight: 500, color: "var(--fg-1)" }}>
                     Describe the task
                   </label>
                   <textarea
                     id="pt-details"
                     rows={6}
                     value={details}
-                    onChange={(e) => setDetails(e.target.value.slice(0, DETAILS_MAX))}
+                    onChange={(event) => setDetails(event.target.value.slice(0, DETAILS_MAX))}
                     placeholder="e.g. The tap under the kitchen sink drips constantly. I have a replacement washer but no tools."
+                    className="pt-field"
                     style={{
-                      display: "block",
                       width: "100%",
                       height: 180,
                       boxSizing: "border-box",
                       padding: "16px 18px",
-                      borderRadius: 14,
+                      borderRadius: "var(--radius-lg)",
                       border: 0,
-                      outline: "none",
-                      resize: "none",
                       background: "var(--white)",
-                      boxShadow: "var(--shadow-float)",
+                      boxShadow: "inset 0 0 0 1px var(--border-default)",
+                      resize: "none",
+                      outline: "none",
                       fontFamily: SANS,
+                      fontWeight: 400,
                       fontSize: 15,
                       lineHeight: 1.55,
                       color: "var(--fg-1)",
@@ -961,16 +879,14 @@ function PostTaskForm() {
                 </div>
 
                 <div style={{ marginTop: 20 }}>
-                  <div style={SUB_TITLE}>Quick add</div>
+                  <div style={{ ...MICRO, color: "var(--fg-3)", marginBottom: 12 }}>Quick add</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                     {QUICK_ADD.map((label) => (
                       <button
                         key={label}
                         type="button"
+                        onClick={() => addQuickLine(label)}
                         className="pt-chip"
-                        onClick={() =>
-                          setDetails((current) => (current ? `${current.replace(/\s*$/, "")}\n` : "") + `${label}: `)
-                        }
                         style={{
                           display: "inline-flex",
                           alignItems: "center",
@@ -981,9 +897,13 @@ function PostTaskForm() {
                           borderRadius: 999,
                           background: "var(--white)",
                           boxShadow: "inset 0 0 0 1px var(--border-default)",
-                          font: "500 13px/1 " + SANS,
+                          fontFamily: SANS,
+                          fontWeight: 500,
+                          fontSize: 13,
+                          lineHeight: 1,
                           color: "var(--fg-2)",
                           cursor: "pointer",
+                          transition: "background var(--dur-fast) var(--ease-out)",
                         }}
                       >
                         <Plus size={13} strokeWidth={1.5} />
@@ -991,40 +911,6 @@ function PostTaskForm() {
                       </button>
                     ))}
                   </div>
-                </div>
-
-                <div style={{ marginTop: 28 }}>
-                  <label htmlFor="pt-budget" style={{ ...ROW_LABEL, display: "block", marginBottom: 12 }}>
-                    Budget (US$)
-                  </label>
-                  <input
-                    id="pt-budget"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    inputMode="decimal"
-                    value={budget}
-                    onChange={(e) => setBudget(e.target.value)}
-                    placeholder="e.g. 100"
-                    style={{
-                      display: "block",
-                      width: "100%",
-                      height: 56,
-                      boxSizing: "border-box",
-                      padding: "0 18px",
-                      borderRadius: 14,
-                      border: 0,
-                      outline: "none",
-                      background: "var(--white)",
-                      boxShadow: "var(--shadow-float)",
-                      fontFamily: SANS,
-                      fontSize: 16,
-                      color: "var(--fg-1)",
-                    }}
-                  />
-                  {budgetInvalid ? (
-                    <p style={{ ...SMALL, margin: "8px 0 0", color: "var(--danger-600)" }}>Enter a valid amount.</p>
-                  ) : null}
                 </div>
 
                 <label
@@ -1037,19 +923,19 @@ function PostTaskForm() {
                     alignItems: "center",
                     gap: 16,
                     padding: "18px 20px",
-                    borderRadius: 14,
+                    borderRadius: "var(--radius-lg)",
                     background: "var(--white)",
                     boxShadow: "inset 0 0 0 1px var(--border-default)",
-                    cursor: "pointer",
+                    cursor: photoRoomFull ? "not-allowed" : "pointer",
                     color: "var(--fg-1)",
-                    transition: "background 140ms var(--ease-out)",
+                    transition: "background var(--dur-fast) var(--ease-out)",
                   }}
                 >
                   <span
                     style={{
                       width: 44,
                       height: 44,
-                      borderRadius: 10,
+                      borderRadius: "var(--radius-md)",
                       background: "var(--ink-100)",
                       display: "inline-flex",
                       alignItems: "center",
@@ -1062,56 +948,54 @@ function PostTaskForm() {
                   <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                     <span style={{ fontFamily: SANS, fontWeight: 500, fontSize: 15, lineHeight: 1.3 }}>Add photos</span>
                     <span style={{ ...SMALL, color: "var(--fg-3)" }}>
-                      {attachments.length
-                        ? `${attachments.length} of ${PHOTO_LIMIT} added · tap to add more`
-                        : "Up to 5 images. Helps specialists quote accurately."}
+                      {photos.length >= PHOTO_LIMIT
+                        ? `${PHOTO_LIMIT} of ${PHOTO_LIMIT} added`
+                        : photos.length > 0 || pendingUploads > 0
+                          ? `${photos.length + pendingUploads} of ${PHOTO_LIMIT} added · tap to add more`
+                          : `Up to ${PHOTO_LIMIT} images. Helps specialists quote accurately.`}
                     </span>
                   </span>
                   <input
                     type="file"
-                    accept="image/*,.pdf,.doc,.docx"
+                    accept="image/*"
                     multiple
-                    style={{ display: "none" }}
-                    onChange={(e) => {
-                      void addFiles(e.target.files)
-                      e.target.value = ""
+                    disabled={photoRoomFull}
+                    onChange={(event) => {
+                      void addPhotos(event.target.files)
+                      event.target.value = ""
                     }}
+                    style={{ display: "none" }}
                   />
                 </label>
-                {attachError ? (
-                  <p style={{ ...SMALL, margin: "8px 0 0", color: "var(--danger-600)" }}>{attachError}</p>
+
+                {photoError ? (
+                  <p role="alert" style={{ ...SMALL, margin: "12px 0 0", color: "var(--danger-600)" }}>
+                    {photoError}
+                  </p>
                 ) : null}
-                {attachments.length > 0 || pendingUploads > 0 ? (
+
+                {photos.length > 0 || pendingUploads > 0 ? (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-                    {attachments.map((a, i) => (
+                    {photos.map((url, index) => (
                       <div
-                        key={a.url}
+                        key={url}
                         role="img"
-                        aria-label={a.image ? "Task photo" : a.name}
+                        aria-label="Task photo"
                         style={{
                           position: "relative",
                           width: 84,
                           height: 84,
-                          borderRadius: 10,
-                          background: a.image ? `var(--ink-100) url("${a.url}") center / cover no-repeat` : "var(--ink-100)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          padding: 8,
-                          boxSizing: "border-box",
-                          overflow: "hidden",
+                          borderRadius: "var(--radius-md)",
+                          backgroundColor: "var(--ink-100)",
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                          backgroundImage: `url("${url}")`,
                         }}
                       >
-                        {!a.image ? (
-                          <span style={{ ...MICRO, fontSize: 10, color: "var(--fg-2)", textAlign: "center", overflowWrap: "anywhere" }}>
-                            <FileText size={18} strokeWidth={1.5} style={{ display: "block", margin: "0 auto 4px" }} />
-                            {a.name}
-                          </span>
-                        ) : null}
                         <button
                           type="button"
                           aria-label="Remove photo"
-                          onClick={() => setAttachments((current) => current.filter((_, k) => k !== i))}
+                          onClick={() => setPhotos((current) => current.filter((_, k) => k !== index))}
                           style={{
                             position: "absolute",
                             top: 4,
@@ -1132,30 +1016,30 @@ function PostTaskForm() {
                         </button>
                       </div>
                     ))}
-                    {pendingUploads > 0
-                      ? Array.from({ length: pendingUploads }, (_, i) => (
-                          <div
-                            key={`pending-${i}`}
-                            style={{
-                              width: 84,
-                              height: 84,
-                              borderRadius: 10,
-                              background: "var(--ink-100)",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: "var(--fg-3)",
-                            }}
-                          >
-                            <Loader2 size={18} className="animate-spin" />
-                          </div>
-                        ))
-                      : null}
+                    {Array.from({ length: pendingUploads }, (_, index) => (
+                      <div
+                        key={`pending-${index}`}
+                        aria-label="Uploading photo"
+                        style={{
+                          width: 84,
+                          height: 84,
+                          borderRadius: "var(--radius-md)",
+                          background: "var(--ink-100)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "var(--fg-3)",
+                        }}
+                      >
+                        <Loader2 size={18} strokeWidth={1.5} style={{ animation: "qhSpin 900ms linear infinite" }} />
+                      </div>
+                    ))}
                   </div>
                 ) : null}
               </div>
             ) : null}
 
+            {/* Navigation */}
             <div
               style={{
                 display: "flex",
@@ -1170,18 +1054,9 @@ function PostTaskForm() {
               {step > 1 ? (
                 <button
                   type="button"
-                  className="pt-ghost"
                   onClick={() => go(step - 1)}
-                  style={{
-                    height: 52,
-                    padding: "0 24px",
-                    border: 0,
-                    borderRadius: 999,
-                    background: "transparent",
-                    color: "var(--fg-1)",
-                    font: "500 15px/1 " + SANS,
-                    cursor: "pointer",
-                  }}
+                  className="pt-ghost"
+                  style={{ ...BUTTON_LG, padding: "0 20px", background: "transparent", color: "var(--fg-2)", transition: "background var(--dur-fast) var(--ease-out)" }}
                 >
                   Back
                 </button>
@@ -1190,28 +1065,32 @@ function PostTaskForm() {
               {step === 3 ? (
                 <button
                   type="button"
-                  className="pt-skip"
                   onClick={() => void submit()}
-                  disabled={nextDisabled}
+                  disabled={busy}
+                  className="pt-skip"
                   style={{
                     height: 52,
                     padding: "0 20px",
                     border: 0,
                     background: "transparent",
-                    font: "500 15px/1 " + SANS,
+                    fontFamily: SANS,
+                    fontWeight: 500,
+                    fontSize: 15,
+                    lineHeight: 1,
                     color: "var(--fg-2)",
-                    cursor: nextDisabled ? "not-allowed" : "pointer",
+                    cursor: busy ? "not-allowed" : "pointer",
                     borderRadius: 999,
+                    transition: "background var(--dur-fast) var(--ease-out)",
                   }}
                 >
-                  Skip &amp; post
+                  Skip & post
                 </button>
               ) : null}
               <button
                 type="button"
-                className="pt-press"
                 onClick={next}
                 disabled={nextDisabled}
+                className="pt-press"
                 style={{
                   height: 52,
                   padding: "0 26px",
@@ -1219,49 +1098,44 @@ function PostTaskForm() {
                   borderRadius: 999,
                   background: nextDisabled ? "var(--ink-300)" : GREEN,
                   color: "var(--white)",
-                  font: "500 15px/1 " + SANS,
+                  fontFamily: SANS,
+                  fontWeight: 500,
+                  fontSize: 15,
+                  lineHeight: 1,
                   letterSpacing: "-0.01em",
                   cursor: nextDisabled ? "not-allowed" : "pointer",
                   display: "inline-flex",
                   alignItems: "center",
                   gap: 8,
-                  transition: "background 140ms var(--ease-out)",
+                  transition: "background var(--dur-fast) var(--ease-out)",
                 }}
               >
-                {step < 3 ? "Continue" : "Post task"}
-                {submitting ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  <ArrowRight size={16} strokeWidth={1.5} />
-                )}
+                {step < 3 ? "Continue" : submitting ? "Posting…" : "Post task"}
+                <ArrowRight size={16} strokeWidth={1.5} />
               </button>
             </div>
-
             {submitError ? (
-              <p style={{ ...SMALL, margin: "16px 0 0", color: "var(--danger-600)" }}>{submitError}</p>
-            ) : null}
-            {showSlowHint ? (
-              <p style={{ ...SMALL, margin: "8px 0 0", color: "var(--fg-3)" }}>
-                Waking up the server — this can take up to a minute on the first request…
+              <p role="alert" style={{ ...SMALL, margin: "16px 0 0", color: "var(--danger-600)" }}>
+                {submitError}
               </p>
             ) : null}
           </div>
 
+          {/* Summary */}
           <aside
             style={{
               position: "sticky",
               top: 96,
               padding: 28,
-              borderRadius: 20,
+              borderRadius: "var(--radius-xl)",
               background: "var(--white)",
               boxShadow: "var(--shadow-hairline)",
             }}
           >
-            <div style={ROW_LABEL}>Your task</div>
+            <div style={{ ...MICRO, color: "var(--fg-3)" }}>Your task</div>
             <dl style={{ margin: "20px 0 0", display: "flex", flexDirection: "column" }}>
               {summaryRows.map((row) => {
                 const Icon = row.icon
-                const color = row.ok ? "var(--fg-1)" : "var(--fg-3)"
                 return (
                   <div
                     key={row.key}
@@ -1270,10 +1144,14 @@ function PostTaskForm() {
                     <Icon
                       size={16}
                       strokeWidth={1.5}
-                      style={{ color: row.ok ? GREEN : "var(--fg-3)", paddingTop: 2, flexShrink: 0 }}
+                      style={{
+                        color: row.ok ? GREEN : "var(--fg-3)",
+                        paddingTop: 2,
+                        flexShrink: 0,
+                      }}
                     />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <dt style={ROW_LABEL}>{row.key}</dt>
+                      <dt style={{ ...MICRO, color: "var(--fg-3)" }}>{row.key}</dt>
                       <dd
                         style={{
                           margin: "6px 0 0",
@@ -1281,7 +1159,7 @@ function PostTaskForm() {
                           fontWeight: 500,
                           fontSize: 15,
                           lineHeight: 1.4,
-                          color,
+                          color: row.ok ? "var(--fg-1)" : "var(--fg-3)",
                           overflowWrap: "anywhere",
                         }}
                       >
@@ -1297,7 +1175,10 @@ function PostTaskForm() {
                           border: 0,
                           background: "transparent",
                           padding: "2px 0",
-                          font: "500 13px/1 " + SANS,
+                          fontFamily: SANS,
+                          fontWeight: 500,
+                          fontSize: 13,
+                          lineHeight: 1,
                           color: "var(--fg-2)",
                           textDecoration: "underline",
                           textUnderlineOffset: 3,
@@ -1319,7 +1200,7 @@ function PostTaskForm() {
                 alignItems: "flex-start",
                 marginTop: 8,
                 padding: 14,
-                borderRadius: 10,
+                borderRadius: "var(--radius-md)",
                 background: "var(--ink-50)",
                 ...SMALL,
                 color: "var(--fg-2)",
@@ -1331,7 +1212,8 @@ function PostTaskForm() {
           </aside>
         </div>
       ) : (
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "64px 24px" }}>
+        /* Success */
+        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "64px var(--gutter)" }}>
           <div
             style={{
               width: "100%",
@@ -1340,7 +1222,7 @@ function PostTaskForm() {
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              ...FADE_IN(320),
+              animation: "qhFade 320ms var(--ease-out) both",
             }}
           >
             <span
@@ -1357,10 +1239,10 @@ function PostTaskForm() {
             >
               <Check size={28} strokeWidth={1.5} />
             </span>
-            <h1 className="text-balance" style={{ ...HEADING, margin: "28px 0 0" }}>
+            <h1 style={{ ...H1, margin: "28px 0 0" }}>
               Your task is <em style={EM}>live</em>.
             </h1>
-            <p className="text-pretty" style={{ margin: "14px 0 0", color: "var(--fg-2)", maxWidth: 400 }}>
+            <p style={{ margin: "14px 0 0", color: "var(--fg-2)", maxWidth: 400, textWrap: "pretty" }}>
               {sentToText} <span style={{ color: "var(--fg-3)" }}>Offers usually start arriving within the hour.</span>
             </p>
             <div
@@ -1368,7 +1250,7 @@ function PostTaskForm() {
                 width: "100%",
                 marginTop: 32,
                 padding: "20px 24px",
-                borderRadius: 14,
+                borderRadius: "var(--radius-lg)",
                 background: "var(--white)",
                 boxShadow: "var(--shadow-hairline)",
                 textAlign: "left",
@@ -1378,46 +1260,28 @@ function PostTaskForm() {
               }}
             >
               <span style={{ ...MICRO, color: "var(--fg-3)" }}>{submitted?.category}</span>
-              <span style={{ fontFamily: SANS, fontWeight: 500, fontSize: 18, lineHeight: 1.3, letterSpacing: "-0.015em" }}>
-                {submitted?.service}
-              </span>
+              <span style={{ ...LABEL_500, fontSize: 18, lineHeight: 1.3 }}>{submitted?.service}</span>
               <span style={{ ...SMALL, color: "var(--fg-2)" }}>{submitted?.when}</span>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 10, marginTop: 28 }}>
               <Link
-                href="/dashboard"
+                href="/account"
                 className="pt-primary"
-                style={{
-                  height: 52,
-                  padding: "0 26px",
-                  borderRadius: 999,
-                  background: GREEN,
-                  color: "var(--white)",
-                  font: "500 15px/1 " + SANS,
-                  letterSpacing: "-0.01em",
-                  textDecoration: "none",
-                  display: "inline-flex",
-                  alignItems: "center",
-                }}
+                style={{ ...BUTTON_LG, background: GREEN, color: "var(--white)", width: 170, transition: "background var(--dur-fast) var(--ease-out)" }}
               >
                 View in my account
               </Link>
               <button
                 type="button"
-                className="pt-secondary"
                 onClick={restart}
+                className="pt-secondary"
                 style={{
-                  height: 52,
-                  padding: "0 26px",
-                  border: 0,
-                  borderRadius: 999,
+                  ...BUTTON_LG,
+                  width: 170,
                   background: "var(--white)",
                   color: "var(--fg-1)",
                   boxShadow: "inset 0 0 0 1px var(--border-default)",
-                  font: "500 15px/1 " + SANS,
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
+                  transition: "background var(--dur-fast) var(--ease-out)",
                 }}
               >
                 Post another task

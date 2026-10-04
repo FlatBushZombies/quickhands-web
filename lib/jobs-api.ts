@@ -24,9 +24,12 @@ export interface Job {
   selectedServices: string[]
   startDate: string
   endDate: string
-  maxPrice: number
+  /** null when the poster set no budget. */
+  maxPrice: number | null
   specialistChoice: string | null
   additionalInfo: string | null
+  /** morning | afternoon | evening | any, or null when no time was asked for. */
+  preferredTime: PreferredTime | null
   documents: string[]
   clerkId: string
   userName: string
@@ -37,6 +40,16 @@ export interface Job {
   proximity: JobProximity | null
   clientReviewSummary: ClientReviewSummary
   applicantCount: number
+}
+
+export type PreferredTime = "morning" | "afternoon" | "evening" | "any"
+
+/**
+ * The budget to show for a job, or null when there is none. A missing budget
+ * is null; a stored 0 (older jobs) also means "not set" and is never shown as $0.
+ */
+export function jobBudget(maxPrice: number | null | undefined): number | null {
+  return typeof maxPrice === "number" && Number.isFinite(maxPrice) && maxPrice > 0 ? maxPrice : null
 }
 
 /**
@@ -96,14 +109,16 @@ export interface CreateJobPayload {
   selectedServices: string[]
   startDate: string
   endDate: string
-  maxPrice: number
-  specialistChoice: string
+  /** Omit or null when the poster set no budget. */
+  maxPrice?: number | null
+  specialistChoice?: string | null
   additionalInfo: string
+  preferredTime?: PreferredTime | null
   documents: string[]
   clerkId: string
   userName: string
   userAvatar: string | null
-  location: { label: string | null; city: string | null; latitude: number | null; longitude: number | null }
+  location?: { label: string | null; city: string | null; latitude: number | null; longitude: number | null }
 }
 
 export interface CreateJobResult {
@@ -128,9 +143,10 @@ export interface RecommendedJob {
   selectedServices: string[]
   startDate: string
   endDate: string
-  maxPrice: number
+  maxPrice: number | null
   specialistChoice: string | null
   additionalInfo: string | null
+  preferredTime: PreferredTime | null
   documents: string[]
   clerkId: string
   userName: string

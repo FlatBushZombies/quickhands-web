@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { ArrowRight, MapPin, Star, Users, Clock } from "lucide-react"
-import type { Job } from "@/lib/jobs-api"
+import { jobBudget, type Job } from "@/lib/jobs-api"
 
 function timeAgo(dateString: string) {
   const diffMs = Date.now() - new Date(dateString).getTime()
@@ -36,8 +36,14 @@ export function JobCard({ job }: { job: Job }) {
           ) : null}
         </div>
         <div className="shrink-0 text-right">
-          <p className="font-heading text-lg font-bold text-primary">${job.maxPrice}</p>
-          <p className="text-[11px] text-muted-foreground">budget</p>
+          {jobBudget(job.maxPrice) !== null ? (
+            <>
+              <p className="font-heading text-lg font-bold text-primary">${jobBudget(job.maxPrice)}</p>
+              <p className="text-[11px] text-muted-foreground">budget</p>
+            </>
+          ) : (
+            <p className="text-[11px] text-muted-foreground">No budget set</p>
+          )}
         </div>
       </div>
 

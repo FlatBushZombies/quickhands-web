@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Calendar, MapPin, Paperclip, Star, User } from "lucide-react"
-import { getJob } from "@/lib/jobs-api"
+import { getJob, jobBudget } from "@/lib/jobs-api"
 import { ApplyPanel } from "@/components/jobs/ApplyPanel"
 
 export const revalidate = 30
@@ -42,9 +42,15 @@ export default async function JobDetailPage({ params }: PageProps) {
           <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <h1 className="font-heading text-2xl font-bold text-foreground">{job.serviceType}</h1>
-              <div className="shrink-0 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-bold text-primary">
-                ${job.maxPrice}
-              </div>
+              {jobBudget(job.maxPrice) !== null ? (
+                <div className="shrink-0 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-bold text-primary">
+                  ${jobBudget(job.maxPrice)}
+                </div>
+              ) : (
+                <div className="shrink-0 rounded-full bg-muted px-3 py-1.5 text-sm font-medium text-muted-foreground">
+                  No budget set
+                </div>
+              )}
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
