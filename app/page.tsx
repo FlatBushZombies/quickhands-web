@@ -1,29 +1,11 @@
-"use client"
+import type { Metadata } from "next"
+import { ClientLanding } from "@/components/client-landing/ClientLanding"
 
-import { Header } from "@/components/quickhands/Header"
-import { Hero } from "@/components/quickhands/Hero"
-import { HowItWorks } from "@/components/quickhands/HowItWorks"
-import { TaskCategories } from "@/components/quickhands/TaskCategories"
-import { MarketplacePreview } from "@/components/quickhands/MarketplacePreview"
-import { TaskerSection } from "@/components/quickhands/TaskerSection"
-import { Stats } from "@/components/quickhands/Stats"
-import { CtaBand } from "@/components/quickhands/CtaBand"
-import { Footer } from "@/components/Footer"
-import { ClientFAQ } from "@/components/ClientFAQ"
+export const metadata: Metadata = {
+  title: "Find trusted local specialists",
+  description: "Post a task and get matched with trusted local specialists for cleaning, repairs, moving, beauty and trades across Africa.",
+}
 
 export default function Home() {
-  return (
-    <>
-      <Header />
-      <Hero />
-      <HowItWorks />
-      <TaskCategories />
-      <MarketplacePreview />
-      <TaskerSection />
-      <Stats />
-      <CtaBand />
-      <ClientFAQ />
-      <Footer />
-    </>
-  )
+  return <ClientLanding />
 }
