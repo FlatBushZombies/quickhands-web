@@ -1,13 +1,12 @@
 "use client"
 
-import { useEffect, useState, type CSSProperties, type FormEvent } from "react"
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useUser } from "@clerk/nextjs"
 import {
   ArrowUpRight,
   BadgeCheck,
-  BadgePercent,
   Briefcase,
   CalendarClock,
   ChevronDown,
@@ -17,9 +16,7 @@ import {
   Drill,
   GraduationCap,
   Hammer,
-  Lock,
   MapPin,
-  Menu,
   MessageSquareLock,
   Minus,
   Package,
@@ -28,16 +25,17 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
+  Text,
   Truck,
   UserRoundSearch,
   Wallet,
-  X,
   Zap,
   type LucideIcon,
 } from "lucide-react"
 import { authFontClassName } from "@/components/auth/fonts"
-import { timeAgo } from "@/components/app-shell/feed"
+import { OPEN_COOKIE_PREFERENCES_EVENT } from "@/components/cookie-consent/CookieConsent"
 import { useDitherArc } from "@/components/client-landing/useDitherArc"
+import { Button, Divider, Segmented, Tag } from "@/components/client-landing/primitives"
 import { getApiUrl } from "@/lib/fetch-client"
 import { listJobs, type Job } from "@/lib/jobs-api"
 import { searchSpecialists, type SpecialistSummary } from "@/lib/specialists-api"
@@ -60,8 +58,6 @@ const ICONS: Record<string, LucideIcon> = {
   "calendar-clock": CalendarClock,
   wallet: Wallet,
   briefcase: Briefcase,
-  lock: Lock,
-  "badge-percent": BadgePercent,
   "arrow-up-right": ArrowUpRight,
   clock: Clock,
   star: Star,
@@ -69,35 +65,69 @@ const ICONS: Record<string, LucideIcon> = {
   "chevron-down": ChevronDown,
   minus: Minus,
   plus: Plus,
-  text: Menu,
+  text: Text,
 }
-
-const SANS = "var(--font-geist), ui-sans-serif, system-ui, sans-serif"
-const MONO = "var(--font-geist-mono), ui-monospace, Menlo, monospace"
-const SERIF = "var(--font-instrument-serif), ui-serif, Georgia, serif"
 
 const GREEN = "#108600"
 const GREEN_HOVER = "#0D6E00"
 const GREEN_LIGHT = "#7BD96B"
-const INK = {
-  950: "#0A0A0B",
-  900: "#141416",
-  600: "#4A4A50",
-  500: "#6E6E75",
-  400: "#9A9AA0",
-  200: "#E4E4E6",
-  100: "#EFEFF0",
-  50: "#F6F6F5",
-}
-const PAPER = "#FBFBFA"
-const HAIRLINE = "rgba(10,10,11,.08)"
-const DEFAULT_BORDER = "rgba(10,10,11,.12)"
-const INVERSE_BORDER = "rgba(255,255,255,.12)"
+/** The design's brand-green override, applied to primary buttons on this page. */
+const GREEN_TOKENS = { "--ink-950": GREEN, "--ink-800": GREEN_HOVER } as CSSProperties
 const SHADOW_FLOAT = "0 1px 2px rgba(10,10,11,.04),0 12px 32px -12px rgba(10,10,11,.14),0 0 0 1px rgba(10,10,11,.08)"
 const SHADOW_SM = "0 1px 2px rgba(10,10,11,.04),0 0 0 1px rgba(10,10,11,.08)"
-const CONTAINER = 1200
-const GUTTER = 24
-const EASE = "cubic-bezier(.22,1,.36,1)"
+const SERIF_EM: CSSProperties = {
+  fontFamily: "var(--font-serif)",
+  fontStyle: "italic",
+  fontWeight: 400,
+  letterSpacing: "-0.02em",
+}
+const MICRO: CSSProperties = {
+  font: "var(--text-micro)",
+  letterSpacing: "var(--ls-mono)",
+  textTransform: "uppercase",
+}
+
+/** Design stylesheet, scoped to the page root. Hover states live here because the design uses style-hover. */
+const CSS = `
+.qh-cl{--ink-950:#0A0A0B;--ink-900:#141416;--ink-800:#1F1F22;--ink-600:#4A4A50;--ink-400:#9A9AA0;--ink-200:#E4E4E6;--ink-100:#EFEFF0;--ink-50:#F6F6F5;--paper:#FBFBFA;--white:#FFFFFF;--signal-500:#2F54FF;
+--fg-1:var(--ink-950);--fg-2:var(--ink-600);--fg-3:var(--ink-400);
+--border-hairline:rgba(10,10,11,.08);--border-default:rgba(10,10,11,.12);--border-inverse:rgba(255,255,255,.12);
+--shadow-sm:0 1px 2px rgba(10,10,11,.04),0 0 0 1px rgba(10,10,11,.08);
+--shadow-float:0 1px 2px rgba(10,10,11,.04),0 12px 32px -12px rgba(10,10,11,.14),0 0 0 1px rgba(10,10,11,.08);
+--shadow-hairline:0 0 0 1px rgba(10,10,11,.08);
+--ease-out:cubic-bezier(.22,1,.36,1);--dur-fast:140ms;--dur-base:240ms;--dur-slow:480ms;
+--font-sans:var(--font-geist),ui-sans-serif,system-ui,sans-serif;--font-mono:var(--font-geist-mono),ui-monospace,Menlo,monospace;--font-serif:var(--font-instrument-serif),ui-serif,Georgia,serif;
+--text-display:500 88px/0.98 var(--font-sans);--text-h1:500 64px/1.05 var(--font-sans);--text-h2:500 44px/1.05 var(--font-sans);--text-h3:500 28px/1.15 var(--font-sans);--text-h4:500 20px/1.3 var(--font-sans);
+--text-body-lg:400 18px/1.55 var(--font-sans);--text-body-md:400 15px/1.55 var(--font-sans);--text-small:400 13px/1.45 var(--font-sans);--text-micro:400 11px/1.3 var(--font-mono);
+--ls-display:-0.045em;--ls-heading:-0.035em;--ls-tight:-0.015em;--ls-body:-0.005em;--ls-mono:0.06em;
+}
+.qh-cl input::placeholder{color:var(--ink-400)}
+.qh-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:999px;text-decoration:none;cursor:pointer;white-space:nowrap;transition:background var(--dur-fast) var(--ease-out),color var(--dur-fast) var(--ease-out)}
+.qh-btn-primary{background:var(--ink-950);color:var(--white)}
+.qh-btn-primary:hover{background:var(--ink-800)}
+.qh-btn-ghost{background:transparent;color:var(--fg-1)}
+.qh-btn-ghost:hover{background:var(--ink-100)}
+.qh-seg{background:transparent;color:var(--fg-2)}
+.qh-seg:hover{color:var(--fg-1)}
+.qh-seg-active{background:var(--white);color:var(--fg-1);box-shadow:var(--shadow-sm)}
+.qh-navlink:hover{background:var(--ink-100);color:var(--fg-1)}
+.qh-menu-btn:hover{background:var(--ink-100)}
+.qh-acct:hover{background:var(--ink-100)}
+.qh-mega-tile:hover{background:var(--ink-100)}
+.qh-mega-item:hover{background:var(--ink-50)}
+.qh-mega-link:hover{color:${GREEN}}
+.qh-row:hover{background:rgba(255,255,255,.04)}
+.qh-zoom:hover img{transform:scale(1.03)}
+.qh-chip:hover{background:var(--ink-100);color:var(--fg-1)}
+.qh-search-btn:hover{background:${GREEN_HOVER}}
+.qh-search-btn:active{transform:scale(.98)}
+.qh-gplay:hover{background:rgba(255,255,255,.06)}
+.qh-social:hover{background:rgba(255,255,255,.06);color:#fff}
+.qh-footlink:hover{color:#fff}
+.qh-ghost-inverse:hover{background:rgba(255,255,255,.06)}
+@keyframes qhFade{from{opacity:0}to{opacity:1}}
+@keyframes qhPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,134,0,.35)}50%{box-shadow:0 0 0 4px rgba(16,134,0,0)}}
+`
 
 const MEGA_ITEMS = [
   { icon: "hammer", label: "Handyman" },
@@ -110,29 +140,19 @@ const MEGA_ITEMS = [
   { icon: "graduation-cap", label: "Tutoring & personal" },
 ]
 
-const STEPS_CAROUSEL = [
+const CAROUSEL_STEPS = [
   { icon: "clipboard-list", title: "Post a task", desc: "Tell us what you need." },
   { icon: "user-round-search", title: "Find a specialist", desc: "Choose the right person." },
   { icon: "badge-check", title: "Get it done", desc: "Simple from start to finish." },
 ]
 
-const FAQS: [string, string][] = [
-  [
-    "Do I have to pay to use QuickHands?",
-    "No — the platform is free for clients. We connect you with the right specialist, and you only pay them once the job is done and you're happy with it.",
-  ],
-  [
-    "Is there any risk of losing my money?",
-    "No. To protect you from scams or dishonest behaviour, all payments are made securely through the app.",
-  ],
-  [
-    "Why is paying through the app safe?",
-    "Your payment is held securely until you approve the completed task. If the work doesn't meet your expectations, your money stays protected.",
-  ],
-  [
-    "Why not find someone on my own?",
-    "QuickHands saves you time and money, with verified specialists across a wide range of trades — and peace of mind built in.",
-  ],
+const POPULAR = ["Plumbing", "Deep clean", "Moving help", "Electrician", "Tutoring"]
+
+const TRUST = [
+  { icon: "shield-check", label: "Verified specialists" },
+  { icon: "map-pin", label: "Local professionals" },
+  { icon: "message-square-lock", label: "Secure communication" },
+  { icon: "calendar-clock", label: "Flexible scheduling" },
 ]
 
 const STEPS = [
@@ -209,20 +229,30 @@ const CATEGORIES = [
   },
 ]
 
-const TRUST = [
-  { icon: "shield-check", label: "Verified specialists" },
-  { icon: "map-pin", label: "Local professionals" },
-  { icon: "message-square-lock", label: "Secure communication" },
-  { icon: "calendar-clock", label: "Flexible scheduling" },
-]
-
 const PERKS = [
   { icon: "wallet", label: "Set your own rate" },
   { icon: "calendar-clock", label: "Work when you want" },
   { icon: "shield-check", label: "Get paid securely" },
 ]
 
-const POPULAR = ["Plumbing", "Deep clean", "Moving help", "Electrician", "Tutoring"]
+const FAQS: [string, string][] = [
+  [
+    "Do I have to pay to use QuickHands?",
+    "No — the platform is free for clients. We connect you with the right specialist, and you only pay them once the job is done and you're happy with it.",
+  ],
+  [
+    "Is there any risk of losing my money?",
+    "No. To protect you from scams or dishonest behaviour, all payments are made securely through the app.",
+  ],
+  [
+    "Why is paying through the app safe?",
+    "Your payment is held securely until you approve the completed task. If the work doesn't meet your expectations, your money stays protected.",
+  ],
+  [
+    "Why not find someone on my own?",
+    "QuickHands saves you time and money, with verified specialists across a wide range of trades — and peace of mind built in.",
+  ],
+]
 
 const SOCIAL = [
   {
@@ -242,7 +272,8 @@ const SOCIAL = [
   },
 ]
 
-const FOOTER_COLUMNS: { title: string; links: { label: string; href: string }[] }[] = [
+type FooterLink = { label: string; href: string; cookies?: boolean }
+const FOOTER_COLUMNS: { title: string; links: FooterLink[] }[] = [
   {
     title: "For clients",
     links: [
@@ -254,17 +285,15 @@ const FOOTER_COLUMNS: { title: string; links: { label: string; href: string }[] 
   {
     title: "For specialists",
     links: [
-      { label: "Create profile", href: "/sign-up#pro" },
+      { label: "Create profile", href: "/sign-up#pro-signup" },
       { label: "How to win jobs", href: "/professionals#how" },
-      { label: "Success stories", href: "/professionals#faq" },
     ],
   },
   {
     title: "Company",
     links: [
       { label: "About", href: "#how-it-works" },
-      { label: "Feedback", href: "mailto:feedback@quickhands.com" },
-      { label: "Terms", href: "/legal#terms" },
+      { label: "Feedback", href: "/feedback" },
       { label: "Privacy", href: "/privacy-policy" },
     ],
   },
@@ -289,10 +318,35 @@ function useMarketplaceStats() {
   return stats
 }
 
-function Icon({ name, size, color, style }: { name: string; size: number; color?: string; style?: CSSProperties }) {
+function Icon({ name, size, style }: { name: string; size: number; style?: CSSProperties }) {
   const Component = ICONS[name]
   if (!Component) return null
-  return <Component size={size} color={color} strokeWidth={1.5} aria-hidden="true" style={style} />
+  return <Component size={size} strokeWidth={1.5} aria-hidden="true" style={{ display: "block", flexShrink: 0, ...style }} />
+}
+
+function harareClock() {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Harare", hour: "2-digit", minute: "2-digit" }).format(new Date())
+}
+
+function minutesAgo(iso: string) {
+  const mins = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000))
+  if (mins < 1) return "Just now"
+  if (mins < 60) return `${mins} min ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours} h ago`
+  return `${Math.floor(hours / 24)} d ago`
+}
+
+function startLabel(iso: string) {
+  const start = new Date(iso)
+  if (Number.isNaN(start.getTime())) return null
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  start.setHours(0, 0, 0, 0)
+  const days = Math.round((start.getTime() - today.getTime()) / 86400000)
+  if (days === 0) return "Today"
+  if (days === 1) return "Tomorrow"
+  return start.toLocaleDateString("en-GB", { day: "numeric", month: "short" })
 }
 
 function initialsOf(value: string) {
@@ -312,40 +366,55 @@ export function ClientLanding() {
   const stats = useMarketplaceStats()
 
   const [scrolled, setScrolled] = useState(false)
-  const [mega, setMega] = useState(false)
-  const [forceOpen, setForceOpen] = useState(false)
-  const [paused, setPaused] = useState(false)
+  const [nav, setNav] = useState({ mega: false, forceOpen: false })
   const [step, setStep] = useState(0)
   const [openFaq, setOpenFaq] = useState(0)
   const [time, setTime] = useState("")
-  const [specialists, setSpecialists] = useState<SpecialistSummary[] | null>(null)
-  const [latestJob, setLatestJob] = useState<Job | null>(null)
+  /** undefined while loading, [] when the API is unreachable or empty. */
+  const [specialists, setSpecialists] = useState<SpecialistSummary[] | undefined>(undefined)
+  /** undefined while loading, null when there are no tasks yet. */
+  const [latestJob, setLatestJob] = useState<Job | null | undefined>(undefined)
+
+  const hoveringRef = useRef(false)
+  const closeTimer = useRef<number | null>(null)
+  const carouselPaused = useRef(false)
 
   useEffect(() => {
-    const tick = () =>
-      setTime(new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Harare", hour: "2-digit", minute: "2-digit" }).format(new Date()))
-    tick()
-    const clock = window.setInterval(tick, 30_000)
+    setTime(harareClock())
+    const clock = window.setInterval(() => setTime(harareClock()), 30_000)
     return () => window.clearInterval(clock)
   }, [])
 
   useEffect(() => {
-    const onScroll = () => setScrolled((window.scrollY || 0) > 120)
+    const onScroll = () => {
+      const y = window.scrollY || document.documentElement.scrollTop || 0
+      setScrolled(y > 120)
+      if (!hoveringRef.current) {
+        setNav((current) => (current.mega || current.forceOpen ? { mega: false, forceOpen: false } : current))
+      }
+    }
     onScroll()
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
   useEffect(() => {
-    if (paused) return
-    const timer = window.setInterval(() => setStep((current) => (current + 1) % STEPS_CAROUSEL.length), 3400)
+    const timer = window.setInterval(() => {
+      if (!carouselPaused.current) setStep((current) => (current + 1) % CAROUSEL_STEPS.length)
+    }, 3400)
     return () => window.clearInterval(timer)
-  }, [paused])
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
+    }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
     searchSpecialists("", 3).then((result) => {
-      if (!cancelled) setSpecialists(result.unavailable ? [] : result.specialists)
+      if (!cancelled) setSpecialists(result.specialists)
     })
     listJobs(new URLSearchParams({ limit: "1" })).then((jobs) => {
       if (!cancelled) setLatestJob(jobs[0] ?? null)
@@ -355,17 +424,50 @@ export function ClientLanding() {
     }
   }, [])
 
-  const compact = scrolled && !forceOpen && !mega
-  const navTop = scrolled ? 12 : 60
-  const isSpecialistAccount = user?.unsafeMetadata?.appRole === "freelancer"
-  const signedIn = isLoaded && !!isSignedIn
-  const firstName = user?.firstName || user?.username || user?.primaryEmailAddress?.emailAddress?.split("@")[0] || ""
-  const specialistHref = signedIn && isSpecialistAccount ? "/dashboard" : "/professionals"
-
-  const closeMenu = () => {
-    setMega(false)
-    setForceOpen(false)
+  const cancelClose = () => {
+    if (closeTimer.current !== null) {
+      window.clearTimeout(closeTimer.current)
+      closeTimer.current = null
+    }
   }
+  const onNavEnter = () => {
+    hoveringRef.current = true
+    cancelClose()
+  }
+  const onNavLeave = () => {
+    hoveringRef.current = false
+    cancelClose()
+    closeTimer.current = window.setTimeout(() => {
+      closeTimer.current = null
+      setNav({ mega: false, forceOpen: false })
+    }, 220)
+  }
+  const openMega = () => {
+    cancelClose()
+    setNav((current) => (current.mega ? current : { ...current, mega: true }))
+  }
+  const closeMega = () => setNav((current) => (current.mega ? { ...current, mega: false } : current))
+  const openFromCompact = () => {
+    cancelClose()
+    setNav((current) => (current.forceOpen ? current : { forceOpen: true, mega: true }))
+  }
+  const closeMenu = () => {
+    cancelClose()
+    setNav({ mega: false, forceOpen: false })
+  }
+
+  const compact = scrolled && !nav.forceOpen && !nav.mega
+  const navTop = scrolled ? 12 : 60
+  const navWidth = compact ? 300 : 960
+  const navShadow = scrolled || nav.mega ? SHADOW_FLOAT : SHADOW_SM
+
+  const signedIn = isLoaded && !!isSignedIn
+  const signedOut = isLoaded && !isSignedIn
+  const isSpecialistAccount = user?.unsafeMetadata?.appRole === "freelancer"
+  const specialistHref = signedIn && isSpecialistAccount ? "/dashboard" : "/professionals"
+  const accountName = user?.fullName || user?.firstName || user?.primaryEmailAddress?.emailAddress || ""
+  const userFirst = user?.firstName || accountName.split(/[ @]/)[0] || ""
+  const userInitials = initialsOf(accountName || "U")
 
   const onSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -373,17 +475,38 @@ export function ClientLanding() {
     router.push(query ? `/specialists?q=${encodeURIComponent(query)}` : "/specialists")
   }
 
-  const currentStep = STEPS_CAROUSEL[step]
+  const carouselStep = CAROUSEL_STEPS[step]
+  const latestLocation = latestJob?.location?.label || latestJob?.location?.city || null
+  const latestStart = latestJob ? startLabel(latestJob.startDate) : null
+  const trustPairs = [TRUST.slice(0, 2), TRUST.slice(2)]
+  const stepPairs = [STEPS.slice(0, 2), STEPS.slice(2)]
 
   return (
-    <div className={authFontClassName} style={{ fontFamily: SANS, color: INK[950], background: PAPER, minHeight: "100vh", overflowX: "clip" }}>
+    <div
+      className={`qh-cl ${authFontClassName}`}
+      style={
+        {
+          position: "relative",
+          overflowX: "clip",
+          minHeight: "100vh",
+          background: "var(--paper)",
+          color: "var(--fg-1)",
+          font: "var(--text-body-md)",
+          letterSpacing: "var(--ls-body)",
+          WebkitFontSmoothing: "antialiased",
+          "--qh-img": "saturate(.72) contrast(1.02)",
+        } as CSSProperties
+      }
+    >
+      <style>{CSS}</style>
+
       {/* Audience strip */}
-      <div style={{ borderBottom: `1px solid ${HAIRLINE}`, background: INK[50] }}>
+      <div style={{ borderBottom: "1px solid var(--border-hairline)", background: "var(--ink-50)" }}>
         <div
           style={{
-            maxWidth: CONTAINER,
+            maxWidth: 1200,
             margin: "0 auto",
-            padding: `0 ${GUTTER}px`,
+            padding: "0 24px",
             height: 44,
             display: "flex",
             alignItems: "center",
@@ -391,46 +514,28 @@ export function ClientLanding() {
             gap: 16,
           }}
         >
-          <div role="radiogroup" aria-label="Audience" style={{ display: "inline-flex", padding: 3, borderRadius: 999, background: "#EFEFF0", gap: 2 }}>
-            {[
-              { value: "clients", label: "For clients", href: null },
-              { value: "pros", label: "For professionals", href: "/professionals" },
-            ].map((option) => {
-              const active = option.value === "clients"
-              const common = {
-                height: 28,
-                padding: "0 14px",
-                borderRadius: 999,
-                fontFamily: SANS,
-                fontSize: 13,
-                fontWeight: 500,
-                background: active ? "#FFFFFF" : "transparent",
-                color: active ? INK[950] : INK[500],
-                boxShadow: active ? "0 0 0 1px rgba(10,10,11,.08)" : "none",
-                display: "inline-flex",
-                alignItems: "center",
-                border: 0,
-                textDecoration: "none",
-              } as CSSProperties
-              return option.href ? (
-                <Link key={option.value} href={option.href} role="radio" aria-checked={false} style={common}>
-                  {option.label}
-                </Link>
-              ) : (
-                <span key={option.value} role="radio" aria-checked={active} style={common}>
-                  {option.label}
-                </span>
-              )
-            })}
-          </div>
-          <span style={{ display: "flex", gap: 8, alignItems: "center", fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: INK[400] }}>
+          <Segmented
+            options={[
+              { value: "clients", label: "For clients" },
+              { value: "pros", label: "For professionals" },
+            ]}
+            value="clients"
+            onChange={(value) => {
+              if (value === "pros") router.push("/professionals")
+            }}
+            width={230}
+            height={28}
+          />
+          <span
+            style={{ ...MICRO, fontSize: 11, color: "var(--fg-3)", display: "flex", gap: 8, alignItems: "center", textTransform: "uppercase" }}
+          >
             <span>Harare</span>
-            <span style={{ color: INK[600], fontVariantNumeric: "tabular-nums" }}>{time}</span>
+            <span style={{ color: "var(--fg-2)", fontVariantNumeric: "tabular-nums" }}>{time}</span>
           </span>
         </div>
       </div>
 
-      {/* Floating nav */}
+      {/* Floating header */}
       <div
         style={{
           position: "fixed",
@@ -442,64 +547,106 @@ export function ClientLanding() {
           justifyContent: "center",
           padding: "0 16px",
           pointerEvents: "none",
-          transition: `top 240ms ${EASE}`,
+          transition: "top var(--dur-base) var(--ease-out)",
         }}
       >
         <div
-          onMouseLeave={() => {
-            setMega(false)
-            setForceOpen(false)
-          }}
+          onMouseEnter={onNavEnter}
+          onMouseLeave={onNavLeave}
           style={{
             pointerEvents: "auto",
-            width: compact ? 300 : 960,
+            width: navWidth,
             maxWidth: "100%",
             boxSizing: "border-box",
-            background: "#FFFFFF",
+            background: "var(--white)",
             borderRadius: 20,
-            boxShadow: scrolled || mega ? SHADOW_FLOAT : SHADOW_SM,
+            boxShadow: navShadow,
             overflow: "hidden",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            transition: `width 240ms ${EASE}, box-shadow 240ms ${EASE}`,
+            transition: "width var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out)",
           }}
         >
           {compact ? (
-            <div style={{ width: 300, maxWidth: "calc(100vw - 32px)", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, height: 56, padding: "0 8px 0 12px" }}>
-              <Link href="/" aria-label="QuickHands home" style={{ display: "block", width: 32, height: 32, borderRadius: 9, overflow: "hidden", flexShrink: 0 }}>
-                <img src="/quickhands.png" alt="" style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scale(1.4)", display: "block" }} />
+            <div
+              style={{
+                width: 300,
+                maxWidth: "calc(100vw - 32px)",
+                flexShrink: 0,
+                boxSizing: "border-box",
+                animation: "qhFade 180ms var(--ease-out) 60ms both",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 8,
+                height: 56,
+                padding: "0 8px 0 12px",
+              }}
+            >
+              <Link
+                href="/"
+                aria-label="QuickHands home"
+                style={{ display: "block", width: 32, height: 32, borderRadius: 9, overflow: "hidden", flexShrink: 0 }}
+              >
+                <img
+                  src="/design/client-landing/logo-mark.png"
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover", transform: "scale(1.4)", display: "block" }}
+                />
               </Link>
               <button
                 type="button"
-                onMouseEnter={() => {
-                  setForceOpen(true)
-                  setMega(true)
+                onMouseEnter={openFromCompact}
+                onClick={openFromCompact}
+                className="qh-menu-btn"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                  height: 36,
+                  padding: "0 12px",
+                  border: 0,
+                  borderRadius: 999,
+                  background: "transparent",
+                  fontFamily: "var(--font-sans)",
+                  fontWeight: 500,
+                  fontSize: 14,
+                  lineHeight: 1,
+                  color: "var(--fg-1)",
+                  cursor: "pointer",
+                  transition: "background var(--dur-fast) var(--ease-out)",
                 }}
-                onClick={() => {
-                  setForceOpen(true)
-                  setMega(true)
-                }}
-                style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 36, padding: "0 12px", border: 0, borderRadius: 999, background: "transparent", fontFamily: SANS, fontWeight: 500, fontSize: 14, color: INK[950], cursor: "pointer" }}
               >
-                <Icon name="text" size={15} color={GREEN} />
+                <Icon name="text" size={15} style={{ color: GREEN }} />
                 Menu
               </button>
-              <Link href="/post-job" style={ctaStyle}>
-                Post a task
-              </Link>
+              <span style={{ display: "inline-flex", ...GREEN_TOKENS }}>
+                <Button href="/post-job" variant="primary" size="md">
+                  Post a task
+                </Button>
+              </span>
             </div>
           ) : (
-            <div style={{ width: "min(960px, calc(100vw - 32px))", flexShrink: 0 }}>
+            <div
+              style={{
+                width: "min(960px, calc(100vw - 32px))",
+                flexShrink: 0,
+                animation: "qhFade 200ms var(--ease-out) 80ms both",
+              }}
+            >
               <div style={{ display: "flex", alignItems: "center", gap: 20, height: 64, padding: "0 10px 0 22px" }}>
-                <Link href="/" style={{ display: "flex", alignItems: "baseline", gap: 8, textDecoration: "none", color: INK[950], flexShrink: 0 }}>
-                  <span style={{ fontFamily: SANS, fontWeight: 600, fontSize: 20, lineHeight: 1, letterSpacing: "-0.05em" }}>quickhands</span>
+                <Link
+                  href="/"
+                  style={{ display: "flex", alignItems: "baseline", gap: 8, textDecoration: "none", color: "var(--fg-1)", flexShrink: 0 }}
+                >
+                  <span style={{ font: "600 20px/1 var(--font-sans)", letterSpacing: "-0.05em" }}>quickhands</span>
                 </Link>
                 <nav style={{ display: "flex", gap: 2, flex: 1, minWidth: 0 }}>
                   <button
                     type="button"
-                    onMouseEnter={() => setMega(true)}
-                    onClick={() => setMega((current) => !current)}
+                    onMouseEnter={openMega}
+                    onClick={openMega}
                     style={{
                       display: "inline-flex",
                       alignItems: "center",
@@ -508,76 +655,194 @@ export function ClientLanding() {
                       padding: "0 12px",
                       border: 0,
                       borderRadius: 999,
-                      background: mega ? INK[100] : "transparent",
-                      fontFamily: SANS,
+                      background: nav.mega ? "var(--ink-100)" : "transparent",
+                      fontFamily: "var(--font-sans)",
                       fontWeight: 500,
                       fontSize: 14,
-                      color: INK[950],
+                      lineHeight: 1,
+                      color: "var(--fg-1)",
                       cursor: "pointer",
                       whiteSpace: "nowrap",
-                      transition: "background 140ms",
+                      transition: "background var(--dur-fast) var(--ease-out)",
                     }}
                   >
                     Tasks
-                    <ChevronDown size={14} color={INK[400]} style={{ transform: mega ? "rotate(180deg)" : "none", transition: `transform 240ms ${EASE}` }} />
+                    <ChevronDown
+                      size={14}
+                      strokeWidth={1.5}
+                      aria-hidden="true"
+                      style={{
+                        display: "block",
+                        color: "var(--fg-3)",
+                        transform: nav.mega ? "rotate(180deg)" : "none",
+                        transition: "transform var(--dur-base) var(--ease-out)",
+                      }}
+                    />
                   </button>
-                  <a href="#how-it-works" onMouseEnter={() => setMega(false)} style={navLinkStyle}>
+                  <a
+                    href="#how-it-works"
+                    onMouseEnter={closeMega}
+                    className="qh-navlink"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      height: 36,
+                      padding: "0 12px",
+                      borderRadius: 999,
+                      font: "500 14px/1 var(--font-sans)",
+                      textDecoration: "none",
+                      color: "var(--fg-2)",
+                      whiteSpace: "nowrap",
+                      transition: "background var(--dur-fast) var(--ease-out)",
+                    }}
+                  >
                     How it works
                   </a>
-                  <Link href={specialistHref} onMouseEnter={() => setMega(false)} style={navLinkStyle}>
+                  <Link
+                    href={specialistHref}
+                    onMouseEnter={closeMega}
+                    className="qh-navlink"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      height: 36,
+                      padding: "0 12px",
+                      borderRadius: 999,
+                      font: "500 14px/1 var(--font-sans)",
+                      textDecoration: "none",
+                      color: "var(--fg-2)",
+                      whiteSpace: "nowrap",
+                      transition: "background var(--dur-fast) var(--ease-out)",
+                    }}
+                  >
                     Become a specialist
                   </Link>
                 </nav>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+                  {signedOut ? <Button href="/sign-in" variant="ghost" size="md">Sign in</Button> : null}
                   {signedIn ? (
-                    <Link href="/dashboard" style={{ display: "inline-flex", alignItems: "center", gap: 8, height: 40, padding: "0 12px 0 4px", borderRadius: 999, textDecoration: "none", color: INK[950], fontFamily: SANS, fontWeight: 500, fontSize: 14 }}>
-                      <span style={{ width: 32, height: 32, borderRadius: "50%", background: GREEN, color: "#FFFFFF", display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: SANS, fontWeight: 500, fontSize: 12 }}>
-                        {initialsOf(firstName || "U")}
+                    <Link
+                      href="/dashboard"
+                      className="qh-acct"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        height: 40,
+                        padding: "0 12px 0 4px",
+                        borderRadius: 999,
+                        textDecoration: "none",
+                        color: "var(--fg-1)",
+                        font: "500 14px/1 var(--font-sans)",
+                        transition: "background var(--dur-fast) var(--ease-out)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: "50%",
+                          background: GREEN,
+                          color: "var(--white)",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          font: "500 12px/1 var(--font-sans)",
+                        }}
+                      >
+                        {userInitials}
                       </span>
-                      {firstName}
+                      {userFirst}
                     </Link>
-                  ) : (
-                    <Link href="/sign-in" style={{ display: "inline-flex", alignItems: "center", height: 40, padding: "0 14px", borderRadius: 999, textDecoration: "none", color: INK[950], fontFamily: SANS, fontWeight: 500, fontSize: 14 }}>
-                      Sign in
-                    </Link>
-                  )}
-                  <Link href="/post-job" style={ctaStyle}>
-                    Post a task
-                  </Link>
+                  ) : null}
+                  <span style={{ display: "inline-flex", ...GREEN_TOKENS }}>
+                    <Button href="/post-job" variant="primary" size="md">
+                      Post a task
+                    </Button>
+                  </span>
                 </div>
               </div>
-              {mega ? (
+              {nav.mega ? (
                 <>
-                  <div style={{ margin: "0 22px", borderTop: `1px solid ${HAIRLINE}` }} />
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "2px 24px", padding: "16px 12px 8px" }}>
+                  <div style={{ margin: "0 22px", borderTop: "1px solid var(--border-hairline)" }} />
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: "2px 24px", padding: "16px 12px 8px" }}>
                     {MEGA_ITEMS.map((item) => (
-                      <Link
+                      <a
                         key={item.label}
-                        href={`/specialists?q=${encodeURIComponent(item.label)}`}
+                        href="#tasks"
                         onClick={closeMenu}
-                        style={{ display: "flex", alignItems: "center", gap: 12, padding: 10, borderRadius: 10, textDecoration: "none", color: INK[950] }}
+                        className="qh-mega-item"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          padding: 10,
+                          borderRadius: 10,
+                          textDecoration: "none",
+                          color: "var(--fg-1)",
+                          transition: "background var(--dur-fast) var(--ease-out)",
+                        }}
                       >
-                        <Icon name={item.icon} size={16} color={GREEN} style={{ flexShrink: 0 }} />
-                        <span style={{ fontFamily: SANS, fontWeight: 500, fontSize: 14, lineHeight: 1.3, letterSpacing: "-0.015em" }}>{item.label}</span>
-                      </Link>
+                        <Icon name={item.icon} size={16} style={{ color: GREEN }} />
+                        <span style={{ font: "500 14px/1.3 var(--font-sans)", letterSpacing: "var(--ls-tight)" }}>{item.label}</span>
+                      </a>
                     ))}
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 24, padding: "12px 22px 22px", alignItems: "center" }}>
-                    <Link href="/specialists" onClick={closeMenu} style={{ display: "flex", alignItems: "center", gap: 16, borderRadius: 14, background: INK[50], overflow: "hidden", textDecoration: "none", color: INK[950] }}>
-                      <img src="/design/client/megamenu-thumb.jpg" alt="" style={{ width: 88, height: 80, objectFit: "cover", display: "block", flexShrink: 0, filter: "saturate(.72)" }} />
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 24, padding: "12px 22px 22px", alignItems: "center" }}>
+                    <a
+                      href="#tasks"
+                      onClick={closeMenu}
+                      className="qh-mega-tile"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 16,
+                        borderRadius: 14,
+                        background: "var(--ink-50)",
+                        overflow: "hidden",
+                        textDecoration: "none",
+                        color: "var(--fg-1)",
+                        transition: "background var(--dur-fast) var(--ease-out)",
+                      }}
+                    >
+                      <img
+                        src="/design/client-landing/browse-tasks.jpg"
+                        alt=""
+                        style={{ width: 88, height: 80, objectFit: "cover", display: "block", flexShrink: 0, filter: "saturate(.72)" }}
+                      />
                       <span style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                        <span style={{ fontFamily: SANS, fontWeight: 500, fontSize: 15, lineHeight: 1.3, letterSpacing: "-0.015em" }}>Browse all specialists</span>
-                        <span style={{ fontSize: 13, color: INK[600] }}>Find someone near you</span>
+                        <span style={{ font: "500 15px/1.3 var(--font-sans)", letterSpacing: "var(--ls-tight)" }}>Browse all tasks</span>
+                        <span style={{ font: "var(--text-small)", color: "var(--fg-2)" }}>
+                          {stats ? `${stats.categories} categories near you` : "Task categories near you"}
+                        </span>
                       </span>
-                    </Link>
+                    </a>
                     <div style={{ display: "flex", flexDirection: "column" }}>
-                      <Link href="/post-job" onClick={closeMenu} style={menuRowStyle}>
-                        <span style={{ fontFamily: SANS, fontWeight: 500, fontSize: 14, lineHeight: 1.3, letterSpacing: "-0.015em", whiteSpace: "nowrap" }}>Post a task</span>
-                        <span style={{ fontSize: 12, color: INK[400] }}>Takes less than two minutes</span>
+                      <Link
+                        href="/post-job"
+                        onClick={closeMenu}
+                        className="qh-mega-link"
+                        style={{
+                          display: "flex",
+                          alignItems: "baseline",
+                          gap: 10,
+                          padding: "12px 0",
+                          borderBottom: "1px solid var(--border-hairline)",
+                          textDecoration: "none",
+                          color: "var(--fg-1)",
+                        }}
+                      >
+                        <span style={{ font: "500 14px/1.3 var(--font-sans)", letterSpacing: "var(--ls-tight)", whiteSpace: "nowrap" }}>Post a task</span>
+                        <span style={{ font: "var(--text-small)", fontSize: 12, color: "var(--fg-3)" }}>Takes less than two minutes</span>
                       </Link>
-                      <Link href={specialistHref} onClick={closeMenu} style={{ ...menuRowStyle, borderBottom: 0 }}>
-                        <span style={{ fontFamily: SANS, fontWeight: 500, fontSize: 14, lineHeight: 1.3, letterSpacing: "-0.015em", whiteSpace: "nowrap" }}>Become a specialist</span>
-                        <span style={{ fontSize: 12, color: INK[400] }}>Turn your skills into income</span>
+                      <Link
+                        href={specialistHref}
+                        onClick={closeMenu}
+                        className="qh-mega-link"
+                        style={{ display: "flex", alignItems: "baseline", gap: 10, padding: "12px 0", textDecoration: "none", color: "var(--fg-1)" }}
+                      >
+                        <span style={{ font: "500 14px/1.3 var(--font-sans)", letterSpacing: "var(--ls-tight)", whiteSpace: "nowrap" }}>Become a specialist</span>
+                        <span style={{ font: "var(--text-small)", fontSize: 12, color: "var(--fg-3)" }}>Turn your skills into income</span>
                       </Link>
                     </div>
                   </div>
@@ -589,158 +854,345 @@ export function ClientLanding() {
       </div>
 
       {/* Hero */}
-      <div aria-hidden="true" style={{ position: "absolute", top: 44, right: 0, width: "min(52vw, 860px)", height: "min(760px, 88vh)", pointerEvents: "none", zIndex: 0 }}>
+      <div
+        aria-hidden="true"
+        style={{ position: "absolute", top: 44, right: 0, width: "min(52vw,860px)", height: "min(760px,88vh)", pointerEvents: "none", zIndex: 0 }}
+      >
         <canvas ref={canvasRef} style={{ width: "100%", height: "100%", display: "block", imageRendering: "pixelated" }} />
       </div>
-      <section style={{ position: "relative", zIndex: 1, maxWidth: CONTAINER, margin: "0 auto", padding: `184px ${GUTTER}px 72px` }}>
-        <span style={tagStyle}>
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: GREEN }} />
-          Free for clients
-        </span>
-        <h1 style={{ fontFamily: SANS, fontWeight: 500, fontSize: "clamp(48px, 7.4vw, 88px)", lineHeight: 0.98, letterSpacing: "-0.045em", margin: "32px 0 0", maxWidth: 960, textWrap: "balance" }}>
-          Get tasks done. Find{" "}
-          <em style={{ fontFamily: SERIF, fontStyle: "italic", fontWeight: 400, letterSpacing: "-0.02em", color: GREEN }}>trusted</em> help, right when you need it.
+      <section style={{ position: "relative", zIndex: 1, maxWidth: 1200, margin: "0 auto", padding: "184px 24px 72px" }}>
+        <Tag live>Free for clients</Tag>
+        <h1
+          style={{
+            font: "var(--text-display)",
+            fontSize: "clamp(48px,7.4vw,88px)",
+            letterSpacing: "var(--ls-display)",
+            margin: "32px 0 0",
+            maxWidth: 960,
+            textWrap: "balance",
+          } as CSSProperties}
+        >
+          Get tasks done. Find <em style={{ ...SERIF_EM, color: GREEN }}>trusted</em> help, right when you need it.
         </h1>
-        <p style={{ fontSize: 18, lineHeight: 1.55, maxWidth: 560, margin: "28px 0 40px", textWrap: "pretty" }}>
+        <p style={{ font: "var(--text-body-lg)", maxWidth: 560, margin: "28px 0 40px", textWrap: "pretty" } as CSSProperties}>
           QuickHands connects you with reliable local specialists for cleaning, repairs, beauty and trades.{" "}
-          <span style={{ color: INK[400] }}>Post what you need and hear back fast.</span>
+          <span style={{ color: "var(--fg-3)" }}>Post what you need and hear back fast.</span>
         </p>
 
-        <form onSubmit={onSearch} role="search" style={{ display: "flex", alignItems: "center", gap: 8, maxWidth: 600, padding: "6px 6px 6px 20px", borderRadius: 999, background: "#FFFFFF", boxShadow: SHADOW_FLOAT }}>
-          <Search size={18} color={INK[400]} aria-hidden="true" style={{ flexShrink: 0 }} />
+        <form
+          onSubmit={onSearch}
+          role="search"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            maxWidth: 600,
+            padding: "6px 6px 6px 20px",
+            borderRadius: 999,
+            background: "var(--white)",
+            boxShadow: SHADOW_FLOAT,
+          }}
+        >
+          <Search size={18} strokeWidth={1.5} aria-hidden="true" style={{ display: "block", color: "var(--fg-3)", flexShrink: 0 }} />
           <input
             type="text"
             name="q"
             placeholder="Plumber, electrician, cleaner…"
             aria-label="Search for a specialist"
-            style={{ flex: 1, minWidth: 0, border: 0, outline: "none", background: "transparent", fontFamily: SANS, fontSize: 16, color: INK[950], height: 44 }}
+            style={{
+              flex: 1,
+              minWidth: 0,
+              border: 0,
+              outline: "none",
+              background: "transparent",
+              font: "var(--text-body-md)",
+              fontSize: 16,
+              color: "var(--fg-1)",
+              height: 44,
+            }}
           />
-          <button type="submit" style={{ height: 44, padding: "0 22px", border: 0, borderRadius: 999, background: GREEN, color: "#FFFFFF", fontFamily: SANS, fontWeight: 500, fontSize: 14, letterSpacing: "-0.01em", cursor: "pointer" }}>
+          <button
+            type="submit"
+            className="qh-search-btn"
+            style={{
+              height: 44,
+              padding: "0 22px",
+              border: 0,
+              borderRadius: 999,
+              background: GREEN,
+              color: "var(--white)",
+              font: "500 14px/1 var(--font-sans)",
+              letterSpacing: "-0.01em",
+              cursor: "pointer",
+              transition: "background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out)",
+            }}
+          >
             Search
           </button>
         </form>
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginTop: 16 }}>
-          <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: INK[400], marginRight: 4 }}>Popular</span>
+          <span style={{ ...MICRO, fontSize: 11, color: "var(--fg-3)", marginRight: 4 }}>Popular</span>
           {POPULAR.map((label) => (
-            <Link key={label} href={`/specialists?q=${encodeURIComponent(label)}`} style={{ display: "inline-flex", alignItems: "center", height: 28, padding: "0 12px", borderRadius: 999, boxShadow: `inset 0 0 0 1px ${DEFAULT_BORDER}`, fontFamily: SANS, fontWeight: 500, fontSize: 13, color: INK[600], textDecoration: "none" }}>
+            <Link
+              key={label}
+              href={`/specialists?q=${encodeURIComponent(label)}`}
+              className="qh-chip"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                height: 28,
+                padding: "0 12px",
+                borderRadius: 999,
+                boxShadow: "inset 0 0 0 1px var(--border-default)",
+                font: "500 13px/1 var(--font-sans)",
+                color: "var(--fg-2)",
+                textDecoration: "none",
+                transition: "background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out)",
+              }}
+            >
               {label}
             </Link>
           ))}
         </div>
       </section>
 
-      {/* Image + how-it-works carousel */}
-      <section style={{ maxWidth: CONTAINER, margin: "0 auto", padding: `0 ${GUTTER}px` }}>
-        <div style={{ position: "relative", width: "100%", height: "clamp(360px, 43vw, 520px)", borderRadius: 20, overflow: "hidden", background: INK[900] }}>
-          <img src="/design/client/carpenter.jpg" alt="A carpenter operating a circular saw at an outdoor site" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "saturate(.72) contrast(1.02)" }} />
+      {/* Carousel card over the carpenter photo */}
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px" }}>
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "clamp(360px,43vw,520px)",
+            borderRadius: 20,
+            overflow: "hidden",
+            background: "var(--ink-900)",
+          }}
+        >
+          <img
+            src="/design/client-landing/hero-carpenter.jpg"
+            alt="A carpenter operating a circular saw at an outdoor site"
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center 40%",
+              filter: "var(--qh-img)",
+            }}
+          />
           <div
-            onMouseEnter={() => setPaused(true)}
-            onMouseLeave={() => setPaused(false)}
-            style={{ position: "absolute", left: 24, bottom: 24, width: 300, maxWidth: "calc(100% - 48px)", boxSizing: "border-box", padding: 20, borderRadius: 14, background: "#FFFFFF", boxShadow: SHADOW_FLOAT }}
+            onMouseEnter={() => {
+              carouselPaused.current = true
+            }}
+            onMouseLeave={() => {
+              carouselPaused.current = false
+            }}
+            style={{
+              position: "absolute",
+              left: 24,
+              bottom: 24,
+              width: 300,
+              maxWidth: "calc(100% - 48px)",
+              boxSizing: "border-box",
+              padding: 20,
+              borderRadius: 14,
+              background: "var(--white)",
+              boxShadow: SHADOW_FLOAT,
+            }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: INK[400] }}>How QuickHands works</span>
-              <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", color: INK[400], fontVariantNumeric: "tabular-nums" }}>
-                0{step + 1} / 03
+              <span style={{ ...MICRO, fontSize: 11, color: "var(--fg-3)" }}>How QuickHands works</span>
+              <span style={{ ...MICRO, fontSize: 11, color: "var(--fg-3)", fontVariantNumeric: "tabular-nums" }}>
+                {`0${step + 1} / 0${CAROUSEL_STEPS.length}`}
               </span>
             </div>
             <div style={{ display: "flex", gap: 14, alignItems: "flex-start", marginTop: 18, minHeight: 52 }}>
-              <span style={{ width: 40, height: 40, borderRadius: 10, background: INK[100], display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Icon name={currentStep.icon} size={18} />
+              <span
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 10,
+                  background: "var(--ink-100)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Icon name={carouselStep.icon} size={18} />
               </span>
               <div>
-                <div style={{ fontFamily: SANS, fontWeight: 500, fontSize: 17, letterSpacing: "-0.015em" }}>{currentStep.title}</div>
-                <div style={{ fontSize: 13, color: INK[600], marginTop: 4 }}>{currentStep.desc}</div>
+                <div style={{ font: "var(--text-h4)", fontSize: 17, letterSpacing: "var(--ls-tight)" }}>{carouselStep.title}</div>
+                <div style={{ font: "var(--text-small)", color: "var(--fg-2)", marginTop: 4 }}>{carouselStep.desc}</div>
               </div>
             </div>
             <div style={{ display: "flex", gap: 6, marginTop: 18 }}>
-              {STEPS_CAROUSEL.map((item, index) => (
-                <button
-                  key={item.title}
-                  type="button"
-                  aria-label={`Step ${index + 1}: ${item.title}`}
-                  onClick={() => setStep(index)}
-                  style={{
-                    height: 4,
-                    width: index === step ? 24 : 8,
-                    border: 0,
-                    padding: 0,
-                    borderRadius: 999,
-                    background: index === step ? GREEN : INK[200],
-                    cursor: "pointer",
-                    transition: `width 240ms ${EASE}, background 240ms ${EASE}`,
-                  }}
-                />
-              ))}
+              {CAROUSEL_STEPS.map((item, index) => {
+                const active = index === step
+                return (
+                  <button
+                    key={item.title}
+                    type="button"
+                    aria-label={`Step ${index + 1}: ${item.title}`}
+                    onClick={() => setStep(index)}
+                    style={{
+                      height: 4,
+                      width: active ? 24 : 8,
+                      border: 0,
+                      padding: 0,
+                      borderRadius: 999,
+                      background: active ? GREEN : "var(--ink-200)",
+                      cursor: "pointer",
+                      transition: "width var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out)",
+                    }}
+                  />
+                )
+              })}
             </div>
           </div>
         </div>
       </section>
 
       {/* Trust band */}
-      <section style={{ maxWidth: CONTAINER, margin: "0 auto", padding: `48px ${GUTTER}px 120px` }}>
-        <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: 1, background: HAIRLINE, borderRadius: 14, overflow: "hidden", boxShadow: "0 0 0 1px rgba(10,10,11,.08)" }}>
-          {TRUST.map((item) => (
-            <li key={item.label} style={{ display: "flex", alignItems: "center", gap: 14, padding: "22px 24px", background: "#FFFFFF", listStyle: "none" }}>
-              <Icon name={item.icon} size={18} style={{ flexShrink: 0 }} />
-              <span style={{ fontFamily: SANS, fontWeight: 500, fontSize: 15, lineHeight: 1.3, letterSpacing: "-0.015em" }}>{item.label}</span>
-            </li>
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 24px 120px" }}>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,440px),1fr))",
+            gap: 1,
+            background: "var(--border-hairline)",
+            borderRadius: 14,
+            overflow: "hidden",
+            boxShadow: "var(--shadow-hairline)",
+          }}
+        >
+          {trustPairs.map((pair) => (
+            <ul
+              key={pair[0].label}
+              style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: 1 }}
+            >
+              {pair.map((item) => (
+                <li key={item.label} style={{ display: "flex", alignItems: "center", gap: 14, padding: "22px 24px", background: "var(--white)" }}>
+                  <Icon name={item.icon} size={18} style={{ color: "var(--fg-1)" }} />
+                  <span style={{ font: "500 15px/1.3 var(--font-sans)", letterSpacing: "var(--ls-tight)" }}>{item.label}</span>
+                </li>
+              ))}
+            </ul>
           ))}
-        </ul>
+        </div>
       </section>
 
       {/* How it works */}
-      <section id="how-it-works" style={{ maxWidth: CONTAINER, margin: "0 auto", padding: `0 ${GUTTER}px 128px`, scrollMarginTop: 80 }}>
-        <SectionDivider label="How it works" />
+      <section
+        id="how-it-works"
+        style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 128px", scrollMarginTop: 80 }}
+      >
+        <Divider label="How it works" />
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 24, margin: "48px 0 56px" }}>
-          <h2 style={headingStyle}>
-            Four steps. <em style={accentEmStyle}>No</em> friction.
+          <h2
+            style={{
+              font: "var(--text-h1)",
+              fontSize: "clamp(40px,5.4vw,64px)",
+              letterSpacing: "var(--ls-heading)",
+              margin: 0,
+              maxWidth: 640,
+              textWrap: "balance",
+            } as CSSProperties}
+          >
+            Four steps. <em style={{ ...SERIF_EM, color: GREEN }}>No</em> friction.
           </h2>
-          <p style={{ margin: 0, maxWidth: 340, color: INK[600], textWrap: "pretty" }}>QuickHands strips out the back-and-forth. Post once, meet the right specialist, get it done.</p>
+          <p style={{ margin: 0, maxWidth: 340, color: "var(--fg-2)", textWrap: "pretty" } as CSSProperties}>
+            QuickHands strips out the back-and-forth. Post once, meet the right specialist, get it done.
+          </p>
         </div>
-        <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 260px), 1fr))", gap: "48px 24px" }}>
-          {STEPS.map((item) => (
-            <li key={item.n} style={{ display: "flex", flexDirection: "column", listStyle: "none" }}>
-              <div style={{ aspectRatio: "4 / 5", borderRadius: 14, overflow: "hidden", background: INK[100] }}>
-                <img src={item.image} alt={item.alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: "saturate(.72) contrast(1.02)" }} />
-              </div>
-              <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 20, fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: INK[400] }}>
-                <span>{item.n}</span>
-                <span style={{ width: 16, height: 1, background: DEFAULT_BORDER }} />
-                <span>{item.label}</span>
-              </div>
-              <h3 style={{ fontFamily: SANS, fontWeight: 500, fontSize: 20, lineHeight: 1.3, letterSpacing: "-0.015em", margin: "10px 0 0" }}>{item.title}</h3>
-              <p style={{ margin: "6px 0 0", color: INK[600], textWrap: "pretty" }}>{item.desc}</p>
-            </li>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,420px),1fr))", gap: "48px 24px" }}>
+          {stepPairs.map((pair) => (
+            <ol
+              key={pair[0].n}
+              style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gridTemplateColumns: "repeat(2,minmax(0,1fr))", gap: "48px 24px" }}
+            >
+              {pair.map((item) => (
+                <li key={item.n} style={{ display: "flex", flexDirection: "column" }}>
+                  <div className="qh-zoom" style={{ aspectRatio: "4 / 5", borderRadius: 14, overflow: "hidden", background: "var(--ink-100)" }}>
+                    <img
+                      src={item.image}
+                      alt={item.alt}
+                      loading="lazy"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
+                        display: "block",
+                        filter: "var(--qh-img)",
+                        transition: "transform var(--dur-slow) var(--ease-out)",
+                      }}
+                    />
+                  </div>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 20, ...MICRO, fontSize: 11, color: "var(--fg-3)" }}>
+                    <span>{item.n}</span>
+                    <span style={{ width: 16, height: 1, background: "var(--border-default)" }} />
+                    <span>{item.label}</span>
+                  </div>
+                  <h3 style={{ font: "var(--text-h4)", letterSpacing: "var(--ls-tight)", margin: "10px 0 0" }}>{item.title}</h3>
+                  <p style={{ margin: "6px 0 0", color: "var(--fg-2)", textWrap: "pretty" } as CSSProperties}>{item.desc}</p>
+                </li>
+              ))}
+            </ol>
           ))}
-        </ol>
+        </div>
       </section>
 
       {/* Categories */}
-      <section id="tasks" style={{ maxWidth: CONTAINER, margin: "0 auto", padding: `0 ${GUTTER}px 128px`, scrollMarginTop: 80 }}>
-        <SectionDivider label="Popular tasks" />
+      <section id="tasks" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 128px", scrollMarginTop: 80 }}>
+        <Divider label="Popular tasks" />
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 24, margin: "48px 0 56px" }}>
-          <h2 style={headingStyle}>
-            What can you get <em style={accentEmStyle}>done</em>?
+          <h2
+            style={{
+              font: "var(--text-h1)",
+              fontSize: "clamp(40px,5.4vw,64px)",
+              letterSpacing: "var(--ls-heading)",
+              margin: 0,
+              maxWidth: 640,
+              textWrap: "balance",
+            } as CSSProperties}
+          >
+            What can you get <em style={{ ...SERIF_EM, color: GREEN }}>done</em>?
           </h2>
-          <p style={{ margin: 0, maxWidth: 340, color: INK[600], textWrap: "pretty" }}>From a leaky tap to a full house move — the tasks people get done on QuickHands every day.</p>
+          <p style={{ margin: 0, maxWidth: 340, color: "var(--fg-2)", textWrap: "pretty" } as CSSProperties}>
+            From a leaky tap to a full house move — the tasks people get done on QuickHands every day.
+          </p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 360px), 1fr))", gap: "56px 24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,360px),1fr))", gap: "56px 24px" }}>
           {CATEGORIES.map((category) => (
-            <Link key={category.title} href={`/specialists?q=${category.query}`} style={{ display: "flex", flexDirection: "column", textDecoration: "none", color: INK[950] }}>
-              <div style={{ aspectRatio: "16 / 10", borderRadius: 14, overflow: "hidden", background: INK[100] }}>
-                <img src={category.image} alt={category.alt} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: "saturate(.72) contrast(1.02)" }} />
+            <Link
+              key={category.title}
+              href={`/specialists?q=${encodeURIComponent(category.query)}`}
+              style={{ display: "flex", flexDirection: "column", textDecoration: "none", color: "var(--fg-1)" }}
+            >
+              <div className="qh-zoom" style={{ aspectRatio: "16 / 10", borderRadius: 14, overflow: "hidden", background: "var(--ink-100)" }}>
+                <img
+                  src={category.image}
+                  alt={category.alt}
+                  loading="lazy"
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                    filter: "var(--qh-img)",
+                    transition: "transform var(--dur-slow) var(--ease-out)",
+                  }}
+                />
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 16, marginTop: 20 }}>
-                <h3 style={{ fontFamily: SANS, fontWeight: 500, fontSize: 28, lineHeight: 1.15, letterSpacing: "-0.035em", margin: 0 }}>{category.title}</h3>
-                <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", color: INK[400] }}>{category.n}</span>
+                <h3 style={{ font: "var(--text-h3)", letterSpacing: "var(--ls-heading)", margin: 0 }}>{category.title}</h3>
+                <span style={{ ...MICRO, fontSize: 11, color: "var(--fg-3)" }}>{category.n}</span>
               </div>
-              <p style={{ margin: "8px 0 0", color: INK[600], textWrap: "pretty" }}>{category.tagline}</p>
+              <p style={{ margin: "8px 0 0", color: "var(--fg-2)", textWrap: "pretty" } as CSSProperties}>{category.tagline}</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 16 }}>
                 {category.tags.map((tag) => (
-                  <span key={tag} style={tagStyle}>
-                    {tag}
-                  </span>
+                  <Tag key={tag}>{tag}</Tag>
                 ))}
               </div>
             </Link>
@@ -749,83 +1201,225 @@ export function ClientLanding() {
       </section>
 
       {/* Marketplace preview */}
-      <section style={{ maxWidth: CONTAINER, margin: "0 auto", padding: `0 ${GUTTER}px 128px` }}>
-        <div style={{ background: INK[950], color: "#FFFFFF", borderRadius: 20, padding: "clamp(40px, 6vw, 88px) clamp(24px, 5vw, 64px)" }}>
-          <SectionDivider label="See it in action" inverse />
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 128px" }}>
+        <div
+          style={{
+            background: "var(--ink-950)",
+            color: "var(--white)",
+            borderRadius: 20,
+            padding: "clamp(40px,6vw,88px) clamp(24px,5vw,64px)",
+          }}
+        >
+          <Divider label="See it in action" inverse />
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 24, margin: "48px 0 56px" }}>
-            <h2 style={{ ...headingStyle, color: "#FFFFFF" }}>
-              Post a task. Meet your <em style={{ ...accentEmStyle, color: GREEN_LIGHT }}>match</em>.
+            <h2
+              style={{
+                font: "var(--text-h1)",
+                fontSize: "clamp(40px,5.4vw,64px)",
+                letterSpacing: "var(--ls-heading)",
+                margin: 0,
+                maxWidth: 640,
+                textWrap: "balance",
+              } as CSSProperties}
+            >
+              Post a task. Meet your <em style={{ ...SERIF_EM, color: GREEN_LIGHT }}>match</em>.
             </h2>
-            <p style={{ margin: 0, maxWidth: 340, color: "rgba(255,255,255,.6)", textWrap: "pretty" }}>A real task, matched with local specialists ready to help.</p>
+            <p style={{ margin: 0, maxWidth: 340, color: "rgba(255,255,255,.6)", textWrap: "pretty" } as CSSProperties}>
+              A real task, matched with local specialists ready to help.
+            </p>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 400px), 1fr))", gap: 24, alignItems: "start" }}>
-            <div style={{ padding: 28, borderRadius: 14, background: INK[900], boxShadow: `inset 0 0 0 1px ${INVERSE_BORDER}` }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,400px),1fr))", gap: 24, alignItems: "start" }}>
+            <div
+              style={{
+                padding: 28,
+                borderRadius: 14,
+                background: "var(--ink-900)",
+                boxShadow: "inset 0 0 0 1px var(--border-inverse)",
+              }}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,.72)" }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#2F54FF", boxShadow: "0 0 0 3px rgba(47,84,255,.25)" }} />
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 8,
+                    ...MICRO,
+                    fontSize: 11,
+                    color: "rgba(255,255,255,.72)",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: "var(--signal-500)",
+                      boxShadow: "0 0 0 3px rgba(47,84,255,.25)",
+                    }}
+                  />
                   Task posted
                 </span>
-                {latestJob ? (
-                  <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,.45)" }}>{timeAgo(latestJob.createdAt)}</span>
-                ) : null}
+                <span style={{ ...MICRO, fontSize: 11, color: "rgba(255,255,255,.45)" }}>
+                  {latestJob ? minutesAgo(latestJob.createdAt) : ""}
+                </span>
               </div>
-              {latestJob ? (
+              {latestJob === null ? (
                 <>
-                  <h3 style={{ fontFamily: SANS, fontWeight: 500, fontSize: 28, lineHeight: 1.15, letterSpacing: "-0.035em", margin: "28px 0 0" }}>{latestJob.serviceType}</h3>
+                  <h3 style={{ font: "var(--text-h3)", letterSpacing: "var(--ls-heading)", margin: "28px 0 0" }}>No tasks posted yet</h3>
+                  <p style={{ margin: "10px 0 0", color: "rgba(255,255,255,.6)", maxWidth: "42ch", textWrap: "pretty" } as CSSProperties}>
+                    The first task posted on QuickHands will appear here.
+                  </p>
+                </>
+              ) : latestJob ? (
+                <>
+                  <h3 style={{ font: "var(--text-h3)", letterSpacing: "var(--ls-heading)", margin: "28px 0 0" }}>{latestJob.serviceType}</h3>
                   {latestJob.additionalInfo ? (
-                    <p style={{ margin: "10px 0 0", color: "rgba(255,255,255,.6)", maxWidth: "42ch", textWrap: "pretty" }}>{latestJob.additionalInfo}</p>
+                    <p style={{ margin: "10px 0 0", color: "rgba(255,255,255,.6)", maxWidth: "42ch", textWrap: "pretty" } as CSSProperties}>
+                      {latestJob.additionalInfo}
+                    </p>
                   ) : null}
-                  <div style={{ display: "flex", gap: 20, marginTop: 28, paddingTop: 20, borderTop: `1px solid ${INVERSE_BORDER}`, fontSize: 13, color: "rgba(255,255,255,.72)" }}>
-                    {latestJob.location?.label || latestJob.location?.city ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 20,
+                      marginTop: 28,
+                      paddingTop: 20,
+                      borderTop: "1px solid var(--border-inverse)",
+                      font: "var(--text-small)",
+                      color: "rgba(255,255,255,.72)",
+                    }}
+                  >
+                    {latestLocation ? (
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                        <MapPin size={14} aria-hidden="true" />
-                        {latestJob.location.label || latestJob.location.city}
+                        <MapPin size={14} strokeWidth={1.5} aria-hidden="true" style={{ display: "block" }} />
+                        {latestLocation}
                       </span>
                     ) : null}
-                    <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
-                      <Clock size={14} aria-hidden="true" />
-                      {latestJob.applicantCount === 0 ? "No applicants yet" : `${latestJob.applicantCount} applied`}
-                    </span>
+                    {latestStart ? (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        <Clock size={14} strokeWidth={1.5} aria-hidden="true" style={{ display: "block" }} />
+                        {latestStart}
+                      </span>
+                    ) : null}
                   </div>
                 </>
-              ) : (
-                <p style={{ margin: "28px 0 0", color: "rgba(255,255,255,.6)" }}>No open tasks yet — be the first to post one.</p>
-              )}
+              ) : null}
             </div>
-            <div style={{ display: "flex", flexDirection: "column", borderRadius: 14, boxShadow: `inset 0 0 0 1px ${INVERSE_BORDER}`, overflow: "hidden" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "16px 20px", borderBottom: `1px solid ${INVERSE_BORDER}`, fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,.45)" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                borderRadius: 14,
+                boxShadow: "inset 0 0 0 1px var(--border-inverse)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  padding: "16px 20px",
+                  borderBottom: "1px solid var(--border-inverse)",
+                  ...MICRO,
+                  fontSize: 11,
+                  color: "rgba(255,255,255,.45)",
+                }}
+              >
                 <span>{specialists && specialists.length > 0 ? `${specialists.length} matches nearby` : "Matches nearby"}</span>
                 <span>Rating</span>
               </div>
               {(specialists ?? []).map((specialist) => (
-                <div key={specialist.clerkId} style={{ display: "flex", alignItems: "center", gap: 16, padding: "18px 20px", borderBottom: `1px solid ${INVERSE_BORDER}` }}>
+                <div
+                  key={specialist.clerkId}
+                  className="qh-row"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 16,
+                    padding: "18px 20px",
+                    borderBottom: "1px solid var(--border-inverse)",
+                    transition: "background var(--dur-fast) var(--ease-out)",
+                  }}
+                >
                   {specialist.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={specialist.imageUrl} alt="" style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }} />
+                    <div
+                      role="img"
+                      aria-label={specialist.name}
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundImage: `url("${specialist.imageUrl}")`,
+                        flexShrink: 0,
+                        filter: "var(--qh-img)",
+                      }}
+                    />
                   ) : (
-                    <span style={{ width: 48, height: 48, borderRadius: "50%", background: INK[900], display: "inline-flex", alignItems: "center", justifyContent: "center", fontFamily: SANS, fontWeight: 500, fontSize: 14, flexShrink: 0 }}>
+                    <div
+                      role="img"
+                      aria-label={specialist.name}
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        background: "var(--ink-800)",
+                        color: "var(--white)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        font: "500 13px/1 var(--font-sans)",
+                        flexShrink: 0,
+                      }}
+                    >
                       {initialsOf(specialist.name)}
-                    </span>
+                    </div>
                   )}
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: SANS, fontWeight: 500, fontSize: 15, lineHeight: 1.3, letterSpacing: "-0.015em" }}>{specialist.name}</div>
-                    <div style={{ fontSize: 13, color: "rgba(255,255,255,.6)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {specialist.skillList.slice(0, 2).join(" · ") || specialist.tagline}
+                    <div style={{ font: "500 15px/1.3 var(--font-sans)", letterSpacing: "var(--ls-tight)" }}>{specialist.name}</div>
+                    <div
+                      style={{
+                        font: "var(--text-small)",
+                        color: "rgba(255,255,255,.6)",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {specialist.skillList.length > 0 ? specialist.skillList.join(" · ") : specialist.tagline}
                     </div>
-                    <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,.45)", marginTop: 6 }}>
-                      {specialist.reviewSummary.reviewCount} {specialist.reviewSummary.reviewCount === 1 ? "review" : "reviews"}
+                    <div style={{ ...MICRO, fontSize: 11, color: "rgba(255,255,255,.45)", marginTop: 6 }}>
+                      {[
+                        specialist.reviewSummary.reviewCount === 1
+                          ? "1 review"
+                          : specialist.reviewSummary.reviewCount > 1
+                            ? `${specialist.reviewSummary.reviewCount} reviews`
+                            : "No reviews yet",
+                        specialist.location?.label || specialist.location?.city,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
                     </div>
                   </div>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontFamily: SANS, fontWeight: 500, fontSize: 14, fontVariantNumeric: "tabular-nums" }}>
-                    <Star size={13} aria-hidden="true" />
-                    {specialist.reviewSummary.reviewCount > 0 ? specialist.reviewSummary.averageRating.toFixed(1) : "New"}
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 5, font: "500 14px/1 var(--font-sans)", fontVariantNumeric: "tabular-nums" }}>
+                    {specialist.reviewSummary.reviewCount > 0 ? (
+                      <>
+                        <Star size={13} strokeWidth={1.5} aria-hidden="true" style={{ display: "block" }} />
+                        {specialist.reviewSummary.averageRating.toFixed(1)}
+                      </>
+                    ) : (
+                      "New"
+                    )}
                   </span>
                 </div>
               ))}
               <div style={{ padding: "16px 20px" }}>
-                <Link href="/post-job" style={{ ...ctaStyle, display: "flex", justifyContent: "center", height: 40, width: "100%", boxSizing: "border-box" }}>
-                  Post your task
-                </Link>
+                <div style={GREEN_TOKENS}>
+                  <Button href="/post-job" variant="primary" size="md" full>
+                    Post your task
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -833,77 +1427,133 @@ export function ClientLanding() {
       </section>
 
       {/* Specialists */}
-      <section id="specialists" style={{ maxWidth: CONTAINER, margin: "0 auto", padding: `0 ${GUTTER}px 128px`, scrollMarginTop: 80 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 420px), 1fr))", gap: 56, alignItems: "center" }}>
+      <section id="specialists" style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 128px", scrollMarginTop: 80 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,420px),1fr))", gap: 56, alignItems: "center" }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-            <span style={tagStyle}>For specialists</span>
-            <h2 style={{ ...headingStyle, margin: "28px 0 0" }}>
-              Turn your skills into <em style={accentEmStyle}>extra</em> income.
+            <Tag>For specialists</Tag>
+            <h2
+              style={{
+                font: "var(--text-h1)",
+                fontSize: "clamp(40px,5.4vw,64px)",
+                letterSpacing: "var(--ls-heading)",
+                margin: "28px 0 0",
+                textWrap: "balance",
+              } as CSSProperties}
+            >
+              Turn your skills into <em style={{ ...SERIF_EM, color: GREEN }}>extra</em> income.
             </h2>
-            <p style={{ fontSize: 18, lineHeight: 1.55, margin: "24px 0 0", maxWidth: 460, textWrap: "pretty" }}>
-              Offer your skills locally and connect with people who need your help. <span style={{ color: INK[400] }}>They get things done — you earn by doing them.</span>
+            <p style={{ font: "var(--text-body-lg)", margin: "24px 0 0", maxWidth: 460, textWrap: "pretty" } as CSSProperties}>
+              Offer your skills locally and connect with people who need your help.{" "}
+              <span style={{ color: "var(--fg-3)" }}>They get things done — you earn by doing them.</span>
             </p>
-            <ul style={{ listStyle: "none", margin: "36px 0 0", padding: 0, width: "100%", maxWidth: 460, borderTop: `1px solid ${HAIRLINE}` }}>
+            <ul style={{ listStyle: "none", margin: "36px 0 0", padding: 0, width: "100%", maxWidth: 460, borderTop: "1px solid var(--border-hairline)" }}>
               {PERKS.map((perk) => (
-                <li key={perk.label} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 0", borderBottom: `1px solid ${HAIRLINE}` }}>
-                  <span style={{ fontFamily: SANS, fontWeight: 500, fontSize: 15, lineHeight: 1.3, letterSpacing: "-0.015em" }}>{perk.label}</span>
-                  <Icon name={perk.icon} size={16} color={INK[400]} />
+                <li
+                  key={perk.label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "16px 0",
+                    borderBottom: "1px solid var(--border-hairline)",
+                  }}
+                >
+                  <span style={{ font: "500 15px/1.3 var(--font-sans)", letterSpacing: "var(--ls-tight)" }}>{perk.label}</span>
+                  <Icon name={perk.icon} size={16} style={{ color: "var(--fg-3)" }} />
                 </li>
               ))}
             </ul>
-            <Link href={specialistHref} style={{ ...ctaStyle, height: 52, padding: "0 24px", fontSize: 15, marginTop: 36, display: "inline-flex", alignItems: "center", gap: 8 }}>
-              Become a specialist
-              <ArrowUpRight size={16} aria-hidden="true" />
-            </Link>
+            <div style={{ display: "flex", gap: 10, marginTop: 36 }}>
+              <span style={{ display: "inline-flex", ...GREEN_TOKENS }}>
+                <Button
+                  href={specialistHref}
+                  size="lg"
+                  iconRight={<ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" style={{ display: "block" }} />}
+                >
+                  Become a specialist
+                </Button>
+              </span>
+            </div>
           </div>
-          <div style={{ aspectRatio: "4 / 5", borderRadius: 20, overflow: "hidden", background: INK[100] }}>
-            <img src="/design/client/specialist-photo.jpg" alt="A specialist holding a wrench while making a repair" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: "saturate(.72) contrast(1.02)" }} />
+          <div style={{ aspectRatio: "4 / 5", borderRadius: 20, overflow: "hidden", background: "var(--ink-100)" }}>
+            <img
+              src="/design/client-landing/specialist-wrench.jpg"
+              alt="A specialist holding a wrench while making a repair"
+              loading="lazy"
+              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", filter: "var(--qh-img)" }}
+            />
           </div>
         </div>
       </section>
 
       {/* Numbers */}
-      <section style={{ maxWidth: CONTAINER, margin: "0 auto", padding: `0 ${GUTTER}px 128px` }}>
-        <SectionDivider label="By the numbers" />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", marginTop: 48 }}>
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 128px" }}>
+        <Divider label="By the numbers" />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", marginTop: 48 }}>
           {[
-            { value: stats ? String(stats.specialists) : "—", label: "Specialists on QuickHands" },
             { value: stats ? String(stats.categories) : "—", label: "Task categories" },
             { value: stats?.averageRating != null ? stats.averageRating.toFixed(1) : "—", label: "Average specialist rating" },
-            { value: stats ? String(stats.jobsPosted) : "—", label: "Tasks posted" },
-          ].map((item) => (
-            <div key={item.label} style={{ padding: "8px 24px 8px 0", display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ fontFamily: SANS, fontWeight: 500, fontSize: "clamp(56px, 6vw, 80px)", lineHeight: 0.98, letterSpacing: "-0.045em", fontVariantNumeric: "tabular-nums" }}>{item.value}</div>
-              <div style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: INK[400] }}>{item.label}</div>
+            { value: "$0", label: "Platform fees for clients" },
+          ].map((stat) => (
+            <div key={stat.label} style={{ padding: "8px 24px 8px 0", display: "flex", flexDirection: "column", gap: 12 }}>
+              <div
+                style={{
+                  font: "var(--text-display)",
+                  fontSize: "clamp(56px,6vw,80px)",
+                  letterSpacing: "var(--ls-display)",
+                  fontVariantNumeric: "tabular-nums",
+                } as CSSProperties}
+              >
+                {stat.value}
+              </div>
+              <div style={{ ...MICRO, fontSize: 11, color: "var(--fg-3)" }}>{stat.label}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* FAQ */}
-      <section style={{ maxWidth: CONTAINER, margin: "0 auto", padding: `0 ${GUTTER}px 128px` }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 360px), 1fr))", gap: "48px 64px", alignItems: "start" }}>
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 128px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,360px),1fr))", gap: "48px 64px", alignItems: "start" }}>
           <div style={{ position: "sticky", top: 96 }}>
-            <h2 style={{ fontFamily: SANS, fontWeight: 500, fontSize: 44, lineHeight: 1.05, letterSpacing: "-0.035em", margin: 0, textWrap: "balance" }}>
-              Questions, <em style={accentEmStyle}>answered</em>.
+            <h2 style={{ font: "var(--text-h2)", letterSpacing: "var(--ls-heading)", margin: 0, textWrap: "balance" } as CSSProperties}>
+              Questions, <em style={{ ...SERIF_EM, color: GREEN }}>answered</em>.
             </h2>
-            <p style={{ margin: "16px 0 0", maxWidth: 360, color: INK[600], textWrap: "pretty" }}>Everything you need to know about working with specialists on QuickHands.</p>
+            <p style={{ margin: "16px 0 0", maxWidth: 360, color: "var(--fg-2)", textWrap: "pretty" } as CSSProperties}>
+              Everything you need to know about working with specialists on QuickHands.
+            </p>
           </div>
-          <div style={{ borderTop: `1px solid ${HAIRLINE}` }}>
+          <div style={{ borderTop: "1px solid var(--border-hairline)" }}>
             {FAQS.map(([question, answer], index) => {
               const open = openFaq === index
               return (
-                <div key={question} style={{ borderBottom: `1px solid ${HAIRLINE}` }}>
+                <div key={question} style={{ borderBottom: "1px solid var(--border-hairline)" }}>
                   <button
                     type="button"
-                    onClick={() => setOpenFaq(open ? -1 : index)}
                     aria-expanded={open}
-                    style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", gap: 24, padding: "24px 0", border: 0, background: "transparent", cursor: "pointer", textAlign: "left", fontFamily: SANS, fontWeight: 500, fontSize: 17, lineHeight: 1.35, letterSpacing: "-0.015em", color: INK[950] }}
+                    onClick={() => setOpenFaq((current) => (current === index ? -1 : index))}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      gap: 24,
+                      padding: "24px 0",
+                      border: 0,
+                      background: "transparent",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      font: "500 17px/1.35 var(--font-sans)",
+                      letterSpacing: "var(--ls-tight)",
+                      color: "var(--fg-1)",
+                    }}
                   >
                     <span>{question}</span>
-                    {open ? <Minus size={16} color={INK[600]} style={{ flexShrink: 0 }} aria-hidden="true" /> : <Plus size={16} color={INK[600]} style={{ flexShrink: 0 }} aria-hidden="true" />}
+                    <Icon name={open ? "minus" : "plus"} size={16} style={{ color: "var(--fg-2)" }} />
                   </button>
-                  {open ? <p style={{ margin: "-8px 0 24px", maxWidth: 560, color: INK[600], textWrap: "pretty" }}>{answer}</p> : null}
+                  {open ? (
+                    <p style={{ margin: "-8px 0 24px", maxWidth: 560, color: "var(--fg-2)", textWrap: "pretty" } as CSSProperties}>{answer}</p>
+                  ) : null}
                 </div>
               )
             })}
@@ -912,49 +1562,113 @@ export function ClientLanding() {
       </section>
 
       {/* CTA */}
-      <section style={{ maxWidth: CONTAINER, margin: "0 auto", padding: `0 ${GUTTER}px 24px` }}>
-        <div style={{ background: INK[950], color: "#FFFFFF", borderRadius: 20, padding: "clamp(56px, 7vw, 96px) clamp(28px, 5vw, 64px)", display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "flex-end", gap: 32 }}>
+      <section style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 24px" }}>
+        <div
+          style={{
+            background: "var(--ink-950)",
+            color: "var(--white)",
+            borderRadius: 20,
+            padding: "clamp(56px,7vw,96px) clamp(28px,5vw,64px)",
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+            gap: 32,
+          }}
+        >
           <div>
-            <span style={{ ...tagStyle, background: "transparent", color: "rgba(255,255,255,.72)", boxShadow: `inset 0 0 0 1px ${INVERSE_BORDER}` }}>Ready when you are</span>
-            <h2 style={{ ...headingStyle, color: "#FFFFFF", margin: "24px 0 0", maxWidth: 640 }}>
-              Got something to do? Let's get it <em style={{ ...accentEmStyle, color: GREEN_LIGHT }}>done</em>.
+            <Tag inverse>Ready when you are</Tag>
+            <h2
+              style={{
+                font: "var(--text-h1)",
+                fontSize: "clamp(40px,5.4vw,64px)",
+                letterSpacing: "var(--ls-heading)",
+                margin: "24px 0 0",
+                maxWidth: 640,
+                textWrap: "balance",
+              } as CSSProperties}
+            >
+              Got something to do? Let's get it <em style={{ ...SERIF_EM, color: GREEN_LIGHT }}>done</em>.
             </h2>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
-            <Link href="/post-job" style={{ ...ctaStyle, height: 52, padding: "0 24px", fontSize: 15, display: "inline-flex", alignItems: "center", gap: 8 }}>
-              Post a task
-              <ArrowUpRight size={16} aria-hidden="true" />
-            </Link>
-            <Link href={specialistHref} style={{ display: "inline-flex", alignItems: "center", height: 52, padding: "0 24px", borderRadius: 999, boxShadow: "inset 0 0 0 1px rgba(255,255,255,.24)", color: "#FFFFFF", fontFamily: SANS, fontWeight: 500, fontSize: 15, textDecoration: "none" }}>
+            <span style={{ display: "inline-flex", ...GREEN_TOKENS }}>
+              <Button
+                href="/post-job"
+                size="lg"
+                iconRight={<ArrowUpRight size={16} strokeWidth={1.5} aria-hidden="true" style={{ display: "block" }} />}
+              >
+                Post a task
+              </Button>
+            </span>
+            <Button
+              href={specialistHref}
+              variant="ghost"
+              size="lg"
+              className="qh-ghost-inverse"
+              style={{ color: "#fff", boxShadow: "inset 0 0 0 1px rgba(255,255,255,.24)" }}
+            >
               Become a specialist
-            </Link>
+            </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ maxWidth: CONTAINER, margin: "0 auto", padding: `0 ${GUTTER}px 24px` }}>
-        <div style={{ background: INK[950], color: "#FFFFFF", borderRadius: 20, padding: "clamp(40px, 5vw, 64px)" }}>
+      <footer style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px 24px" }}>
+        <div style={{ background: "var(--ink-950)", color: "var(--white)", borderRadius: 20, padding: "clamp(40px,5vw,64px)" }}>
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: "48px 64px" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 24, flex: "1 1 280px", maxWidth: 340 }}>
-              <span style={{ fontFamily: SANS, fontWeight: 600, fontSize: 22, lineHeight: 1, letterSpacing: "-0.05em" }}>quickhands</span>
-              <p style={{ margin: 0, color: "rgba(255,255,255,.6)", textWrap: "pretty" }}>The marketplace for clients and local specialists to connect, agree and get jobs done.</p>
+              <span style={{ font: "600 22px/1 var(--font-sans)", letterSpacing: "-0.05em" }}>quickhands</span>
+              <p style={{ margin: 0, color: "rgba(255,255,255,.6)", textWrap: "pretty" } as CSSProperties}>
+                The marketplace for clients and local specialists to connect, agree and get jobs done.
+              </p>
               <a
                 href="https://play.google.com/store/search?q=QuickHands&c=apps"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener"
                 aria-label="Get it on Google Play"
-                style={{ display: "inline-flex", alignItems: "center", gap: 12, width: "fit-content", padding: "10px 18px 10px 14px", borderRadius: 999, boxShadow: `inset 0 0 0 1px ${INVERSE_BORDER}`, textDecoration: "none", color: "#FFFFFF" }}
+                className="qh-gplay"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 12,
+                  width: "fit-content",
+                  padding: "10px 18px 10px 14px",
+                  borderRadius: 999,
+                  boxShadow: "inset 0 0 0 1px var(--border-inverse)",
+                  textDecoration: "none",
+                  color: "var(--white)",
+                  transition: "background var(--dur-fast) var(--ease-out)",
+                }}
               >
-                <img src="/design/client/google-play.svg" alt="" style={{ width: 20, height: 20, filter: "invert(1)" }} />
+                <img src="/design/client-landing/google-play.svg" alt="" style={{ width: 20, height: 20, filter: "invert(1)" }} />
                 <span style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                  <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,.5)" }}>Get it on</span>
-                  <span style={{ fontFamily: SANS, fontWeight: 500, fontSize: 14 }}>Google Play</span>
+                  <span style={{ ...MICRO, fontSize: 11, color: "rgba(255,255,255,.5)" }}>Get it on</span>
+                  <span style={{ font: "500 14px/1 var(--font-sans)" }}>Google Play</span>
                 </span>
               </a>
               <div style={{ display: "flex", gap: 8 }}>
                 {SOCIAL.map((item) => (
-                  <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" aria-label={item.label} style={{ width: 36, height: 36, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", boxShadow: `inset 0 0 0 1px ${INVERSE_BORDER}`, color: "rgba(255,255,255,.72)" }}>
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={item.label}
+                    className="qh-social"
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: "50%",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "inset 0 0 0 1px var(--border-inverse)",
+                      color: "rgba(255,255,255,.72)",
+                      transition: "background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out)",
+                    }}
+                  >
                     <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15" aria-hidden="true">
                       <path d={item.path} />
                     </svg>
@@ -962,120 +1676,79 @@ export function ClientLanding() {
                 ))}
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(140px, 180px))", gap: "40px 48px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(140px,180px))", gap: "40px 48px" }}>
               {FOOTER_COLUMNS.map((column) => (
                 <div key={column.title} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                  <span style={{ fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,.45)", marginBottom: 6 }}>{column.title}</span>
+                  <span style={{ ...MICRO, fontSize: 11, color: "rgba(255,255,255,.45)", marginBottom: 6 }}>{column.title}</span>
                   {column.links.map((link) => (
-                    <Link key={link.label} href={link.href} style={{ fontSize: 14, color: "rgba(255,255,255,.72)", textDecoration: "none" }}>
-                      {link.label}
-                    </Link>
+                    <FooterLinkItem key={link.label} link={link} />
                   ))}
                 </div>
               ))}
             </div>
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", gap: 16, marginTop: 64, paddingTop: 24, borderTop: `1px solid ${INVERSE_BORDER}`, fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: "rgba(255,255,255,.45)" }}>
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              gap: 16,
+              marginTop: 64,
+              paddingTop: 24,
+              borderTop: "1px solid var(--border-inverse)",
+              ...MICRO,
+              fontSize: 11,
+              color: "rgba(255,255,255,.45)",
+            }}
+          >
             <span>© 2026 Quickhands, Inc.</span>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 20 }}>
-              <Link href="/privacy-policy" style={{ color: "inherit", textDecoration: "none" }}>Privacy</Link>
-              <Link href="/legal#terms" style={{ color: "inherit", textDecoration: "none" }}>Terms</Link>
-              <Link href="/legal#accessibility" style={{ color: "inherit", textDecoration: "none" }}>Accessibility</Link>
-              <Link href="/legal#cookies" style={{ color: "inherit", textDecoration: "none" }}>Cookie preferences</Link>
+              <Link href="/privacy-policy" className="qh-footlink" style={{ color: "inherit", textDecoration: "none" }}>
+                Privacy
+              </Link>
+              <button
+                type="button"
+                className="qh-footlink"
+                onClick={() => window.dispatchEvent(new Event(OPEN_COOKIE_PREFERENCES_EVENT))}
+                style={{
+                  padding: 0,
+                  border: 0,
+                  background: "transparent",
+                  color: "inherit",
+                  font: "inherit",
+                  letterSpacing: "inherit",
+                  textTransform: "inherit",
+                  cursor: "pointer",
+                }}
+              >
+                Cookie preferences
+              </button>
             </div>
           </div>
         </div>
       </footer>
-
     </div>
   )
 }
 
-const ctaStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  height: 40,
-  padding: "0 18px",
-  borderRadius: 999,
-  background: GREEN,
-  color: "#FFFFFF",
-  fontFamily: SANS,
-  fontWeight: 500,
-  fontSize: 14,
-  letterSpacing: "-0.01em",
-  textDecoration: "none",
-  whiteSpace: "nowrap",
-}
-
-const navLinkStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  height: 36,
-  padding: "0 12px",
-  borderRadius: 999,
-  fontFamily: SANS,
-  fontWeight: 500,
-  fontSize: 14,
-  color: INK[600],
-  textDecoration: "none",
-  whiteSpace: "nowrap",
-}
-
-const menuRowStyle: CSSProperties = {
-  display: "flex",
-  alignItems: "baseline",
-  gap: 10,
-  padding: "12px 0",
-  borderBottom: `1px solid ${HAIRLINE}`,
-  textDecoration: "none",
-  color: INK[950],
-}
-
-const tagStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 8,
-  height: 24,
-  padding: "0 10px",
-  borderRadius: 999,
-  background: INK[50],
-  boxShadow: `inset 0 0 0 1px ${DEFAULT_BORDER}`,
-  fontFamily: MONO,
-  fontSize: 11,
-  letterSpacing: "0.06em",
-  textTransform: "uppercase",
-  color: INK[600],
-  whiteSpace: "nowrap",
-}
-
-const headingStyle: CSSProperties = {
-  fontFamily: SANS,
-  fontWeight: 500,
-  fontSize: "clamp(40px, 5.4vw, 64px)",
-  lineHeight: 1.05,
-  letterSpacing: "-0.035em",
-  margin: 0,
-  maxWidth: 640,
-  textWrap: "balance",
-}
-
-const accentEmStyle: CSSProperties = {
-  fontFamily: SERIF,
-  fontStyle: "italic",
-  fontWeight: 400,
-  letterSpacing: "-0.02em",
-  color: GREEN,
-}
-
-function SectionDivider({ label, inverse = false }: { label: string; inverse?: boolean }) {
-  const color = inverse ? "rgba(255,255,255,.72)" : INK[600]
-  const line = inverse ? INVERSE_BORDER : HAIRLINE
+function FooterLinkItem({ link }: { link: FooterLink }) {
+  const style: CSSProperties = {
+    font: "var(--text-small)",
+    fontSize: 14,
+    color: "rgba(255,255,255,.72)",
+    textDecoration: "none",
+    transition: "color var(--dur-fast) var(--ease-out)",
+  }
+  if (link.href.startsWith("/") || link.href.startsWith("#")) {
+    return (
+      <Link href={link.href} className="qh-footlink" style={style}>
+        {link.label}
+      </Link>
+    )
+  }
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 14, fontFamily: MONO, fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color }}>
-      <span style={{ flex: 1, height: 1, background: line }} />
-      {label}
-      <span style={{ flex: 1, height: 1, background: line }} />
-    </div>
+    <a href={link.href} className="qh-footlink" style={style}>
+      {link.label}
+    </a>
   )
 }
