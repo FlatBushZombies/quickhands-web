@@ -14,6 +14,7 @@ export interface Application {
   createdAt: string
   updatedAt: string
   conversationId?: string
+  freelancerReviewSummary?: { averageRating: number; reviewCount: number }
   job?: {
     serviceType: string | null
     maxPrice: number
@@ -30,6 +31,11 @@ export interface ClientJobWithApplications {
   maxPrice: number
   startDate: string
   endDate: string
+  createdAt?: string | null
+  additionalInfo?: string | null
+  selectedServices?: string[]
+  documents?: string[]
+  jobLocation?: { label: string | null; city: string | null } | null
   applications: Application[]
   applicationSummary: { total: number; pending: number; accepted: number; rejected: number; completed: number }
 }
