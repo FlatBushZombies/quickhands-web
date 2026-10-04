@@ -6,7 +6,7 @@ import { useAuth } from "@clerk/nextjs"
 import { MapPin, Sparkles, Users } from "lucide-react"
 import { Avatar } from "@/components/app-shell/Avatar"
 import { FeedSkeleton, timeAgo } from "@/components/app-shell/feed"
-import { getRecommendedJobsForMe, type RecommendedJob } from "@/lib/jobs-api"
+import { getRecommendedJobsForMe, jobBudget, type RecommendedJob } from "@/lib/jobs-api"
 
 /**
  * Specialist-facing "Jobs for you" discovery list — GET
@@ -96,7 +96,9 @@ export function JobsForYouPanel() {
                     ))}
                   </p>
                 </div>
-                <p className="shrink-0 text-sm font-semibold text-specialist">${job.maxPrice}</p>
+                {jobBudget(job.maxPrice) !== null ? (
+                  <p className="shrink-0 text-sm font-semibold text-specialist">${jobBudget(job.maxPrice)}</p>
+                ) : null}
               </Link>
             </li>
           )

@@ -17,7 +17,7 @@ export interface Application {
   freelancerReviewSummary?: { averageRating: number; reviewCount: number }
   job?: {
     serviceType: string | null
-    maxPrice: number
+    maxPrice: number | null
     startDate: string | null
     endDate: string | null
     clientName: string | null
@@ -28,7 +28,7 @@ export interface Application {
 export interface ClientJobWithApplications {
   id: number
   serviceType: string
-  maxPrice: number
+  maxPrice: number | null
   startDate: string
   endDate: string
   createdAt?: string | null
