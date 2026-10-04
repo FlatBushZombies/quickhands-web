@@ -1,10 +1,5 @@
 import type { Metadata } from "next"
-import { Footer } from "@/components/Footer"
-import { FaqSection } from "@/components/FAQ"
-import { PricingPlans } from "@/components/PricingPlans"
-import { ProfessionalsHeader } from "@/components/ProffesionalsHeader"
-import QuickHandsHero from "@/components/Quickhandshero"
-import HowItWorks from "@/components/professionals/HowItWorks"
+import { ProfessionalsLanding } from "@/components/professionals/ProfessionalsLanding"
 
 export const metadata: Metadata = {
   title: "For Specialists",
@@ -13,15 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function ProfessionalsPage() {
-  return (
-    <>
-      <ProfessionalsHeader />
-
-      <QuickHandsHero />
-      <HowItWorks />
-      <PricingPlans />
-      <FaqSection />
-      <Footer />
-    </>
-  )
+  return <ProfessionalsLanding />
 }
