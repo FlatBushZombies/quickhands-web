@@ -187,18 +187,3 @@ export async function confirmApplicationCompletion(
   return { application: data.data as Application, completedNow: Boolean(data.completedNow) }
 }
 
-export interface MyVerification {
-  status: "pending" | "verified" | "rejected"
-  documentType: "id" | "passport"
-  consentAt: string
-  submittedAt: string
-  reviewedAt: string | null
-}
-
-export async function getMyVerification(token: string): Promise<MyVerification | null> {
-  const response = await fetchWithRetry(getApiUrl("/api/verification/me"), {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-  const data = await parseJsonSafely(response)
-  return response.ok && data?.success ? ((data.verification as MyVerification | null) ?? null) : null
-}

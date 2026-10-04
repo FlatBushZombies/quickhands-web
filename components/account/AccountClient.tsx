@@ -9,11 +9,12 @@ import {
   CircleCheck,
   CircleDashed,
   ClipboardList,
-  IdCard,
   Inbox,
-  Mail,
-  ScanFace,
-  ShieldCheck,
+  LayoutDashboard,
+  MessageSquare,
+  Settings,
+  SquarePlus,
+  UserSearch,
   LogOut,
   MapPin,
   MessagesSquare,
@@ -42,17 +43,24 @@ import {
   getApplicationReviews,
   getClientApplications,
   confirmApplicationCompletion,
-  getMyVerification,
   updateApplicationStatus,
-  type MyVerification,
   type Application,
   type ClientJobWithApplications,
   type ReviewEntry,
   type ReviewMatrix,
 } from "@/lib/applications-api"
 
-type View = "tasks" | "offers" | "verify"
+type View = "tasks" | "offers"
 type TaskStatus = "open" | "in_progress" | "completed"
+
+/** Real destinations outside this page, linked from the client sidebar. */
+const siteLinks: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/specialists", label: "Browse specialists", icon: UserSearch },
+  { href: "/post-job", label: "Post a task", icon: SquarePlus },
+  { href: "/messages", label: "Messages", icon: MessageSquare },
+  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+]
 
 const TABS: { id: TaskStatus; label: string }[] = [
   { id: "open", label: "Open" },
@@ -111,19 +119,6 @@ function ratingOf(app: Application) {
   const summary = app.freelancerReviewSummary
   if (!summary || summary.reviewCount === 0) return "New"
   return summary.averageRating.toFixed(1)
-}
-
-/** Verification rows from the real verification record. Only a reviewer can mark documents verified. */
-function verificationRows(email: string | null, verification: MyVerification | null) {
-  const status = verification?.status
-  const verified = status === "verified"
-  const pending = status === "pending"
-  const documentStatus = verified ? "Done" : pending ? "In review" : status === "rejected" ? "Not approved" : "Required"
-  return [
-    { icon: Mail, label: "Email address", hint: email || "Confirmed at sign-up", status: "Done", ok: true, pending: false },
-    { icon: IdCard, label: "National ID or passport", hint: "Photo of the bio page", status: documentStatus, ok: verified, pending },
-    { icon: ScanFace, label: "Live selfie", hint: "Matched to your document", status: documentStatus, ok: verified, pending },
-  ]
 }
 
 function tasksLabel(count: number | undefined) {
@@ -208,14 +203,12 @@ export function AccountClient() {
   const [reviewAppId, setReviewAppId] = useState<number | null>(null)
   const [dismissedReviews, setDismissedReviews] = useState<Record<number, true>>({})
   const [matrices, setMatrices] = useState<Record<number, ReviewMatrix>>({})
-  const [verification, setVerification] = useState<MyVerification | null>(null)
 
   const refresh = useCallback(async () => {
     const token = await getToken()
     if (!token) return
-    const [data, verif] = await Promise.all([getClientApplications(token), getMyVerification(token)])
+    const data = await getClientApplications(token)
     setJobs(data)
-    setVerification(verif)
     setLoaded(true)
   }, [getToken])
 
@@ -379,19 +372,9 @@ export function AccountClient() {
   const displayName = user?.fullName || user?.firstName || ""
   const initials = initialsOf(displayName || "U")
 
-  const verified = verification?.status === "verified"
-  const verifyPending = verification?.status === "pending"
-
   const navItems: { id: View; label: string; icon: LucideIcon; badge: number | string | null; badgeBg: string }[] = [
     { id: "tasks", label: "My tasks", icon: ClipboardList, badge: sortedJobs.length || null, badgeBg: "var(--ink-400)" },
     { id: "offers", label: "Offers", icon: Inbox, badge: pendingOffers || null, badgeBg: GREEN },
-    {
-      id: "verify",
-      label: "Verification",
-      icon: ShieldCheck,
-      badge: verified ? null : "!",
-      badgeBg: verifyPending ? "#C98A1B" : "#C2410C",
-    },
   ]
 
   const selectTask = (job: ClientJobWithApplications) => setSelectedId(job.id)
@@ -453,6 +436,19 @@ export function AccountClient() {
               </button>
             )
           })}
+          <div style={sx("height:1px;background:var(--border-hairline);margin:14px 0")} />
+          {siteLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={link.href === "/dashboard" ? "page" : undefined}
+              className="qh-acc-nav"
+              style={{ ...NAV_ITEM_BASE, color: "var(--fg-2)", textDecoration: "none" }}
+            >
+              <Icon icon={link.icon} />
+              <span style={sx("flex:1")}>{link.label}</span>
+            </Link>
+          ))}
           <div style={sx("height:1px;background:var(--border-hairline);margin:14px 0")} />
           <button
             type="button"
@@ -619,57 +615,6 @@ export function AccountClient() {
                   />
                 </div>
               ) : null}
-            </div>
-          ) : null}
-
-          {loaded && view === "verify" ? (
-            <div style={sx("display:flex;flex-direction:column;gap:24px")}>
-              <div>
-                <span style={EYEBROW}>Trust &amp; safety</span>
-                <h1 style={PAGE_H1}>
-                  Identity <em style={SERIF_EM}>verification</em>.
-                </h1>
-                <p style={sx("margin:12px 0 0;color:var(--fg-2);max-width:520px;text-wrap:pretty")}>
-                  Verified clients get faster offers, and specialists know who they&apos;re working with.{" "}
-                  <span style={sx("color:var(--fg-3)")}>Your documents are encrypted and never shown to specialists.</span>
-                </p>
-              </div>
-              <div style={LIST_CARD}>
-                {verificationRows(user?.primaryEmailAddress?.emailAddress ?? null, verification).map((row) => (
-                  <div key={row.label} style={sx("display:flex;align-items:center;gap:16px;padding:22px 24px;border-bottom:1px solid var(--border-hairline)")}>
-                    <span
-                      style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "var(--radius-md)",
-                        background: row.ok ? "#F1F8EF" : "var(--ink-100)",
-                        color: row.ok ? GREEN : "var(--fg-2)",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <Icon icon={row.icon} size={18} />
-                    </span>
-                    <div style={sx("flex:1")}>
-                      <div style={sx("font:500 15px/1.3 var(--font-sans)")}>{row.label}</div>
-                      <div style={sx("font:var(--text-small);color:var(--fg-3);margin-top:4px")}>{row.hint}</div>
-                    </div>
-                    <span style={{ font: "var(--text-micro)", letterSpacing: "var(--ls-mono)", textTransform: "uppercase", color: row.ok ? GREEN : row.pending ? "#9A6A12" : "#C2410C" }}>
-                      {row.status}
-                    </span>
-                  </div>
-                ))}
-                {verified ? (
-                  <div style={sx("padding:20px 24px;display:flex;justify-content:flex-end")}>
-                    <span style={sx("display:inline-flex;align-items:center;gap:8px;font:500 14px/1 var(--font-sans);color:#0D6E00")}>
-                      <Icon icon={ShieldCheck} size={16} />
-                      You&apos;re verified
-                    </span>
-                  </div>
-                ) : null}
-              </div>
             </div>
           ) : null}
 
@@ -894,7 +839,7 @@ function TaskDetail({
             <h3 style={sx("font:var(--text-h4);letter-spacing:var(--ls-tight);margin:0")}>
               Offers <span style={sx("color:var(--fg-3);font-weight:400")}>{offers.length || ""}</span>
             </h3>
-            <span style={EYEBROW}>Reply to chat · hire to share contacts</span>
+            <span style={EYEBROW}>Reply in chat · hire to start the job</span>
           </div>
           {offers.length === 0 ? (
             <div style={sx("display:flex;align-items:center;gap:14px;padding:20px;border-radius:var(--radius-lg);box-shadow:inset 0 0 0 1px var(--border-default);color:var(--fg-2)")}>
@@ -968,7 +913,7 @@ function TaskDetail({
         <div style={sx("display:flex;flex-direction:column;gap:18px;padding:24px;border-radius:var(--radius-xl);background:var(--white);box-shadow:inset 0 0 0 1.5px #108600,var(--shadow-sm)")}>
           <div style={sx("font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:#108600;display:inline-flex;align-items:center;gap:6px")}>
             <Icon icon={Check} size={13} />
-            Your specialist · contact shared
+            Your specialist
           </div>
           <div style={sx("display:flex;align-items:center;gap:14px")}>
             <div role="img" aria-label={hired.freelancerName} style={sx("width:52px;height:52px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 16px/1 var(--font-sans);flex-shrink:0")}>
