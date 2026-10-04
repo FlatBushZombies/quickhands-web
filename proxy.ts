@@ -11,11 +11,14 @@ const isSignedInRequiredRoute = createRouteMatcher([
   '/hire/(.*)',
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  if (isSignedInRequiredRoute(req)) {
-    await auth.protect();
-  }
-});
+export default clerkMiddleware(
+  async (auth, req) => {
+    if (isSignedInRequiredRoute(req)) {
+      await auth.protect();
+    }
+  },
+  { signInUrl: '/sign-in', signUpUrl: '/sign-up' }
+);
 
 export const config = {
   matcher: [
