@@ -1265,7 +1265,7 @@ function PostTaskForm() {
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 10, marginTop: 28 }}>
               <Link
-                href="/account"
+                href="/dashboard"
                 className="pt-primary"
                 style={{ ...BUTTON_LG, background: GREEN, color: "var(--white)", width: 170, transition: "background var(--dur-fast) var(--ease-out)" }}
               >
