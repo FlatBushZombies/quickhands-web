@@ -1,12 +1,12 @@
 import type { Metadata } from "next"
-import DashboardClient from "./DashboardClient"
+import { DashboardRoleSwitch } from "@/components/dashboard/DashboardRoleSwitch"
 
 export const metadata: Metadata = {
   title: "Dashboard",
-  description: "Manage your QuickHands jobs, applications and notifications.",
+  description: "Your QuickHands account, jobs and profile.",
   robots: { index: false, follow: false },
 }
 
 export default function DashboardPage() {
-  return <DashboardClient />
+  return <DashboardRoleSwitch />
 }

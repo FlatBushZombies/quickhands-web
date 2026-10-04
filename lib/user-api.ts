@@ -2,6 +2,13 @@ import { fetchWithRetry, getApiUrl, parseJsonSafely } from "@/lib/fetch-client"
 
 export type AppRole = "client" | "freelancer"
 
+export interface BackendLocation {
+  label: string | null
+  city: string | null
+  latitude: number | null
+  longitude: number | null
+}
+
 export interface BackendUser {
   id: number | string
   clerkId: string
@@ -12,6 +19,15 @@ export interface BackendUser {
   experienceLevel: string | null
   hourlyRate: number | null
   completedOnboarding: boolean
+  location: BackendLocation | null
+}
+
+export interface ExperienceEntry {
+  title: string
+  org: string
+  from: string
+  to: string
+  desc: string
 }
 
 interface ClerkLikeUser {
@@ -117,4 +133,56 @@ export async function updateOnboarding(payload: UpdateOnboardingPayload): Promis
   }
 
   return data.user as BackendUser
+}
+
+/** GET /api/user/me/experience — the signed-in specialist's past work. */
+export async function getMyExperience(token: string): Promise<ExperienceEntry[]> {
+  const response = await fetchWithRetry(getApiUrl("/api/user/me/experience"), {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+  const data = await parseJsonSafely(response)
+  if (!response.ok || !data?.success) {
+    throw new Error(data?.message || "Failed to load experience")
+  }
+  return data.experience as ExperienceEntry[]
+}
+
+/** PUT /api/user/me/experience — replaces the whole list. */
+export async function saveMyExperience(experience: ExperienceEntry[], token: string): Promise<ExperienceEntry[]> {
+  const response = await fetchWithRetry(
+    getApiUrl("/api/user/me/experience"),
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ experience }),
+    },
+    { retries: 0, timeoutMs: 45000 }
+  )
+  const data = await parseJsonSafely(response)
+  if (!response.ok || !data?.success) {
+    throw new Error(data?.message || "Failed to save experience")
+  }
+  return data.experience as ExperienceEntry[]
+}
+
+/**
+ * PATCH /api/user/location with a label only. The backend replaces the whole
+ * stored location, so callers must only use this when the text actually
+ * changed (coordinates from GPS detection describe the old place then).
+ */
+export async function updateMyLocationLabel(label: string, token: string): Promise<BackendLocation> {
+  const response = await fetchWithRetry(
+    getApiUrl("/api/user/location"),
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ label }),
+    },
+    { retries: 0, timeoutMs: 45000 }
+  )
+  const data = await parseJsonSafely(response)
+  if (!response.ok || !data?.success) {
+    throw new Error(data?.message || "Failed to save your area")
+  }
+  return data.location as BackendLocation
 }
