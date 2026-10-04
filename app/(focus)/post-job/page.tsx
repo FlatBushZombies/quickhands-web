@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import PostJobClient from "./PostJobClient"
+import { PostTaskFlow } from "@/components/post-task/PostTaskFlow"
 
 export const metadata: Metadata = {
   title: "Post a Job",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function PostJobPage() {
-  return <PostJobClient />
+  return <PostTaskFlow />
 }
