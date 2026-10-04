@@ -6,8 +6,14 @@ import { useAuth, useClerk, useUser } from "@clerk/nextjs"
 import {
   Calendar,
   Check,
+  CircleCheck,
+  CircleDashed,
   ClipboardList,
+  IdCard,
   Inbox,
+  Mail,
+  ScanFace,
+  ShieldCheck,
   LogOut,
   MapPin,
   MessagesSquare,
@@ -35,14 +41,17 @@ import { timeAgo } from "@/components/app-shell/feed"
 import {
   getApplicationReviews,
   getClientApplications,
+  confirmApplicationCompletion,
+  getMyVerification,
   updateApplicationStatus,
+  type MyVerification,
   type Application,
   type ClientJobWithApplications,
   type ReviewEntry,
   type ReviewMatrix,
 } from "@/lib/applications-api"
 
-type View = "tasks" | "offers"
+type View = "tasks" | "offers" | "verify"
 type TaskStatus = "open" | "in_progress" | "completed"
 
 const TABS: { id: TaskStatus; label: string }[] = [
@@ -102,6 +111,23 @@ function ratingOf(app: Application) {
   const summary = app.freelancerReviewSummary
   if (!summary || summary.reviewCount === 0) return "New"
   return summary.averageRating.toFixed(1)
+}
+
+/** Verification rows from the real verification record. Only a reviewer can mark documents verified. */
+function verificationRows(email: string | null, verification: MyVerification | null) {
+  const status = verification?.status
+  const verified = status === "verified"
+  const pending = status === "pending"
+  const documentStatus = verified ? "Done" : pending ? "In review" : status === "rejected" ? "Not approved" : "Required"
+  return [
+    { icon: Mail, label: "Email address", hint: email || "Confirmed at sign-up", status: "Done", ok: true, pending: false },
+    { icon: IdCard, label: "National ID or passport", hint: "Photo of the bio page", status: documentStatus, ok: verified, pending },
+    { icon: ScanFace, label: "Live selfie", hint: "Matched to your document", status: documentStatus, ok: verified, pending },
+  ]
+}
+
+function tasksLabel(count: number | undefined) {
+  return `${count ?? 0} tasks`
 }
 
 function starsOf(rating: number) {
@@ -182,12 +208,14 @@ export function AccountClient() {
   const [reviewAppId, setReviewAppId] = useState<number | null>(null)
   const [dismissedReviews, setDismissedReviews] = useState<Record<number, true>>({})
   const [matrices, setMatrices] = useState<Record<number, ReviewMatrix>>({})
+  const [verification, setVerification] = useState<MyVerification | null>(null)
 
   const refresh = useCallback(async () => {
     const token = await getToken()
     if (!token) return
-    const data = await getClientApplications(token)
+    const [data, verif] = await Promise.all([getClientApplications(token), getMyVerification(token)])
     setJobs(data)
+    setVerification(verif)
     setLoaded(true)
   }, [getToken])
 
@@ -286,30 +314,54 @@ export function AccountClient() {
     return null
   }, [reviewAppId, sortedJobs])
 
-  const setStatus = async (app: Application, status: "accepted" | "rejected" | "completed") => {
+  const mergeApplication = (updated: Application) =>
+    setJobs((current) =>
+      current.map((job) =>
+        job.id !== updated.jobId
+          ? job
+          : {
+              ...job,
+              applications: job.applications.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)),
+            }
+      )
+    )
+
+  const setStatus = async (app: Application, status: "accepted" | "rejected") => {
     setBusyId(app.id)
     setActionError(null)
     try {
       const token = await getToken()
       if (!token) return
       const updated = await updateApplicationStatus(app.id, status, token)
-      setJobs((current) =>
-        current.map((job) =>
-          job.id !== updated.jobId
-            ? job
-            : {
-                ...job,
-                applications: job.applications.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)),
-              }
-        )
-      )
-      // Hiring moves the task to In progress; completing moves it to Completed.
-      if (status === "accepted" || status === "completed") {
-        setFilter(status === "accepted" ? "in_progress" : "completed")
+      mergeApplication(updated)
+      // Hiring moves the task to In progress.
+      if (status === "accepted") {
+        setFilter("in_progress")
         setSelectedId(updated.jobId)
       }
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Could not update this offer")
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  // This side confirms the work is finished. The job completes only once the
+  // specialist has confirmed too, so a single confirmation may leave it In progress.
+  const confirmDone = async (app: Application) => {
+    setBusyId(app.id)
+    setActionError(null)
+    try {
+      const token = await getToken()
+      if (!token) return
+      const { application: updated, completedNow } = await confirmApplicationCompletion(app.id, token)
+      mergeApplication(updated)
+      if (completedNow) {
+        setFilter("completed")
+        setSelectedId(updated.jobId)
+      }
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Could not confirm completion")
     } finally {
       setBusyId(null)
     }
@@ -327,9 +379,19 @@ export function AccountClient() {
   const displayName = user?.fullName || user?.firstName || ""
   const initials = initialsOf(displayName || "U")
 
-  const navItems: { id: View; label: string; icon: LucideIcon; badge: number | null; badgeBg: string }[] = [
+  const verified = verification?.status === "verified"
+  const verifyPending = verification?.status === "pending"
+
+  const navItems: { id: View; label: string; icon: LucideIcon; badge: number | string | null; badgeBg: string }[] = [
     { id: "tasks", label: "My tasks", icon: ClipboardList, badge: sortedJobs.length || null, badgeBg: "var(--ink-400)" },
     { id: "offers", label: "Offers", icon: Inbox, badge: pendingOffers || null, badgeBg: GREEN },
+    {
+      id: "verify",
+      label: "Verification",
+      icon: ShieldCheck,
+      badge: verified ? null : "!",
+      badgeBg: verifyPending ? "#C98A1B" : "#C2410C",
+    },
   ]
 
   const selectTask = (job: ClientJobWithApplications) => setSelectedId(job.id)
@@ -551,12 +613,63 @@ export function AccountClient() {
                     busyId={busyId}
                     onHire={(app) => setStatus(app, "accepted")}
                     onDecline={(app) => setStatus(app, "rejected")}
-                    onComplete={(app) => setStatus(app, "completed")}
+                    onComplete={(app) => confirmDone(app)}
                     onChat={(app) => openThread(app, selected)}
                     onReview={() => setReviewAppId(selectedHired?.id ?? null)}
                   />
                 </div>
               ) : null}
+            </div>
+          ) : null}
+
+          {loaded && view === "verify" ? (
+            <div style={sx("display:flex;flex-direction:column;gap:24px")}>
+              <div>
+                <span style={EYEBROW}>Trust &amp; safety</span>
+                <h1 style={PAGE_H1}>
+                  Identity <em style={SERIF_EM}>verification</em>.
+                </h1>
+                <p style={sx("margin:12px 0 0;color:var(--fg-2);max-width:520px;text-wrap:pretty")}>
+                  Verified clients get faster offers, and specialists know who they&apos;re working with.{" "}
+                  <span style={sx("color:var(--fg-3)")}>Your documents are encrypted and never shown to specialists.</span>
+                </p>
+              </div>
+              <div style={LIST_CARD}>
+                {verificationRows(user?.primaryEmailAddress?.emailAddress ?? null, verification).map((row) => (
+                  <div key={row.label} style={sx("display:flex;align-items:center;gap:16px;padding:22px 24px;border-bottom:1px solid var(--border-hairline)")}>
+                    <span
+                      style={{
+                        width: 44,
+                        height: 44,
+                        borderRadius: "var(--radius-md)",
+                        background: row.ok ? "#F1F8EF" : "var(--ink-100)",
+                        color: row.ok ? GREEN : "var(--fg-2)",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Icon icon={row.icon} size={18} />
+                    </span>
+                    <div style={sx("flex:1")}>
+                      <div style={sx("font:500 15px/1.3 var(--font-sans)")}>{row.label}</div>
+                      <div style={sx("font:var(--text-small);color:var(--fg-3);margin-top:4px")}>{row.hint}</div>
+                    </div>
+                    <span style={{ font: "var(--text-micro)", letterSpacing: "var(--ls-mono)", textTransform: "uppercase", color: row.ok ? GREEN : row.pending ? "#9A6A12" : "#C2410C" }}>
+                      {row.status}
+                    </span>
+                  </div>
+                ))}
+                {verified ? (
+                  <div style={sx("padding:20px 24px;display:flex;justify-content:flex-end")}>
+                    <span style={sx("display:inline-flex;align-items:center;gap:8px;font:500 14px/1 var(--font-sans);color:#0D6E00")}>
+                      <Icon icon={ShieldCheck} size={16} />
+                      You&apos;re verified
+                    </span>
+                  </div>
+                ) : null}
+              </div>
             </div>
           ) : null}
 
@@ -698,6 +811,8 @@ function TaskDetail({
   const when = whenLabel(job.startDate, job.endDate)
   const details = job.additionalInfo?.trim() ?? ""
   const hiredFirst = hired ? firstNameOf(hired.freelancerName) : ""
+  const clientConfirmed = Boolean(hired?.clientConfirmedAt)
+  const freelancerConfirmed = Boolean(hired?.freelancerConfirmedAt)
   const offers = job.applications
     .slice()
     .sort(
@@ -779,12 +894,12 @@ function TaskDetail({
             <h3 style={sx("font:var(--text-h4);letter-spacing:var(--ls-tight);margin:0")}>
               Offers <span style={sx("color:var(--fg-3);font-weight:400")}>{offers.length || ""}</span>
             </h3>
-            <span style={EYEBROW}>Reply in chat · hire to start the job</span>
+            <span style={EYEBROW}>Reply to chat · hire to share contacts</span>
           </div>
           {offers.length === 0 ? (
             <div style={sx("display:flex;align-items:center;gap:14px;padding:20px;border-radius:var(--radius-lg);box-shadow:inset 0 0 0 1px var(--border-default);color:var(--fg-2)")}>
               <span style={SPINNER} />
-              <span>Sent to specialists in {job.serviceType}. Offers will appear here as they come in.</span>
+              <span>Sent to specialists in {job.serviceType}. Offers usually arrive within the hour.</span>
             </div>
           ) : null}
           {offers.map((app) => {
@@ -807,7 +922,7 @@ function TaskDetail({
                         <Icon icon={Star} size={12} />
                         {ratingOf(app)}
                       </span>
-                      {reviews ? <span>{reviews} review{reviews === 1 ? "" : "s"}</span> : null}
+                      <span>{tasksLabel(app.freelancerCompletedCount)}</span>
                       <span>{timeAgo(app.createdAt)}</span>
                     </div>
                   </div>
@@ -853,7 +968,7 @@ function TaskDetail({
         <div style={sx("display:flex;flex-direction:column;gap:18px;padding:24px;border-radius:var(--radius-xl);background:var(--white);box-shadow:inset 0 0 0 1.5px #108600,var(--shadow-sm)")}>
           <div style={sx("font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:#108600;display:inline-flex;align-items:center;gap:6px")}>
             <Icon icon={Check} size={13} />
-            Your specialist
+            Your specialist · contact shared
           </div>
           <div style={sx("display:flex;align-items:center;gap:14px")}>
             <div role="img" aria-label={hired.freelancerName} style={sx("width:52px;height:52px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 16px/1 var(--font-sans);flex-shrink:0")}>
@@ -866,6 +981,7 @@ function TaskDetail({
                   <Icon icon={Star} size={12} />
                   {ratingOf(hired)}
                 </span>
+                <span>{tasksLabel(hired.freelancerCompletedCount)}</span>
               </div>
             </div>
             <div style={sx("text-align:right")}>
@@ -884,18 +1000,39 @@ function TaskDetail({
           <div style={sx("padding:18px;border-radius:var(--radius-lg);background:var(--ink-50)")}>
             <div style={sx("font:500 16px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>Is the job done?</div>
             <div style={sx("font:var(--text-small);color:var(--fg-2);margin-top:4px;text-wrap:pretty")}>
-              Mark the task as completed once the work is finished.
+              When you both confirm, the task moves to completed and payment is released.
             </div>
-            <button
-              type="button"
-              onClick={() => onComplete(hired)}
-              disabled={busyId === hired.id}
-              className="qh-acc-green qh-acc-press"
-              style={PILL_GREEN_LG}
-            >
-              <Icon icon={Check} size={15} />
-              {busyId === hired.id ? "Saving…" : "Mark as completed"}
-            </button>
+            <div style={sx("display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:14px")}>
+              {[
+                { label: "You", done: clientConfirmed },
+                { label: hiredFirst || "Specialist", done: freelancerConfirmed },
+              ].map((row) => (
+                <span
+                  key={row.label}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, font: "500 14px/1 var(--font-sans)", color: row.done ? GREEN : "var(--fg-3)" }}
+                >
+                  <Icon icon={row.done ? CircleCheck : CircleDashed} size={15} />
+                  {row.label} · {row.done ? "Confirmed" : "Not yet"}
+                </span>
+              ))}
+            </div>
+            {!clientConfirmed ? (
+              <button
+                type="button"
+                onClick={() => onComplete(hired)}
+                disabled={busyId === hired.id}
+                className="qh-acc-green qh-acc-press"
+                style={PILL_GREEN_LG}
+              >
+                <Icon icon={Check} size={15} />
+                {busyId === hired.id ? "Saving…" : "Mark as completed"}
+              </button>
+            ) : (
+              <div style={sx("display:flex;align-items:center;gap:10px;margin-top:16px;font:var(--text-small);color:var(--fg-2)")}>
+                <span style={SPINNER} />
+                Waiting for {hiredFirst || "the specialist"} to confirm.
+              </div>
+            )}
           </div>
         </div>
       ) : null}
@@ -909,7 +1046,7 @@ function TaskDetail({
             <div>
               <div style={sx("font:500 17px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>Task completed</div>
               <div style={sx("font:var(--text-small);color:var(--fg-3);margin-top:4px")}>
-                {fullDateLabel(hired.updatedAt)} · with {hired.freelancerName} · {hired.quotation || "No quote"}
+                {fullDateLabel(hired.completedAt ?? hired.updatedAt)} · with {hired.freelancerName} · {hired.quotation || "No quote"}
               </div>
             </div>
           </div>
