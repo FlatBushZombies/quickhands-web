@@ -47,6 +47,7 @@ export function AccountThreadModal({
   application,
   verified,
   onHire,
+  onVerify,
   hiring,
   onClose,
 }: {
@@ -54,6 +55,7 @@ export function AccountThreadModal({
   application: Application
   verified: boolean
   onHire: () => void
+  onVerify: () => void
   hiring: boolean
   onClose: () => void
 }) {
@@ -171,7 +173,7 @@ export function AccountThreadModal({
             <span style={sx("font:var(--text-small);color:var(--fg-2)")}>Happy with {firstName}&apos;s offer?</span>
             <button
               type="button"
-              onClick={onHire}
+              onClick={verified ? onHire : onVerify}
               disabled={hiring}
               className="qh-acc-green qh-acc-press"
               style={sx("height:36px;padding:0 16px;border:0;border-radius:999px;background:#108600;color:var(--white);font:500 13px/1 var(--font-sans);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap")}

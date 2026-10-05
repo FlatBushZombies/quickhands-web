@@ -69,6 +69,7 @@ export function AccountTaskDetail({
   busyId,
   verified,
   onHire,
+  onVerify,
   onDecline,
   onComplete,
   onMessage,
@@ -81,6 +82,7 @@ export function AccountTaskDetail({
   busyId: number | null
   verified: boolean
   onHire: (app: Application) => void
+  onVerify: () => void
   onDecline: (app: Application) => void
   onComplete: (app: Application) => void
   onMessage: (app: Application) => void
@@ -220,7 +222,7 @@ export function AccountTaskDetail({
                 <div style={sx("display:flex;flex-wrap:wrap;align-items:center;gap:8px")}>
                   {pending ? (
                     <Fragment>
-                      <button type="button" onClick={() => onHire(app)} disabled={busyId === app.id} className="qh-acc-green qh-acc-press" style={PILL_GREEN}>
+                      <button type="button" onClick={() => (verified ? onHire(app) : onVerify())} disabled={busyId === app.id} className="qh-acc-green qh-acc-press" style={PILL_GREEN}>
                         <Icon glyph={verified ? Check : Lock} />
                         {verified ? (app.quotation ? `Hire · ${app.quotation}` : "Hire") : "Verify to hire"}
                       </button>

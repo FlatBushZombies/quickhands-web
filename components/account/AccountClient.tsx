@@ -611,6 +611,7 @@ export function AccountClient() {
                     busyId={busyId}
                     verified={verified}
                     onHire={(app) => setStatus(app, "accepted")}
+                    onVerify={() => setVerifyOpen(true)}
                     onDecline={(app) => setStatus(app, "rejected")}
                     onComplete={(app) => confirmDone(app)}
                     onMessage={(app) => setThread({ jobId: selected.id, applicationId: app.id })}
@@ -719,6 +720,7 @@ export function AccountClient() {
           verified={verified}
           hiring={busyId === threadTarget.application.id}
           onHire={() => setStatus(threadTarget.application, "accepted")}
+          onVerify={() => setVerifyOpen(true)}
           onClose={() => setThread(null)}
         />
       ) : null}
