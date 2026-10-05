@@ -2,22 +2,22 @@
 
 import { useState } from "react"
 import { ChatWindow } from "@/components/messaging/ChatWindow"
-import { Box, Field, G, G_DARK, G_TINT, Ico, Ix, Modal, ModalHeader, css } from "@/components/pro-account/ui"
-import {
-  CATEGORIES,
-  YEAR_OPTIONS,
-  skillsForCategory,
-  type ProfessionCategory,
-  type YearValue,
-} from "@/components/pro-account/professions"
+import { Box, CloseButton, Field, G, G_TINT, Ico, Ix, Modal, Segmented, css, Eyebrow } from "@/components/pro-account/ui"
+import { CATEGORIES, YEAR_OPTIONS, initials, shortName, skillsForCategory, type YearValue } from "@/components/pro-account/professions"
+import type { Application } from "@/lib/applications-api"
+import { jobBudget, type RecommendedJob } from "@/lib/jobs-api"
 import type { ExperienceEntry } from "@/lib/user-api"
 
 const EM = `font-family:var(--font-serif);font-style:italic;font-weight:400;letter-spacing:-0.02em;color:${G}`
-
-const SAVE_BTN = (enabled: boolean) =>
-  `height:44px;padding:0 22px;border:0;border-radius:999px;background:${enabled ? G : "var(--ink-300)"};color:var(--white);font:500 14px/1 var(--font-sans);cursor:${enabled ? "pointer" : "not-allowed"}`
+const CAPTION = "font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:var(--fg-3)"
+const H2_MODAL = "font:var(--text-h2);font-size:30px;letter-spacing:var(--ls-heading);margin:0"
+const FOOT = "display:flex;justify-content:space-between;gap:10px;padding:16px 20px;border-top:1px solid var(--border-hairline)"
 const CANCEL_BTN = "height:44px;padding:0 18px;border:0;border-radius:999px;background:transparent;color:var(--fg-2);font:500 14px/1 var(--font-sans);cursor:pointer"
 const CANCEL_HOVER = "background:var(--ink-100)"
+
+function saveButton(enabled: boolean) {
+  return `height:44px;padding:0 22px;border:0;border-radius:999px;background:${enabled ? G : "var(--ink-300)"};color:var(--white);font:500 14px/1 var(--font-sans);cursor:${enabled ? "pointer" : "not-allowed"}`
+}
 
 function ErrorLine({ message }: { message: string | null }) {
   if (!message) return null
@@ -47,147 +47,131 @@ export function ProfessionModal({
   onClose: () => void
 }) {
   const [draft, setDraft] = useState<ProfessionDraft>(initial)
-  const category: ProfessionCategory | null = CATEGORIES.find((c) => c.id === draft.categoryId) ?? null
-  const chipLabels = category
-    ? Array.from(new Set([...category.subs, ...draft.skills.filter((s) => skillsForCategory([s], category.id).length)]))
-    : []
-  const valid = Boolean(category && draft.skills.length)
+  const cat = CATEGORIES.find((c) => c.id === draft.categoryId) ?? null
+  const valid = Boolean(cat && draft.skills.length > 0)
 
   const pickCategory = (id: string) =>
-    setDraft((d) => ({
-      ...d,
-      categoryId: id,
-      skills: d.categoryId === id ? d.skills : skillsForCategory(d.skills, id),
-    }))
-
+    setDraft((d) => ({ ...d, categoryId: id, skills: d.categoryId === id ? d.skills : [] }))
   const toggleSkill = (skill: string) =>
-    setDraft((d) => ({
-      ...d,
-      skills: d.skills.includes(skill) ? d.skills.filter((s) => s !== skill) : [...d.skills, skill],
-    }))
+    setDraft((d) => ({ ...d, skills: d.skills.includes(skill) ? d.skills.filter((x) => x !== skill) : [...d.skills, skill] }))
 
   return (
-    <Modal label="Your profession" maxWidth={560}>
-      <ModalHeader eyebrow="Your profession" onClose={onClose} />
+    <Modal label="Your profession" maxWidth={560} boxStyle="max-height:calc(100vh - 32px)">
+      <div style={css("display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border-hairline)")}>
+        <Eyebrow>Your profession</Eyebrow>
+        <CloseButton onClick={onClose} />
+      </div>
       <div style={css("padding:28px;overflow:auto;display:flex;flex-direction:column;gap:28px")}>
         <div>
-          <h2 style={css(`font:var(--text-h2);font-size:30px;letter-spacing:var(--ls-heading);margin:0`)}>
+          <h2 style={css(H2_MODAL)}>
             What do you <em style={css(EM)}>do</em>?
           </h2>
           <p style={css("margin:8px 0 0;color:var(--fg-2)")}>We use this to show you the right tasks.</p>
         </div>
-
         <div style={css("display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px")}>
           {CATEGORIES.map((c) => {
             const on = draft.categoryId === c.id
             return (
-              <Ix
+              <button
                 key={c.id}
+                type="button"
                 onClick={() => pickCategory(c.id)}
-                base={`display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:14px;border:0;border-radius:var(--radius-lg);background:${on ? G_TINT : "var(--white)"};box-shadow:${on ? `inset 0 0 0 1.5px ${G}` : "inset 0 0 0 1px var(--border-default)"};text-align:left;cursor:pointer;color:var(--fg-1)`}
+                style={css(
+                  `display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:14px;border:0;border-radius:var(--radius-lg);background:${on ? G_TINT : "var(--white)"};box-shadow:${on ? `inset 0 0 0 1.5px ${G}` : "inset 0 0 0 1px var(--border-default)"};text-align:left;cursor:pointer;color:var(--fg-1)`
+                )}
               >
-                <Ico name={c.icon} size={18} style={`color:${on ? G : "var(--fg-2)"}`} />
+                <span style={css(`display:inline-flex;color:${on ? G : "var(--fg-2)"}`)}>
+                  <Ico name={c.icon} size={18} />
+                </span>
                 <span style={css("font:500 14px/1.25 var(--font-sans)")}>{c.label}</span>
-              </Ix>
+              </button>
             )
           })}
         </div>
-
-        {category ? (
-          <div style={css("display:flex;flex-direction:column;gap:24px;animation:qhFade 220ms var(--ease-out) both")}>
+        {cat ? (
+          <div style={css("display:flex;flex-direction:column;gap:24px")}>
             <div>
-              <div style={css("font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:var(--fg-3);margin-bottom:12px")}>
-                Your skills · pick all that apply
-              </div>
+              <div style={css(`${CAPTION};margin-bottom:12px`)}>Your skills · pick all that apply</div>
               <div style={css("display:flex;flex-wrap:wrap;gap:8px")}>
-                {chipLabels.map((skill) => {
-                  const on = draft.skills.includes(skill)
+                {cat.subs.map((s) => {
+                  const on = draft.skills.includes(s)
                   return (
-                    <Ix
-                      key={skill}
-                      onClick={() => toggleSkill(skill)}
-                      base={`display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:0;border-radius:999px;background:${on ? "var(--ink-950)" : "var(--white)"};color:${on ? "var(--white)" : "var(--fg-1)"};box-shadow:${on ? "none" : "inset 0 0 0 1px var(--border-default)"};font:500 14px/1 var(--font-sans);cursor:pointer`}
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => toggleSkill(s)}
+                      style={css(
+                        `display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border:0;border-radius:999px;background:${on ? "var(--ink-950)" : "var(--white)"};color:${on ? "var(--white)" : "var(--fg-1)"};box-shadow:${on ? "none" : "inset 0 0 0 1px var(--border-default)"};font:500 14px/1 var(--font-sans);cursor:pointer`
+                      )}
                     >
                       {on ? <Ico name="check" size={13} /> : null}
-                      {skill}
-                    </Ix>
+                      {s}
+                    </button>
                   )
                 })}
               </div>
             </div>
-
             <div>
-              <div style={css("font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:var(--fg-3);margin-bottom:12px")}>
-                Years of experience
-              </div>
-              <div role="radiogroup" aria-label="Years of experience" style={css("display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--ink-100)")}>
-                {YEAR_OPTIONS.map((o) => {
-                  const on = draft.years === o.value
-                  return (
-                    <Ix
-                      key={o.value}
-                      role="radio"
-                      aria-checked={on}
-                      onClick={() => setDraft((d) => ({ ...d, years: o.value }))}
-                      base={`height:28px;padding:0 12px;border:0;border-radius:999px;background:${on ? "var(--white)" : "transparent"};box-shadow:${on ? "var(--shadow-sm)" : "none"};color:var(--fg-1);font:500 13px/1 var(--font-sans);cursor:pointer`}
-                    >
-                      {o.label}
-                    </Ix>
-                  )
-                })}
-              </div>
+              <div style={css(`${CAPTION};margin-bottom:12px`)}>Years of experience</div>
+              <Segmented
+                label="Years of experience"
+                options={YEAR_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+                value={draft.years}
+                onChange={(years) => setDraft((d) => ({ ...d, years }))}
+              />
             </div>
-
-            <Field
-              label="Where do you work?"
-              placeholder="e.g. Harare, Borrowdale & Avondale"
-              value={draft.area}
-              onChange={(v) => setDraft((d) => ({ ...d, area: v }))}
-            />
+            <Field label="Where do you work?" placeholder="e.g. Harare, Borrowdale & Avondale" value={draft.area} onChange={(area) => setDraft((d) => ({ ...d, area }))} />
           </div>
         ) : null}
-
         <ErrorLine message={error} />
       </div>
-      <div style={css("display:flex;justify-content:flex-end;gap:10px;padding:16px 20px;border-top:1px solid var(--border-hairline)")}>
+      <div style={css(`${FOOT};justify-content:flex-end`)}>
         <Ix onClick={onClose} base={CANCEL_BTN} hover={CANCEL_HOVER}>
           Cancel
         </Ix>
-        <Ix
+        <button
+          type="button"
+          onClick={() => valid && !saving && onSave({ ...draft, skills: cat ? skillsForCategory(draft.skills, cat.id) : draft.skills })}
           disabled={!valid || saving}
-          onClick={() => valid && onSave(draft)}
-          base={SAVE_BTN(valid && !saving)}
+          style={css(saveButton(valid && !saving))}
         >
           {saving ? "Saving…" : "Save profession"}
-        </Ix>
+        </button>
       </div>
     </Modal>
   )
 }
 
-/* ───────────── Work experience ───────────── */
+/* ───────────── Experience ───────────── */
 
 export function ExperienceModal({
+  hasExisting,
   saving,
   error,
   onSave,
+  onSkip,
   onClose,
 }: {
+  hasExisting: boolean
   saving: boolean
   error: string | null
   onSave: (entry: ExperienceEntry) => void
+  onSkip: () => void
   onClose: () => void
 }) {
   const [entry, setEntry] = useState<ExperienceEntry>({ title: "", org: "", from: "", to: "", desc: "" })
-  const set = (k: keyof ExperienceEntry) => (v: string) => setEntry((e) => ({ ...e, [k]: v }))
   const valid = entry.title.trim().length > 0
+  const set = (key: keyof ExperienceEntry) => (v: string) => setEntry((e) => ({ ...e, [key]: v }))
 
   return (
-    <Modal label="Add work experience" maxWidth={520}>
-      <ModalHeader eyebrow="Work experience · Optional" onClose={onClose} />
+    <Modal label="Add work experience" maxWidth={520} boxStyle="max-height:calc(100vh - 32px)">
+      <div style={css("display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border-hairline)")}>
+        <Eyebrow>Work experience · Optional</Eyebrow>
+        <CloseButton onClick={onClose} />
+      </div>
       <div style={css("padding:28px;overflow:auto;display:flex;flex-direction:column;gap:18px")}>
         <div>
-          <h2 style={css("font:var(--text-h2);font-size:30px;letter-spacing:var(--ls-heading);margin:0")}>
+          <h2 style={css(H2_MODAL)}>
             Add past <em style={css(EM)}>work</em>.
           </h2>
           <p style={css("margin:8px 0 0;color:var(--fg-2)")}>Jobs, apprenticeships or regular clients. It helps you win your first tasks.</p>
@@ -208,19 +192,24 @@ export function ExperienceModal({
         />
         <ErrorLine message={error} />
       </div>
-      <div style={css("display:flex;justify-content:space-between;gap:10px;padding:16px 20px;border-top:1px solid var(--border-hairline)")}>
-        <Ix onClick={onClose} base={CANCEL_BTN} hover={CANCEL_HOVER}>
-          Cancel
+      <div style={css(FOOT)}>
+        <Ix onClick={onSkip} base={CANCEL_BTN} hover={CANCEL_HOVER}>
+          {hasExisting ? "Cancel" : "I don't have any yet"}
         </Ix>
-        <Ix disabled={!valid || saving} onClick={() => valid && onSave(entry)} base={SAVE_BTN(valid && !saving)}>
+        <button
+          type="button"
+          onClick={() => valid && !saving && onSave({ ...entry, title: entry.title.trim() })}
+          disabled={!valid || saving}
+          style={css(saveButton(valid && !saving))}
+        >
           {saving ? "Saving…" : "Save experience"}
-        </Ix>
+        </button>
       </div>
     </Modal>
   )
 }
 
-/* ───────────── Apply (send an offer) ───────────── */
+/* ───────────── Apply ───────────── */
 
 export function ApplyModal({
   job,
@@ -229,64 +218,103 @@ export function ApplyModal({
   onSend,
   onClose,
 }: {
-  job: { skill: string; area: string; title: string; when: string; budgetText: string; maxPrice: number }
+  job: RecommendedJob
   saving: boolean
   error: string | null
   onSend: (price: number, message: string) => void
   onClose: () => void
 }) {
   const [price, setPrice] = useState("")
-  const [msg, setMsg] = useState("")
-  const valid = Number(price) > 0
+  const [message, setMessage] = useState("")
+  const budget = jobBudget(job.maxPrice)
+  const priceNumber = Number(price)
+  const valid = priceNumber > 0 && !saving
 
   return (
-    <Modal label="Apply to job" maxWidth={520}>
-      <ModalHeader eyebrow="Send an offer" onClose={onClose} />
+    <Modal label="Apply to job" maxWidth={520} boxStyle="max-height:calc(100vh - 32px)">
+      <div style={css("display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border-hairline)")}>
+        <Eyebrow>Send an offer</Eyebrow>
+        <CloseButton onClick={onClose} />
+      </div>
       <div style={css("padding:28px;overflow:auto;display:flex;flex-direction:column;gap:18px")}>
         <div style={css("padding:18px;border-radius:var(--radius-lg);background:var(--ink-50)")}>
-          <div style={css("font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:var(--fg-3)")}>
-            {job.skill} · {job.area}
+          <div style={css(CAPTION)}>
+            {job.selectedServices?.[0] || job.serviceType} · {job.location?.label || job.location?.city || "Location not set"}
           </div>
-          <div style={css("font:500 17px/1.3 var(--font-sans);margin-top:8px")}>{job.title}</div>
+          <div style={css("font:500 17px/1.3 var(--font-sans);margin-top:8px")}>{job.serviceType}</div>
           <div style={css("font:var(--text-small);color:var(--fg-2);margin-top:6px")}>
-            {job.when} · {job.budgetText}
+            {formatShort(job.startDate, job.endDate)} · {budget !== null ? `Budget $${budget}` : "No budget set"}
           </div>
         </div>
-        <Field
-          label="Your price (USD)"
-          type="number"
-          min="0"
-          placeholder={job.maxPrice ? String(job.maxPrice) : "e.g. 40"}
-          value={price}
-          onChange={setPrice}
-        />
+        <Field label="Your price (USD)" type="number" min="0" placeholder={budget !== null ? String(budget) : "e.g. 40"} value={price} onChange={setPrice} />
         <Field
           label="Message to the client"
           multiline
           rows={4}
           placeholder="Introduce yourself and explain how you'd do the job."
-          value={msg}
-          onChange={setMsg}
+          value={message}
+          onChange={setMessage}
         />
-        <div style={css(`display:flex;gap:10px;align-items:flex-start;padding:14px;border-radius:var(--radius-md);background:${G_TINT};font:var(--text-small);color:${G_DARK}`)}>
-          <Ico name="info" size={14} style={"flex-shrink:0;padding-top:2px"} />
-          <span>Responding is free on the commission plan. You only pay when the client hires you.</span>
+        <div style={css(`display:flex;gap:10px;align-items:flex-start;padding:14px;border-radius:var(--radius-md);background:${G_TINT};font:var(--text-small);color:#142C7A`)}>
+          <span style={css("display:inline-flex;flex-shrink:0;padding-top:2px")}>
+            <Ico name="info" size={14} />
+          </span>
+          <span>The client sees your price and message. Once you apply, you can message them in QuickHands.</span>
         </div>
         <ErrorLine message={error} />
       </div>
-      <div style={css("display:flex;justify-content:flex-end;gap:10px;padding:16px 20px;border-top:1px solid var(--border-hairline)")}>
+      <div style={css(`${FOOT};justify-content:flex-end`)}>
         <Ix onClick={onClose} base={CANCEL_BTN} hover={CANCEL_HOVER}>
           Cancel
         </Ix>
-        <Ix
-          disabled={!valid || saving}
-          onClick={() => valid && onSend(Number(price), msg.trim())}
-          base={`${SAVE_BTN(valid && !saving)};display:inline-flex;align-items:center;gap:8px`}
+        <button
+          type="button"
+          onClick={() => valid && onSend(priceNumber, message.trim())}
+          disabled={!valid}
+          style={css(`${saveButton(valid)};display:inline-flex;align-items:center;gap:8px`)}
         >
           {saving ? "Sending…" : "Send offer"}
-          {!saving ? <Ico name="send" size={14} /> : null}
-        </Ix>
+          {saving ? null : <Ico name="send" size={14} />}
+        </button>
       </div>
+    </Modal>
+  )
+}
+
+function formatShort(start: string | null, end: string | null) {
+  const fmt = (iso: string | null) => {
+    if (!iso) return null
+    const d = new Date(iso)
+    return Number.isNaN(d.getTime()) ? null : d.toLocaleDateString(undefined, { day: "numeric", month: "short" })
+  }
+  return [fmt(start), fmt(end)].filter(Boolean).join(" – ") || "Dates to agree"
+}
+
+/* ───────────── Conversation ───────────── */
+
+export function ThreadModal({ app, onClose }: { app: Application; onClose: () => void }) {
+  const clientName = app.job?.clientName || "Client"
+  return (
+    <Modal label="Conversation" maxWidth={540} boxStyle="height:min(680px, calc(100vh - 32px))">
+      <div style={css("display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border-hairline)")}>
+        <div role="img" aria-label={clientName} style={css("width:40px;height:40px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans);flex-shrink:0")}>
+          {initials(clientName)}
+        </div>
+        <div style={css("flex:1;min-width:0")}>
+          <div style={css("font:500 15px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>{clientName}</div>
+          <div style={css("font:var(--text-small);color:var(--fg-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis")}>
+            {app.job?.serviceType || "Job"} · your offer {app.quotation || ""}
+          </div>
+        </div>
+        <CloseButton onClick={onClose} />
+      </div>
+      <Box as="div" style="flex:1;min-height:0;display:flex;flex-direction:column">
+        {app.conversationId ? (
+          <ChatWindow conversationId={app.conversationId} otherDisplayName={shortName(clientName) || "Client"} otherAvatarUrl={null} />
+        ) : (
+          <div style={css("margin:auto;text-align:center;color:var(--fg-3);font:var(--text-small);padding:24px")}>No messages yet. Say hello once the conversation opens.</div>
+        )}
+      </Box>
     </Modal>
   )
 }
@@ -297,14 +325,12 @@ const RATING_LABELS = ["Tap a star to rate", "Poor", "Fair", "Good", "Very good"
 
 export function ReviewModal({
   name,
-  sub,
   saving,
   error,
   onSubmit,
   onLater,
 }: {
   name: string
-  sub: string
   saving: boolean
   error: string | null
   onSubmit: (rating: number, text: string) => void
@@ -312,24 +338,24 @@ export function ReviewModal({
 }) {
   const [rating, setRating] = useState(0)
   const [text, setText] = useState("")
-  const valid = rating > 0
+  const valid = rating > 0 && !saving
 
   return (
-    <Modal label="Leave a review" maxWidth={480}>
-      <ModalHeader eyebrow="Task completed · Leave a review" onClose={onLater} />
+    <Modal label="Leave a review" maxWidth={480} boxStyle="max-height:calc(100vh - 32px)">
+      <div style={css("display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border-hairline)")}>
+        <Eyebrow>Task completed · Leave a review</Eyebrow>
+        <CloseButton onClick={onLater} />
+      </div>
       <div style={css("padding:28px;overflow:auto;display:flex;flex-direction:column;gap:20px")}>
         <div style={css("display:flex;align-items:center;gap:14px")}>
-          <div
-            aria-hidden="true"
-            style={css("width:52px;height:52px;border-radius:50%;background:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 16px/1 var(--font-sans);flex-shrink:0")}
-          >
-            {name.split(" ").filter(Boolean).map((s) => s[0]).slice(0, 2).join("").toUpperCase()}
+          <div role="img" aria-label={name} style={css("width:52px;height:52px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 16px/1 var(--font-sans);flex-shrink:0")}>
+            {initials(name)}
           </div>
           <div style={css("min-width:0")}>
             <h2 style={css("font:var(--text-h3);letter-spacing:var(--ls-heading);margin:0")}>
               How did it <em style={css(EM)}>go</em>?
             </h2>
-            <div style={css("font:var(--text-small);color:var(--fg-2);margin-top:4px")}>{sub}</div>
+            <div style={css("font:var(--text-small);color:var(--fg-2);margin-top:4px")}>Rate {name} as a client.</div>
           </div>
         </div>
         <div style={css("display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 0;border-top:1px solid var(--border-hairline);border-bottom:1px solid var(--border-hairline)")}>
@@ -337,6 +363,7 @@ export function ReviewModal({
             {[1, 2, 3, 4, 5].map((n) => (
               <Ix
                 key={n}
+                as="button"
                 role="radio"
                 aria-checked={n === rating}
                 aria-label={`${n} ${n === 1 ? "star" : "stars"}`}
@@ -349,68 +376,31 @@ export function ReviewModal({
               </Ix>
             ))}
           </div>
-          <span style={css("font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:var(--fg-3)")}>
-            {RATING_LABELS[rating]}
-          </span>
+          <span style={css(CAPTION)}>{RATING_LABELS[rating]}</span>
         </div>
         <Field
           label="Tell others about it (optional)"
           multiline
           rows={3}
-          placeholder="e.g. Clear instructions, friendly and paid on time."
+          placeholder="e.g. Clear instructions, friendly and easy to work with."
           value={text}
           onChange={setText}
         />
         <ErrorLine message={error} />
       </div>
-      <div style={css("display:flex;justify-content:space-between;gap:10px;padding:16px 20px;border-top:1px solid var(--border-hairline)")}>
+      <div style={css(FOOT)}>
         <Ix onClick={onLater} base={CANCEL_BTN} hover={CANCEL_HOVER}>
           Later
         </Ix>
-        <Ix disabled={!valid || saving} onClick={() => valid && onSubmit(rating, text.trim())} base={SAVE_BTN(valid && !saving)}>
-          {saving ? "Submitting…" : "Submit review"}
-        </Ix>
-      </div>
-    </Modal>
-  )
-}
-
-/* ───────────── Conversation ───────────── */
-
-/**
- * The job conversation, using the same chat window as /messages. The window
- * brings its own header, so the modal only adds the close control. The
- * caller must render this inside AppRoleProvider.
- */
-export function ThreadModal({
-  conversationId,
-  onClose,
-}: {
-  conversationId: string | null
-  onClose: () => void
-}) {
-  return (
-    <Modal label="Conversation" maxWidth={540} boxStyle="height:min(680px, calc(100vh - 32px))">
-      <div style={css("display:flex;justify-content:flex-end;padding:8px 10px 0")}>
-        <Ix
-          aria-label="Close"
-          onClick={onClose}
-          base="width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:var(--fg-2);display:inline-flex;align-items:center;justify-content:center;cursor:pointer"
-          hover="background:var(--ink-100)"
+        <button
+          type="button"
+          onClick={() => valid && onSubmit(rating, text.trim())}
+          disabled={!valid}
+          style={css(`height:44px;padding:0 22px;border:0;border-radius:999px;background:${rating ? G : "var(--ink-300)"};color:var(--white);font:500 14px/1 var(--font-sans);cursor:${valid ? "pointer" : "not-allowed"}`)}
         >
-          <Ico name="x" size={16} />
-        </Ix>
+          {saving ? "Submitting…" : "Submit review"}
+        </button>
       </div>
-      <Box as="div" style="flex:1;min-height:0;display:flex;flex-direction:column">
-        {conversationId ? (
-          <ChatWindow conversationId={conversationId} otherDisplayName="Client" otherAvatarUrl={null} />
-        ) : (
-          <div style={css("margin:auto;text-align:center;color:var(--fg-3);font:var(--text-small);padding:24px")}>
-            No conversation for this job yet.
-          </div>
-        )}
-      </Box>
     </Modal>
   )
 }
-
