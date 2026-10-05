@@ -264,7 +264,7 @@ const FOOTER_COLUMNS: { title: string; links: { label: string; href: string }[] 
     links: [
       { label: "About", href: "/#how-it-works" },
       { label: "Feedback", href: "mailto:feedback@quickhands.com" },
-      { label: "Terms", href: "/legal#terms" },
+      { label: "Terms", href: "/privacy-policy" },
       { label: "Privacy", href: "/privacy-policy" },
     ],
   },
@@ -1274,7 +1274,7 @@ export function ProfessionalsLanding() {
               <Link href="/privacy-policy" className="qh-pro-foot-bottom" style={{ textDecoration: "none" }}>
                 Privacy
               </Link>
-              <Link href="/legal#terms" className="qh-pro-foot-bottom" style={{ textDecoration: "none" }}>
+              <Link href="/privacy-policy" className="qh-pro-foot-bottom" style={{ textDecoration: "none" }}>
                 Terms
               </Link>
               <button

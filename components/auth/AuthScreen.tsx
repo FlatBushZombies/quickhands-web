@@ -971,7 +971,7 @@ export function AuthScreen({
               {showTerms ? (
                 <p style={{ margin: 0, font: "var(--text-small)", color: "var(--fg-3)", textAlign: "center", textWrap: "pretty" }}>
                   By creating an account you agree to our{" "}
-                  <Link href="/legal#terms" style={{ color: "var(--fg-2)" }}>
+                  <Link href="/privacy-policy" style={{ color: "var(--fg-2)" }}>
                     Terms of service
                   </Link>{" "}
                   and{" "}
@@ -1048,7 +1048,7 @@ export function AuthScreen({
         >
           <span>© 2026 Quickhands, Inc.</span>
           <span style={{ display: "flex", gap: 16 }}>
-            <Link href="/legal#terms" className="qh-footer-link">
+            <Link href="/privacy-policy" className="qh-footer-link">
               Terms
             </Link>
             <Link href="/privacy-policy" className="qh-footer-link">
