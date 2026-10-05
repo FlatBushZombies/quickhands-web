@@ -1,4 +1,5 @@
 import type { ReactNode } from "react"
+import { BIO_ACCENT, BIO_INSET } from "@/components/bio/BioDesign"
 
 export interface BioIconLink {
   key: string
@@ -9,15 +10,14 @@ export interface BioIconLink {
 }
 
 /**
- * Compact row of icon-only circular buttons — the reference's "quick
- * contact" row (Instagram/LinkedIn/Email/WhatsApp as outline glyphs on
- * plain circles). QuickHands' equivalent is Call / WhatsApp / Email.
+ * Compact row of icon-only round controls: white discs with a hairline
+ * inset ring and accent glyphs. Call / WhatsApp / Email.
  */
 export function BioIconRow({ links }: { links: BioIconLink[] }) {
   if (links.length === 0) return null
 
   return (
-    <div className="mt-5 flex items-center justify-center gap-3">
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 20 }}>
       {links.map((link) => (
         <a
           key={link.key}
@@ -26,7 +26,18 @@ export function BioIconRow({ links }: { links: BioIconLink[] }) {
           rel={link.external ? "noopener noreferrer" : undefined}
           aria-label={link.label}
           title={link.label}
-          className="flex h-11 w-11 items-center justify-center rounded-full border border-primary/15 bg-card text-primary shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md"
+          className="qh-bio-icon"
+          style={{
+            display: "flex",
+            width: 44,
+            height: 44,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "50%",
+            background: "#FFFFFF",
+            color: BIO_ACCENT,
+            boxShadow: BIO_INSET,
+          }}
         >
           {link.icon}
         </a>

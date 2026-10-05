@@ -2,8 +2,9 @@
 
 import { useState } from "react"
 import { Check, Share2 } from "lucide-react"
+import { BIO_ACCENT, BIO_INSET } from "@/components/bio/BioDesign"
 
-/** Top-right share affordance from the reference — copies the page URL (falls back from the Web Share API). */
+/** Top-right share affordance — copies the page URL (falls back from the Web Share API). */
 export function BioShareButton({ name }: { name: string }) {
   const [copied, setCopied] = useState(false)
 
@@ -32,9 +33,22 @@ export function BioShareButton({ name }: { name: string }) {
       onClick={handleShare}
       aria-label="Share this page"
       title="Share this page"
-      className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/15 bg-card text-foreground/70 shadow-sm transition-colors hover:text-primary"
+      className="qh-bio-share"
+      style={{
+        display: "flex",
+        width: 36,
+        height: 36,
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "50%",
+        border: 0,
+        background: "#FFFFFF",
+        color: "var(--fg-2)",
+        boxShadow: BIO_INSET,
+        cursor: "pointer",
+      }}
     >
-      {copied ? <Check className="h-4 w-4 text-primary" /> : <Share2 className="h-4 w-4" />}
+      {copied ? <Check style={{ width: 16, height: 16, color: BIO_ACCENT }} /> : <Share2 style={{ width: 16, height: 16 }} />}
     </button>
   )
 }

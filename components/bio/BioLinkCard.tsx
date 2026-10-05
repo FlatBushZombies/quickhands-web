@@ -1,7 +1,8 @@
 import type { ReactNode } from "react"
 import { ArrowUpRight } from "lucide-react"
+import { BIO_ACCENT, BIO_ACCENT_TINT, BIO_INSET, BIO_MICRO } from "@/components/bio/BioDesign"
 
-/** Full-width rounded card — the reference's primary CTA/link treatment. */
+/** Full-width white card with a hairline inset ring and an accent icon chip. */
 export function BioLinkCard({
   href,
   label,
@@ -18,20 +19,71 @@ export function BioLinkCard({
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noopener noreferrer" : undefined}
-      className="group flex w-full items-center gap-3 rounded-2xl border border-primary/15 bg-card px-5 py-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
+      className="qh-bio-card"
+      style={{
+        display: "flex",
+        width: "100%",
+        boxSizing: "border-box",
+        alignItems: "center",
+        gap: 12,
+        borderRadius: 16,
+        background: "#FFFFFF",
+        boxShadow: BIO_INSET,
+        padding: "14px 16px",
+        color: "var(--fg-1)",
+      }}
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+      <span
+        style={{
+          display: "flex",
+          width: 36,
+          height: 36,
+          flexShrink: 0,
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
+          background: BIO_ACCENT_TINT,
+          color: BIO_ACCENT,
+        }}
+      >
         {icon}
       </span>
-      <span className="flex-1 truncate text-[15px] font-semibold text-foreground">{label}</span>
+      <span
+        style={{
+          flex: 1,
+          minWidth: 0,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          fontFamily: "var(--font-sans)",
+          fontSize: 15,
+          fontWeight: 500,
+          lineHeight: 1.3,
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {label}
+      </span>
       {external ? (
-        <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+        <ArrowUpRight style={{ width: 16, height: 16, flexShrink: 0, color: "var(--fg-3)" }} />
       ) : null}
     </a>
   )
 }
 
-/** Plain centered bold text divider between groups of link cards (the reference's "We are hiring!" pattern). */
+/** Mono uppercase eyebrow between groups of link cards (the "We are hiring!" slot). */
 export function BioHeadingDivider({ label }: { label: string }) {
-  return <p className="pt-2 text-center text-[15px] font-bold text-foreground">{label}</p>
+  return (
+    <p
+      style={{
+        ...BIO_MICRO,
+        margin: 0,
+        paddingTop: 12,
+        textAlign: "center",
+        color: "var(--fg-2)",
+      }}
+    >
+      {label}
+    </p>
+  )
 }

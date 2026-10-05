@@ -1,4 +1,5 @@
 import { CheckCircle2 } from "lucide-react"
+import { BIO_ACCENT, BIO_ACCENT_TINT } from "@/components/bio/BioDesign"
 
 function initialsOf(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean)
@@ -7,36 +8,82 @@ function initialsOf(name: string) {
 }
 
 /**
- * Avatar sitting on its own soft pastel-tinted circle backdrop — the
- * reference's signature identity treatment. Same green token as the rest
- * of the page, just a low-opacity halo behind the photo/initials instead
- * of a hard-edged avatar sitting directly on the gradient wash.
+ * Avatar on a faint accent halo, with a hairline ring and a solid verified
+ * badge. Sizes are passed in so the settings preview can render it smaller.
  */
 export function BioAvatar({
   name,
   imageUrl,
   isVerified,
+  size = 132,
 }: {
   name: string
   imageUrl: string | null
   isVerified: boolean
+  size?: number
 }) {
+  const inner = Math.round(size * 0.85)
+  const ring = "0 0 0 4px var(--paper),0 0 0 5px rgba(10,10,11,.12)"
+
   return (
-    <div className="relative flex h-36 w-36 shrink-0 items-center justify-center rounded-full bg-primary/8">
+    <div
+      style={{
+        position: "relative",
+        display: "flex",
+        width: size,
+        height: size,
+        flexShrink: 0,
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "50%",
+        background: BIO_ACCENT_TINT,
+      }}
+    >
       {imageUrl ? (
         <img
           src={imageUrl}
           alt={name}
-          className="h-28 w-28 rounded-full border-4 border-background object-cover shadow-[0_8px_30px_-8px_rgba(20,168,0,0.35)]"
+          style={{ width: inner, height: inner, borderRadius: "50%", objectFit: "cover", boxShadow: ring }}
         />
       ) : (
-        <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-background bg-gradient-to-br from-primary to-primary/70 text-3xl font-bold text-primary-foreground shadow-[0_8px_30px_-8px_rgba(20,168,0,0.35)]">
+        <div
+          style={{
+            display: "flex",
+            width: inner,
+            height: inner,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "50%",
+            background: BIO_ACCENT,
+            color: "#FFFFFF",
+            fontFamily: "var(--font-sans)",
+            fontSize: Math.round(size * 0.24),
+            fontWeight: 500,
+            lineHeight: 1,
+            letterSpacing: "-0.035em",
+            boxShadow: ring,
+          }}
+        >
           {initialsOf(name)}
         </div>
       )}
       {isVerified ? (
-        <div className="absolute bottom-1 right-1 flex h-8 w-8 items-center justify-center rounded-full border-4 border-background bg-primary">
-          <CheckCircle2 className="h-4 w-4 text-primary-foreground" />
+        <div
+          style={{
+            position: "absolute",
+            right: 2,
+            bottom: 2,
+            display: "flex",
+            width: Math.round(size * 0.23),
+            height: Math.round(size * 0.23),
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "50%",
+            background: BIO_ACCENT,
+            boxShadow: "0 0 0 3px var(--paper)",
+          }}
+        >
+          <CheckCircle2 style={{ width: "52%", height: "52%", color: "#FFFFFF" }} strokeWidth={2.25} />
         </div>
       ) : null}
     </div>

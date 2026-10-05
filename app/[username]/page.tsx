@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import type { CSSProperties } from "react"
 import {
   Briefcase,
   CheckCircle2,
@@ -17,6 +18,17 @@ import { BioAvatar } from "@/components/bio/BioAvatar"
 import { BioIconRow, type BioIconLink } from "@/components/bio/BioIconRow"
 import { BioLinkCard, BioHeadingDivider } from "@/components/bio/BioLinkCard"
 import { BioShareButton } from "@/components/bio/BioShareButton"
+import {
+  BIO_ACCENT,
+  BIO_ACCENT_TINT,
+  BIO_INSET,
+  BIO_MICRO,
+  BIO_ROOT_CLASS,
+  BIO_ROOT_STYLE,
+  BIO_SERIF_EM,
+  BioNameText,
+  BioStyles,
+} from "@/components/bio/BioDesign"
 
 export const revalidate = 60
 
@@ -60,6 +72,20 @@ function formatMemberSince(dateString: string) {
 type StackEntry =
   | { kind: "link"; key: string; label: string; href: string; icon: React.ReactNode; external?: boolean }
   | { kind: "heading"; key: string; label: string }
+
+/** Mono uppercase section eyebrow (h2), used for "Recent work" and "What clients say". */
+const SECTION_HEADING: CSSProperties = {
+  ...BIO_MICRO,
+  margin: "0 0 12px",
+  color: "var(--fg-2)",
+  fontWeight: 400,
+}
+
+/** White inset-ringed card used for stat chips, testimonials and project tiles. */
+const SURFACE: CSSProperties = {
+  background: "#FFFFFF",
+  boxShadow: `${BIO_INSET},0 1px 2px rgba(10,10,11,.04)`,
+}
 
 export default async function BioPage({ params }: PageProps) {
   const { username } = await params
@@ -133,17 +159,41 @@ export default async function BioPage({ params }: PageProps) {
   const hasNoLinks = stackEntries.length === 0 && contactLinks.length === 0 && !smartLinks.hireMe
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-background">
-      {/* Soft diagonal wash in the brand green only — toned down further than the
-          in-app hero treatment (lower opacity, no grid) for the smoother, more
-          restrained Linktree-style read the public page wants. */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/9 via-background to-primary/5" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_45%_at_50%_0%,rgba(20,168,0,0.08),transparent_70%)]" />
+    <main
+      className={BIO_ROOT_CLASS}
+      style={{ ...BIO_ROOT_STYLE, minHeight: "100vh", overflowX: "clip" }}
+    >
+      <BioStyles />
 
-      <div className="relative mx-auto flex min-h-screen max-w-md flex-col items-center px-6 pb-16 pt-8">
-        <div className="mb-8 flex w-full items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-sm font-semibold text-foreground/70 transition-colors hover:text-primary">
-            <img src="/quickhands.png" alt="" className="h-6 w-6 rounded-md" />
+      <div
+        style={{
+          position: "relative",
+          boxSizing: "border-box",
+          display: "flex",
+          minHeight: "100vh",
+          maxWidth: 440,
+          margin: "0 auto",
+          flexDirection: "column",
+          alignItems: "center",
+          padding: "24px 16px 64px",
+        }}
+      >
+        <div style={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", marginBottom: 28 }}>
+          <Link
+            href="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontFamily: "var(--font-sans)",
+              fontSize: 14,
+              fontWeight: 500,
+              letterSpacing: "-0.01em",
+              color: "var(--fg-1)",
+              textDecoration: "none",
+            }}
+          >
+            <img src="/quickhands.png" alt="" style={{ width: 24, height: 24, borderRadius: 6 }} />
             quickhands
           </Link>
           <BioShareButton name={name} />
@@ -152,21 +202,61 @@ export default async function BioPage({ params }: PageProps) {
         {/* ── Identity ── */}
         <BioAvatar name={name} imageUrl={imageUrl} isVerified={isVerified} />
 
-        <h1 className="font-heading mt-4 text-center text-2xl font-bold tracking-tight text-foreground">{name}</h1>
+        <h1
+          style={{
+            margin: "20px 0 0",
+            textAlign: "center",
+            fontFamily: "var(--font-sans)",
+            fontSize: "clamp(34px, 8.6vw, 42px)",
+            fontWeight: 500,
+            lineHeight: 1.05,
+            letterSpacing: "var(--ls-heading)",
+            color: "var(--fg-1)",
+            textWrap: "balance",
+            overflowWrap: "anywhere",
+          }}
+        >
+          <BioNameText name={name} />
+        </h1>
 
         {skills ? (
-          <div className="mt-2 inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1">
-            <span className="truncate text-xs font-semibold text-primary">{skills}</span>
+          <div
+            style={{
+              ...BIO_MICRO,
+              marginTop: 12,
+              display: "inline-flex",
+              maxWidth: "100%",
+              alignItems: "center",
+              borderRadius: 999,
+              background: BIO_ACCENT_TINT,
+              boxShadow: "inset 0 0 0 1px rgba(27,58,158,.2)",
+              padding: "6px 12px",
+              color: BIO_ACCENT,
+            }}
+          >
+            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{skills}</span>
           </div>
         ) : null}
 
         {tagline ? (
-          <p className="font-body mt-3 text-center text-[15px] leading-relaxed text-muted-foreground">{tagline}</p>
+          <p
+            style={{
+              margin: "14px 0 0",
+              maxWidth: 360,
+              textAlign: "center",
+              fontSize: 15,
+              lineHeight: 1.55,
+              color: "var(--fg-2)",
+              textWrap: "pretty",
+            }}
+          >
+            {tagline}
+          </p>
         ) : null}
 
         {locationLabel ? (
-          <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5" />
+          <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: "var(--fg-3)" }}>
+            <MapPin style={{ width: 14, height: 14 }} />
             <span>{locationLabel}</span>
           </div>
         ) : null}
@@ -175,35 +265,35 @@ export default async function BioPage({ params }: PageProps) {
         <BioIconRow links={contactLinks} />
 
         {/* ── Stat pills ── */}
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+        <div style={{ marginTop: 20, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 8 }}>
           {reviewSummary.reviewCount > 0 ? (
-            <div className="flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 shadow-sm ring-1 ring-border">
-              <Star className="h-3.5 w-3.5 fill-warning text-warning" />
-              <span className="text-xs font-bold text-foreground">{reviewSummary.averageRating.toFixed(1)}</span>
-              <span className="text-xs text-muted-foreground">({reviewSummary.reviewCount})</span>
+            <div style={{ ...SURFACE, display: "flex", alignItems: "center", gap: 6, borderRadius: 999, padding: "7px 12px" }}>
+              <Star style={{ width: 14, height: 14, fill: "var(--warning)", color: "var(--warning)" }} />
+              <span style={{ fontSize: 13, fontWeight: 500, color: "var(--fg-1)" }}>{reviewSummary.averageRating.toFixed(1)}</span>
+              <span style={{ fontSize: 13, color: "var(--fg-3)" }}>({reviewSummary.reviewCount})</span>
             </div>
           ) : null}
           {completedJobsCount > 0 ? (
-            <div className="flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 shadow-sm ring-1 ring-border">
-              <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-              <span className="text-xs font-bold text-foreground">{completedJobsCount}</span>
-              <span className="text-xs text-muted-foreground">jobs done</span>
+            <div style={{ ...SURFACE, display: "flex", alignItems: "center", gap: 6, borderRadius: 999, padding: "7px 12px" }}>
+              <CheckCircle2 style={{ width: 14, height: 14, color: BIO_ACCENT }} />
+              <span style={{ fontSize: 13, fontWeight: 500, color: "var(--fg-1)" }}>{completedJobsCount}</span>
+              <span style={{ fontSize: 13, color: "var(--fg-3)" }}>jobs done</span>
             </div>
           ) : null}
           {experienceLevel ? (
-            <div className="rounded-full bg-card px-3 py-1.5 shadow-sm ring-1 ring-border">
-              <span className="text-xs font-bold capitalize text-foreground">{experienceLevel}</span>
+            <div style={{ ...SURFACE, borderRadius: 999, padding: "7px 12px", fontSize: 13, fontWeight: 500, textTransform: "capitalize", color: "var(--fg-1)" }}>
+              {experienceLevel}
             </div>
           ) : null}
           {rateLabel ? (
-            <div className="rounded-full bg-card px-3 py-1.5 shadow-sm ring-1 ring-border">
-              <span className="text-xs font-bold text-foreground">{rateLabel}</span>
+            <div style={{ ...SURFACE, borderRadius: 999, padding: "7px 12px", fontSize: 13, fontWeight: 500, color: "var(--fg-1)" }}>
+              {rateLabel}
             </div>
           ) : null}
         </div>
 
         {/* ── Link stack ── */}
-        <div className="mt-8 w-full space-y-3">
+        <div style={{ marginTop: 32, width: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
           {stackEntries.map((entry) =>
             entry.kind === "heading" ? (
               <BioHeadingDivider key={entry.key} label={entry.label} />
@@ -213,8 +303,16 @@ export default async function BioPage({ params }: PageProps) {
           )}
 
           {hasNoLinks ? (
-            <div className="rounded-2xl border border-dashed border-border bg-card/50 px-5 py-8 text-center">
-              <p className="text-sm text-muted-foreground">This specialist hasn&apos;t added any links yet.</p>
+            <div
+              style={{
+                borderRadius: 16,
+                border: "1px dashed rgba(10,10,11,.2)",
+                background: "rgba(255,255,255,.6)",
+                padding: "28px 20px",
+                textAlign: "center",
+              }}
+            >
+              <p style={{ margin: 0, fontSize: 14, color: "var(--fg-3)" }}>This specialist hasn&apos;t added any links yet.</p>
             </div>
           ) : null}
 
@@ -226,9 +324,18 @@ export default async function BioPage({ params }: PageProps) {
 
         {/* ── Portfolio gallery ── */}
         {hasPortfolio ? (
-          <div id="portfolio" className="mt-10 w-full scroll-mt-10">
-            <h2 className="mb-3 text-xs font-bold uppercase tracking-[1.5px] text-muted-foreground">Recent work</h2>
-            <div className="-mx-6 flex snap-x gap-3 overflow-x-auto px-6 pb-2">
+          <div id="portfolio" style={{ marginTop: 40, width: "100%", scrollMarginTop: 40 }}>
+            <h2 style={SECTION_HEADING}>Recent work</h2>
+            <div
+              style={{
+                display: "flex",
+                gap: 12,
+                overflowX: "auto",
+                scrollSnapType: "x mandatory",
+                margin: "0 -16px",
+                padding: "0 16px 8px",
+              }}
+            >
               {projects.map((project: PortfolioProject) => (
                 <ProjectCard key={project.id} project={project} />
               ))}
@@ -238,23 +345,28 @@ export default async function BioPage({ params }: PageProps) {
 
         {/* ── Testimonials ── */}
         {testimonials.length > 0 ? (
-          <div className="mt-10 w-full">
-            <h2 className="mb-3 text-xs font-bold uppercase tracking-[1.5px] text-muted-foreground">What clients say</h2>
-            <div className="space-y-3">
+          <div style={{ marginTop: 40, width: "100%" }}>
+            <h2 style={SECTION_HEADING}>What clients say</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {testimonials.map((testimonial: BioTestimonial, index: number) => (
-                <div key={index} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-                  <div className="mb-1.5 flex items-center justify-between">
-                    <p className="text-sm font-semibold text-foreground">{testimonial.reviewerName}</p>
-                    <div className="flex gap-0.5">
+                <div key={index} style={{ ...SURFACE, borderRadius: 16, padding: 16 }}>
+                  <div style={{ marginBottom: 6, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 500, color: "var(--fg-1)" }}>{testimonial.reviewerName}</p>
+                    <div style={{ display: "flex", gap: 2 }}>
                       {Array.from({ length: 5 }, (_, starIndex) => (
                         <Star
                           key={starIndex}
-                          className={`h-3 w-3 ${starIndex < testimonial.rating ? "fill-warning text-warning" : "text-border"}`}
+                          style={{
+                            width: 12,
+                            height: 12,
+                            fill: starIndex < testimonial.rating ? "var(--warning)" : "transparent",
+                            color: starIndex < testimonial.rating ? "var(--warning)" : "rgba(10,10,11,.16)",
+                          }}
                         />
                       ))}
                     </div>
                   </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{testimonial.comment}</p>
+                  <p style={{ margin: 0, fontSize: 14, lineHeight: 1.55, color: "var(--fg-2)" }}>{testimonial.comment}</p>
                 </div>
               ))}
             </div>
@@ -262,24 +374,46 @@ export default async function BioPage({ params }: PageProps) {
         ) : null}
 
         {smartLinks.hireMe ? (
-          <div className="mt-12 w-full rounded-[24px] border border-primary/20 bg-primary-light p-6 text-center">
-            <p className="font-heading text-xl font-bold tracking-tight text-foreground">Ready to work with {firstName}?</p>
-            <p className="mt-1.5 text-[15px] text-muted-foreground">
+          <div
+            style={{
+              ...SURFACE,
+              marginTop: 48,
+              width: "100%",
+              boxSizing: "border-box",
+              borderRadius: 20,
+              padding: "28px 24px",
+              textAlign: "center",
+            }}
+          >
+            <p
+              style={{
+                margin: 0,
+                fontSize: 26,
+                fontWeight: 500,
+                lineHeight: 1.1,
+                letterSpacing: "var(--ls-heading)",
+                color: "var(--fg-1)",
+                textWrap: "balance",
+              }}
+            >
+              Ready to work with <em style={BIO_SERIF_EM}>{firstName}</em>?
+            </p>
+            <p style={{ margin: "10px 0 0", fontSize: 15, lineHeight: 1.55, color: "var(--fg-2)" }}>
               Send {firstName} a message on QuickHands to talk through the job.
             </p>
-            <div className="mt-5">
+            <div style={{ marginTop: 20 }}>
               <HireNowButton username={username} firstName={firstName} />
             </div>
           </div>
         ) : null}
 
         {memberSinceLabel ? (
-          <p className="mt-10 text-xs text-muted-foreground">On Quickhands since {memberSinceLabel}</p>
+          <p style={{ ...BIO_MICRO, margin: "40px 0 0", color: "var(--fg-3)" }}>On Quickhands since {memberSinceLabel}</p>
         ) : null}
 
-        <p className="mt-3 text-xs text-muted-foreground">
+        <p style={{ margin: "12px 0 0", fontSize: 13, color: "var(--fg-3)" }}>
           Powered by{" "}
-          <Link href="/" className="font-semibold text-primary hover:underline">
+          <Link href="/" className="qh-bio-link" style={{ fontWeight: 500, color: BIO_ACCENT }}>
             Quickhands
           </Link>
         </p>
@@ -291,24 +425,58 @@ export default async function BioPage({ params }: PageProps) {
 function ProjectCard({ project }: { project: PortfolioProject }) {
   const cover = project.media[0]?.url
   const content = (
-    <div className="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <div
+      style={{
+        ...SURFACE,
+        width: 176,
+        flexShrink: 0,
+        scrollSnapAlign: "start",
+        overflow: "hidden",
+        borderRadius: 16,
+      }}
+    >
       {cover ? (
-        <img src={cover} alt={project.title} className="h-28 w-full object-cover" />
+        <img src={cover} alt={project.title} style={{ display: "block", width: "100%", height: 112, objectFit: "cover" }} />
       ) : (
-        <div className="flex h-28 w-full items-center justify-center bg-primary/5">
-          <Briefcase className="h-6 w-6 text-primary/40" />
+        <div style={{ display: "flex", width: "100%", height: 112, alignItems: "center", justifyContent: "center", background: BIO_ACCENT_TINT }}>
+          <Briefcase style={{ width: 24, height: 24, color: "rgba(27,58,158,.4)" }} />
         </div>
       )}
-      <div className="p-3">
-        <p className="truncate text-sm font-semibold text-foreground">{project.title}</p>
-        {project.category ? <p className="mt-0.5 truncate text-xs text-muted-foreground">{project.category}</p> : null}
+      <div style={{ padding: 12 }}>
+        <p
+          style={{
+            margin: 0,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            fontSize: 14,
+            fontWeight: 500,
+            color: "var(--fg-1)",
+          }}
+        >
+          {project.title}
+        </p>
+        {project.category ? (
+          <p
+            style={{
+              ...BIO_MICRO,
+              margin: "6px 0 0",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              color: "var(--fg-3)",
+            }}
+          >
+            {project.category}
+          </p>
+        ) : null}
       </div>
     </div>
   )
 
   if (project.projectUrl) {
     return (
-      <a href={project.projectUrl} target="_blank" rel="noopener noreferrer">
+      <a href={project.projectUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
         {content}
       </a>
     )
@@ -321,19 +489,41 @@ function HireNowButton({ username, firstName }: { username: string; firstName: s
   return (
     <Link
       href={`/hire/${encodeURIComponent(username)}`}
-      className="group flex w-full items-center gap-3 rounded-2xl bg-primary px-5 py-4 text-primary-foreground shadow-[0_8px_24px_-8px_rgba(20,168,0,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      className="qh-bio-hire"
+      style={{
+        display: "flex",
+        width: "100%",
+        boxSizing: "border-box",
+        alignItems: "center",
+        gap: 12,
+        borderRadius: 999,
+        background: BIO_ACCENT,
+        padding: "10px 20px 10px 10px",
+        color: "#FFFFFF",
+        textDecoration: "none",
+      }}
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20">
-        <MessageCircle className="h-4 w-4" aria-hidden="true" />
+      <span
+        style={{
+          display: "flex",
+          width: 36,
+          height: 36,
+          flexShrink: 0,
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "50%",
+          background: "rgba(255,255,255,.2)",
+        }}
+      >
+        <MessageCircle style={{ width: 16, height: 16 }} aria-hidden="true" />
       </span>
-      <span className="flex-1 text-left">
-        <span className="block text-[15px] font-bold leading-tight">Hire Now</span>
-        <span className="block text-xs font-medium text-primary-foreground/85">Message {firstName} on QuickHands</span>
+      <span style={{ flex: 1, textAlign: "left" }}>
+        <span style={{ display: "block", fontSize: 15, fontWeight: 500, lineHeight: 1.25, letterSpacing: "-0.01em" }}>Hire Now</span>
+        <span style={{ display: "block", fontSize: 12.5, lineHeight: 1.35, color: "rgba(255,255,255,.82)" }}>
+          Message {firstName} on QuickHands
+        </span>
       </span>
-      <ArrowRight
-        className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
-        aria-hidden="true"
-      />
+      <ArrowRight style={{ width: 16, height: 16, flexShrink: 0 }} aria-hidden="true" />
     </Link>
   )
 }

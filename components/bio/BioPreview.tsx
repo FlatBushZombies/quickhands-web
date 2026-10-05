@@ -1,10 +1,21 @@
 "use client"
 
-import { Briefcase, Mail, MapPin, MessageCircle, Phone, Star, Link2 } from "lucide-react"
+import type { CSSProperties } from "react"
+import { Briefcase, Mail, MessageCircle, Phone, Star, Link2 } from "lucide-react"
 import type { BioCustomLink, BioSmartLinks } from "@/lib/bio-api"
 import { BioAvatar } from "@/components/bio/BioAvatar"
 import { BioIconRow, type BioIconLink } from "@/components/bio/BioIconRow"
 import { BioLinkCard, BioHeadingDivider } from "@/components/bio/BioLinkCard"
+import {
+  BIO_ACCENT,
+  BIO_ACCENT_TINT,
+  BIO_INSET,
+  BIO_MICRO,
+  BIO_ROOT_CLASS,
+  BIO_ROOT_STYLE,
+  BioNameText,
+  BioStyles,
+} from "@/components/bio/BioDesign"
 
 type StackEntry =
   | { kind: "link"; key: string; label: string; href: string; icon: React.ReactNode; external?: boolean }
@@ -16,8 +27,8 @@ type StackEntry =
  * smartLinks, customLinks) — name/avatar/skills/rating come from the
  * specialist's real profile and never change here, so they're read once
  * from settings.profile and left static. Shares the same presentational
- * pieces (BioAvatar / BioIconRow / BioLinkCard) as the real public page so
- * the two can't visually drift apart.
+ * pieces (BioAvatar / BioIconRow / BioLinkCard) and design tokens as the real
+ * public page so the two can't visually drift apart.
  */
 export function BioPreview({
   name,
@@ -69,52 +80,112 @@ export function BioPreview({
 
   const rateLabel = hourlyRate ? `$${hourlyRate % 1 === 0 ? hourlyRate : hourlyRate.toFixed(2)}/hr` : null
 
-  return (
-    <div className="mx-auto w-full max-w-[300px]">
-      <div className="relative overflow-hidden rounded-[2rem] border-4 border-foreground/10 bg-background shadow-lg">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/9 via-background to-primary/5" />
-        <div className="relative max-h-[560px] overflow-y-auto px-5 pb-8 pt-6">
-          <div className="flex flex-col items-center">
-            <BioAvatar name={name || "Q"} imageUrl={imageUrl} isVerified={reviewCount > 0} />
+  const chip: CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 4,
+    borderRadius: 999,
+    background: "#FFFFFF",
+    boxShadow: BIO_INSET,
+    padding: "4px 9px",
+    fontFamily: "var(--font-sans)",
+    fontSize: 12,
+    fontWeight: 500,
+    lineHeight: 1,
+    color: "var(--fg-1)",
+  }
 
-            <p className="font-heading mt-3 text-center text-lg font-bold tracking-tight text-foreground">
-              {name || "Your name"}
+  return (
+    <div className={BIO_ROOT_CLASS} style={{ ...BIO_ROOT_STYLE, width: "100%", maxWidth: 300, margin: "0 auto" }}>
+      <BioStyles />
+      <div
+        style={{
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: 28,
+          background: "var(--paper)",
+          boxShadow: "0 0 0 4px var(--ink-100),0 1px 2px rgba(10,10,11,.04),0 12px 32px -12px rgba(10,10,11,.14)",
+        }}
+      >
+        <div style={{ position: "relative", maxHeight: 560, overflowY: "auto", padding: "24px 18px 28px" }}>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <BioAvatar name={name || "Q"} imageUrl={imageUrl} isVerified={reviewCount > 0} size={96} />
+
+            <p
+              style={{
+                margin: "14px 0 0",
+                textAlign: "center",
+                fontFamily: "var(--font-sans)",
+                fontSize: 20,
+                fontWeight: 500,
+                lineHeight: 1.1,
+                letterSpacing: "var(--ls-heading)",
+                color: "var(--fg-1)",
+              }}
+            >
+              <BioNameText name={name || "Your name"} />
             </p>
 
             {skills ? (
-              <div className="mt-1.5 inline-flex max-w-full items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5">
-                <span className="truncate text-[11px] font-semibold text-primary">{skills}</span>
+              <div
+                style={{
+                  ...BIO_MICRO,
+                  marginTop: 8,
+                  display: "inline-flex",
+                  maxWidth: "100%",
+                  alignItems: "center",
+                  borderRadius: 999,
+                  background: BIO_ACCENT_TINT,
+                  boxShadow: "inset 0 0 0 1px rgba(27,58,158,.2)",
+                  padding: "4px 10px",
+                  color: BIO_ACCENT,
+                }}
+              >
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{skills}</span>
               </div>
             ) : null}
 
             {tagline ? (
-              <p className="mt-2 text-center text-xs leading-relaxed text-muted-foreground">{tagline}</p>
+              <p
+                style={{
+                  margin: "10px 0 0",
+                  textAlign: "center",
+                  fontSize: 13,
+                  lineHeight: 1.5,
+                  color: "var(--fg-2)",
+                  textWrap: "pretty",
+                } as CSSProperties}
+              >
+                {tagline}
+              </p>
             ) : null}
 
             <BioIconRow links={contactLinks} />
 
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+            <div style={{ marginTop: 14, display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: 6 }}>
               {reviewCount > 0 ? (
-                <div className="flex items-center gap-1 rounded-full bg-card px-2 py-1 shadow-sm ring-1 ring-border">
-                  <Star className="h-3 w-3 fill-warning text-warning" />
-                  <span className="text-[11px] font-bold text-foreground">{averageRating.toFixed(1)}</span>
+                <div style={chip}>
+                  <Star style={{ width: 12, height: 12, fill: "var(--warning)", color: "var(--warning)" }} />
+                  <span>{averageRating.toFixed(1)}</span>
                 </div>
               ) : null}
               {experienceLevel ? (
-                <div className="rounded-full bg-card px-2 py-1 shadow-sm ring-1 ring-border">
-                  <span className="text-[11px] font-bold capitalize text-foreground">{experienceLevel}</span>
+                <div style={{ ...chip, textTransform: "capitalize" }}>
+                  <span>{experienceLevel}</span>
                 </div>
               ) : null}
               {rateLabel ? (
-                <div className="rounded-full bg-card px-2 py-1 shadow-sm ring-1 ring-border">
-                  <span className="text-[11px] font-bold text-foreground">{rateLabel}</span>
+                <div style={chip}>
+                  <span>{rateLabel}</span>
                 </div>
               ) : null}
             </div>
 
-            <div className="mt-5 w-full space-y-2 [&_a]:pointer-events-none [&_a]:cursor-default">
+            <div className="qh-bio-static" style={{ marginTop: 20, width: "100%", display: "flex", flexDirection: "column", gap: 8 }}>
               {stackEntries.length === 0 ? (
-                <p className="pt-4 text-center text-xs text-muted-foreground">Your links will show up here.</p>
+                <p style={{ margin: 0, paddingTop: 16, textAlign: "center", fontSize: 12, color: "var(--fg-3)" }}>
+                  Your links will show up here.
+                </p>
               ) : (
                 stackEntries.map((entry) =>
                   entry.kind === "heading" ? (
@@ -125,18 +196,43 @@ export function BioPreview({
                 )
               )}
               {smartLinks.hireMe ? (
-                <div className="flex w-full items-center gap-2.5 rounded-2xl bg-primary px-4 py-3 text-primary-foreground">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/20">
-                    <MessageCircle className="h-3.5 w-3.5" />
+                <div
+                  style={{
+                    display: "flex",
+                    width: "100%",
+                    alignItems: "center",
+                    gap: 10,
+                    borderRadius: 999,
+                    background: BIO_ACCENT,
+                    padding: "8px 16px 8px 8px",
+                    boxSizing: "border-box",
+                    color: "#FFFFFF",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "flex",
+                      width: 28,
+                      height: 28,
+                      flexShrink: 0,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: "50%",
+                      background: "rgba(255,255,255,.2)",
+                    }}
+                  >
+                    <MessageCircle style={{ width: 14, height: 14 }} />
                   </span>
-                  <span className="text-xs font-bold">Hire Now</span>
+                  <span style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 500 }}>Hire Now</span>
                 </div>
               ) : null}
             </div>
           </div>
         </div>
       </div>
-      <p className="mt-2 text-center text-xs text-muted-foreground">Live preview — updates as you type</p>
+      <p style={{ margin: "10px 0 0", textAlign: "center", fontSize: 12, color: "var(--fg-3)" }}>
+        Live preview — updates as you type
+      </p>
     </div>
   )
 }
