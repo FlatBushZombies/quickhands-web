@@ -25,8 +25,8 @@ background:var(--paper);color:var(--ink-950);font-family:var(--font-sans);font-s
 .qh-sp a{color:inherit;text-decoration:none}
 .qh-sp :focus-visible{outline:2px solid var(--signal-500);outline-offset:2px}
 .qh-sp ::selection{background:var(--ink-950);color:var(--white)}
-.qh-sp-main{min-height:100vh;padding:144px 0 96px}
-@media (min-width:640px){.qh-sp-main{padding-top:160px}}
+/* Clears the floating LandingNav (60px top, 64px tall) below the 44px audience strip. */
+.qh-sp-main{min-height:100vh;padding:136px 0 96px}
 .qh-sp-wrap{max-width:1000px;margin:0 auto;padding:0 20px}
 @media (min-width:640px){.qh-sp-wrap{padding:0 24px}}
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { Search, SearchX } from "lucide-react"
-import { Header } from "@/components/quickhands/Header"
+import { LandingNav } from "@/components/client-landing/LandingNav"
 import { Footer } from "@/components/Footer"
 import { SpecialistRow } from "@/components/specialists/SpecialistRow"
 import { SPECIALISTS_CSS, SPECIALISTS_ROOT_CLASS } from "@/components/specialists/specialists-design"
@@ -51,7 +51,7 @@ export default async function SpecialistsPage({ searchParams }: PageProps) {
   return (
     <div className={SPECIALISTS_ROOT_CLASS}>
       <style>{SPECIALISTS_CSS}</style>
-      <Header />
+      <LandingNav />
       <main className="qh-sp-main">
         <div className="qh-sp-wrap">
           <span className="qh-sp-eyebrow">Specialist directory</span>
