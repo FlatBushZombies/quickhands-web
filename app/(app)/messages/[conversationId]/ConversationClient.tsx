@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useAuth } from "@clerk/nextjs"
 import { ChatWindow } from "@/components/messaging/ChatWindow"
 import { getConversationMessages, type Conversation } from "@/lib/messaging-api"
+import { MSG_ROOT_CLASS, MSG_ROOT_STYLE, MessagingStyles } from "@/components/messaging/MessagingDesign"
 
 export default function ConversationClient({ conversationId }: { conversationId: string }) {
   const { getToken } = useAuth()
@@ -27,7 +28,14 @@ export default function ConversationClient({ conversationId }: { conversationId:
   }, [conversationId, getToken])
 
   if (loading) {
-    return <div className="h-full min-h-0 animate-pulse bg-secondary motion-reduce:animate-none" />
+    return (
+      <div
+        className={`${MSG_ROOT_CLASS} h-full min-h-0 animate-pulse motion-reduce:animate-none`}
+        style={MSG_ROOT_STYLE}
+      >
+        <MessagingStyles />
+      </div>
+    )
   }
 
   return (

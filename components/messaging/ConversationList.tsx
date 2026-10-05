@@ -1,30 +1,19 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import Link from "next/link"
 import { useAuth } from "@clerk/nextjs"
 import { MessageCircle } from "lucide-react"
 import { getConversations, type Conversation } from "@/lib/messaging-api"
 import { parseCard } from "@/lib/message-cards"
-
-const AVATAR_ACCENTS = [
-  "bg-primary/10 text-primary",
-  "bg-[#F5E9FF] text-[#7C3AED]",
-  "bg-[#FFF3DC] text-[#B45309]",
-]
-
-function getInitials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return "?"
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-}
-
-function getAccent(seed: string) {
-  let hash = 0
-  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0
-  return AVATAR_ACCENTS[hash % AVATAR_ACCENTS.length]
-}
+import { useAppRole } from "@/components/app/AppRoleContext"
+import { getInitials } from "@/components/app-shell/Avatar"
+import {
+  MSG_ROOT_CLASS,
+  MSG_ROOT_STYLE,
+  MessagingStyles,
+  messagingPalette,
+} from "@/components/messaging/MessagingDesign"
 
 function timeAgo(dateString: string | null) {
   if (!dateString) return ""
@@ -45,6 +34,7 @@ function previewText(conversation: Conversation) {
 
 export function ConversationList() {
   const { getToken } = useAuth()
+  const { appRole } = useAppRole()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -64,52 +54,68 @@ export function ConversationList() {
     }
   }, [getToken])
 
+  let body: ReactNode
   if (loading) {
-    return <div className="h-40 animate-pulse rounded-2xl bg-secondary" />
-  }
+    body = <div className="h-40 animate-pulse rounded-[20px] bg-[var(--ink-50)] motion-reduce:animate-none" />
+  } else if (conversations.length === 0) {
+    body = (
+      <div className="qh-msg-inset rounded-[20px] bg-[var(--white)] px-6 py-16 text-center">
+        <MessageCircle className="mx-auto h-7 w-7 text-[var(--ink-400)]" />
+        <p className="qh-msg-eyebrow mt-4">No conversations yet</p>
+      </div>
+    )
+  } else {
+    body = (
+      <div className="space-y-2">
+        {conversations.map((conversation) => (
+          <Link
+            key={conversation.conversationId}
+            href={`/messages/${conversation.conversationId}`}
+            className="qh-msg-row qh-msg-inset flex items-center gap-3 rounded-[20px] bg-[var(--white)] p-4"
+          >
+            {conversation.otherUser.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={conversation.otherUser.imageUrl} alt="" className="h-11 w-11 shrink-0 rounded-[12px] object-cover" />
+            ) : (
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] bg-[var(--ink-50)] text-[13px] font-medium text-[var(--ink-600)] qh-msg-inset">
+                {getInitials(conversation.otherUser.displayName)}
+              </div>
+            )}
 
-  if (conversations.length === 0) {
-    return (
-      <div className="rounded-2xl border border-dashed border-border bg-card/50 px-6 py-16 text-center">
-        <MessageCircle className="mx-auto h-8 w-8 text-muted-foreground" />
-        <p className="mt-3 text-sm text-muted-foreground">No conversations yet.</p>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <p className="truncate text-[15px] font-medium tracking-[-0.01em] text-[var(--ink-950)]">
+                  {conversation.otherUser.displayName}
+                </p>
+                <span className="qh-msg-eyebrow shrink-0">{timeAgo(conversation.lastMessageAt)}</span>
+              </div>
+              {conversation.jobTitle ? (
+                <p className="qh-msg-eyebrow mt-0.5 truncate text-[var(--accent)]">{conversation.jobTitle}</p>
+              ) : null}
+              <p className="truncate text-[14px] text-[var(--ink-500)]">{previewText(conversation)}</p>
+            </div>
+
+            {conversation.unreadCount > 0 ? (
+              <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] px-1.5 font-mono text-[11px] font-medium text-white">
+                {conversation.unreadCount}
+              </span>
+            ) : null}
+          </Link>
+        ))}
       </div>
     )
   }
 
   return (
-    <div className="space-y-2">
-      {conversations.map((conversation) => (
-        <Link
-          key={conversation.conversationId}
-          href={`/messages/${conversation.conversationId}`}
-          className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm transition-colors hover:border-primary/40"
-        >
-          {conversation.otherUser.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={conversation.otherUser.imageUrl} alt="" className="h-11 w-11 shrink-0 rounded-[13px] object-cover" />
-          ) : (
-            <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[13px] text-sm font-bold ${getAccent(conversation.otherUser.displayName)}`}>
-              {getInitials(conversation.otherUser.displayName)}
-            </div>
-          )}
+    <div className={MSG_ROOT_CLASS} style={{ ...MSG_ROOT_STYLE, ...messagingPalette(appRole) }}>
+      <MessagingStyles />
+      <p className="qh-msg-eyebrow">Inbox</p>
+      <h1 className="mt-3 text-[32px] font-medium leading-[1.05] tracking-[-0.035em] text-[var(--ink-950)] sm:text-[40px]">
+        <em className="qh-msg-serif">Messages</em>
+      </h1>
+      <p className="mt-3 text-[15px] leading-[1.55] text-[var(--ink-600)]">Coordinate directly with clients and specialists.</p>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center justify-between gap-2">
-              <p className="truncate text-sm font-semibold text-foreground">{conversation.otherUser.displayName}</p>
-              <span className="shrink-0 text-xs text-muted-foreground">{timeAgo(conversation.lastMessageAt)}</span>
-            </div>
-            {conversation.jobTitle ? <p className="truncate text-xs text-primary">{conversation.jobTitle}</p> : null}
-            <p className="truncate text-sm text-muted-foreground">{previewText(conversation)}</p>
-          </div>
-
-          {conversation.unreadCount > 0 ? (
-            <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
-              {conversation.unreadCount}
-            </span>
-          ) : null}
-        </Link>
-      ))}
+      <div className="mt-6">{body}</div>
     </div>
   )
 }
