@@ -4,9 +4,12 @@ import { createElement, useState, type CSSProperties, type ElementType, type Mou
 import {
   ArrowRight,
   Award,
+  BadgeCheck,
+  BookOpen,
   Briefcase,
   Calendar,
   Check,
+  CameraOff,
   CircleCheck,
   CircleDashed,
   GraduationCap,
@@ -27,9 +30,11 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
+  Sun,
   Trash2,
   Trees,
   Truck,
+  Upload,
   UserRound,
   Users,
   Wrench,
@@ -173,6 +178,11 @@ const ICONS: Record<string, LucideIcon> = {
   hourglass: Hourglass,
   "id-card": IdCard,
   "scan-face": ScanFace,
+  "badge-check": BadgeCheck,
+  "book-open": BookOpen,
+  "camera-off": CameraOff,
+  sun: Sun,
+  upload: Upload,
 }
 
 /** A design icon (`data-icon` in the source), sized and stroked as the design does. */

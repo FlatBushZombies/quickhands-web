@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { ChatWindow } from "@/components/messaging/ChatWindow"
 import { Box, CloseButton, Field, G, G_TINT, Ico, Ix, Modal, Segmented, css, Eyebrow } from "@/components/pro-account/ui"
 import { CATEGORIES, YEAR_OPTIONS, initials, shortName, skillsForCategory, type YearValue } from "@/components/pro-account/professions"
@@ -207,6 +208,193 @@ export function ExperienceModal({
       </div>
     </Modal>
   )
+}
+
+/* ───────────── Identity verification ───────────── */
+
+type VerifyStep = "intro" | "doc" | "docReview" | "selfie" | "selfieReview"
+type VerifyDoc = "id" | "passport"
+
+const VERIFY_LABEL: Record<VerifyStep, string> = {
+  intro: "Before you start",
+  doc: "Step 1 of 2 · Document",
+  docReview: "Step 1 of 2 · Document",
+  selfie: "Step 2 of 2 · Selfie",
+  selfieReview: "Step 2 of 2 · Selfie",
+}
+/** The progress bar fills across the five screens, as the design's flow does. */
+const VERIFY_PROGRESS: Record<VerifyStep, string> = { intro: "0%", doc: "20%", docReview: "40%", selfie: "60%", selfieReview: "80%" }
+const VERIFY_BACK: Record<VerifyStep, VerifyStep | null> = { intro: null, doc: "intro", docReview: "doc", selfie: "docReview", selfieReview: "selfie" }
+const VERIFY_BACK_LABEL: Record<VerifyStep, string> = { intro: "Not now", doc: "Back", docReview: "Retake", selfie: "Back", selfieReview: "Retake" }
+const DOC_OPTIONS: { id: VerifyDoc; label: string; hint: string; icon: string }[] = [
+  { id: "id", label: "National ID", hint: "Front side of your ID card", icon: "id-card" },
+  { id: "passport", label: "Passport", hint: "The photo / bio page", icon: "book-open" },
+]
+const ICON_TILE = "width:40px;height:40px;border-radius:var(--radius-md);background:var(--ink-100);align-items:center;justify-content:center;flex-shrink:0"
+const COMING_SOON = "Verification is coming soon. Nothing is captured, uploaded or sent."
+const SOON_NOTE = "margin:16px 0 0;font:var(--text-small);color:var(--fg-3);text-wrap:pretty"
+
+/**
+ * The design's verification flow. Nothing is captured, uploaded or sent: there is
+ * no camera access and no verification API yet, so the capture steps show the
+ * design's frames with a coming-soon state, and the final submit is disabled.
+ */
+export function VerifyModal({ onClose }: { onClose: () => void }) {
+  const [step, setStep] = useState<VerifyStep>("intro")
+  const [doc, setDoc] = useState<VerifyDoc>("id")
+  const docName = doc === "passport" ? "passport bio page" : "national ID"
+  const back = VERIFY_BACK[step]
+  const wide = step === "doc" || step === "docReview"
+  const aspect = wide ? "16 / 11" : "4 / 5"
+
+  return (
+    <Modal label="Verify your identity" maxWidth={520}>
+      <div style={css("display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border-hairline)")}>
+        <Eyebrow>{VERIFY_LABEL[step]}</Eyebrow>
+        <CloseButton onClick={onClose} />
+      </div>
+      <div style={css("height:2px;background:var(--ink-100)")}>
+        <div style={css(`height:2px;width:${VERIFY_PROGRESS[step]};background:${G};transition:width var(--dur-base) var(--ease-out)`)} />
+      </div>
+
+      <div style={css("padding:28px;overflow:auto;min-height:0")}>
+        {step === "intro" ? (
+          <div style={css("animation:qhFade 220ms var(--ease-out) both")}>
+            <h2 style={css("font:var(--text-h2);font-size:32px;letter-spacing:var(--ls-heading);margin:0")}>
+              Verify your <em style={css(EM)}>identity</em>.
+            </h2>
+            <p style={css("margin:10px 0 0;color:var(--fg-2);text-wrap:pretty")}>
+              Two quick photos: your ID, then a live selfie. Verified specialists get hired more often.
+            </p>
+            <div style={css(`${CAPTION};margin:28px 0 12px`)}>Choose a document</div>
+            <div style={css("display:flex;flex-direction:column;gap:10px")}>
+              {DOC_OPTIONS.map((d) => {
+                const on = doc === d.id
+                return (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => setDoc(d.id)}
+                    aria-pressed={on}
+                    style={css(
+                      `display:flex;align-items:center;gap:14px;padding:16px;border:0;border-radius:var(--radius-lg);background:${on ? G_TINT : "var(--white)"};box-shadow:${on ? `inset 0 0 0 1.5px ${G}` : "inset 0 0 0 1px var(--border-default)"};text-align:left;cursor:pointer;color:var(--fg-1)`
+                    )}
+                  >
+                    <Ico name={d.icon} size={18} style={ICON_TILE} />
+                    <span style={css("flex:1")}>
+                      <span style={css("display:block;font:500 15px/1.3 var(--font-sans)")}>{d.label}</span>
+                      <span style={css("display:block;font:var(--text-small);color:var(--fg-3);margin-top:3px")}>{d.hint}</span>
+                    </span>
+                    <span style={css(`width:18px;height:18px;border-radius:50%;box-shadow:${on ? `inset 0 0 0 5px ${G}` : "inset 0 0 0 1.5px var(--ink-300)"};flex-shrink:0`)} />
+                  </button>
+                )
+              })}
+            </div>
+            <ul style={css("list-style:none;margin:24px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;font:var(--text-small);color:var(--fg-2)")}>
+              <li style={css("display:flex;gap:10px;align-items:center")}>
+                <Ico name="sun" size={14} style="color:var(--fg-3)" />
+                Find good light, avoid glare on the document
+              </li>
+              <li style={css("display:flex;gap:10px;align-items:center")}>
+                <Ico name="lock" size={14} style="color:var(--fg-3)" />
+                Encrypted and only used for verification
+              </li>
+            </ul>
+            <p style={css("margin:20px 0 0;padding-top:16px;border-top:1px solid var(--border-hairline);font:var(--text-small);color:var(--fg-3);text-wrap:pretty")}>
+              By continuing, you consent to QuickHands processing your document and selfie, including biometric data, solely to verify your identity. Images
+              are deleted within 30 days of a decision.{" "}
+              <Link href="/privacy-policy" style={css("color:var(--fg-2)")}>
+                Learn more
+              </Link>
+            </p>
+          </div>
+        ) : null}
+
+        {step === "doc" || step === "selfie" ? (
+          <div style={css("animation:qhFade 220ms var(--ease-out) both")}>
+            <h2 style={css("font:var(--text-h3);letter-spacing:var(--ls-heading);margin:0")}>
+              {step === "doc" ? `Photograph your ${docName}.` : "Take a live selfie."}
+            </h2>
+            <p style={css("margin:8px 0 20px;color:var(--fg-2);text-wrap:pretty")}>
+              {step === "doc"
+                ? "Place it flat inside the frame. All four corners should be visible."
+                : "Centre your face in the oval and follow the prompts. We'll capture automatically."}
+            </p>
+            <div style={css(`position:relative;aspect-ratio:${aspect};border-radius:var(--radius-lg);overflow:hidden;background:var(--ink-950)`)}>
+              <div style={css("position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center;color:rgba(255,255,255,.8)")}>
+                <Ico name="camera-off" size={22} />
+                <span style={css("font:var(--text-small);max-width:280px")}>Camera capture and photo upload are coming soon.</span>
+                <button
+                  type="button"
+                  disabled
+                  style={css("display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 18px;border:0;border-radius:999px;background:var(--white);color:var(--fg-1);font:500 14px/1 var(--font-sans);cursor:not-allowed;opacity:.5")}
+                >
+                  <Ico name="upload" size={14} />
+                  Upload photo
+                </button>
+              </div>
+              {step === "doc" ? (
+                <div style={css("position:absolute;inset:12%;border-radius:12px;box-shadow:0 0 0 999px rgba(10,10,11,.45),inset 0 0 0 2px rgba(255,255,255,.9);pointer-events:none")} />
+              ) : (
+                <div style={css("position:absolute;left:50%;top:50%;width:58%;height:76%;transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 0 0 999px rgba(10,10,11,.5),inset 0 0 0 2px rgba(255,255,255,.9);pointer-events:none")} />
+              )}
+            </div>
+            <div style={css("display:flex;justify-content:center;margin-top:20px")}>
+              <button
+                type="button"
+                onClick={() => setStep(step === "doc" ? "docReview" : "selfieReview")}
+                aria-label="Preview the next step without taking a photo"
+                style={css("width:64px;height:64px;border:0;border-radius:50%;background:var(--white);box-shadow:inset 0 0 0 4px var(--ink-950),0 0 0 1px var(--border-default);cursor:pointer;display:inline-flex;align-items:center;justify-content:center")}
+              >
+                <span style={css(`width:44px;height:44px;border-radius:50%;background:${G}`)} />
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        {step === "docReview" || step === "selfieReview" ? (
+          <div style={css("animation:qhFade 220ms var(--ease-out) both")}>
+            <h2 style={css("font:var(--text-h3);letter-spacing:var(--ls-heading);margin:0")}>
+              {step === "docReview" ? `Is your ${docName} readable?` : "Happy with your selfie?"}
+            </h2>
+            <p style={css("margin:8px 0 20px;color:var(--fg-2)")}>Make sure everything is sharp and readable, with no glare.</p>
+            <div style={css(`display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;aspect-ratio:${aspect};border-radius:var(--radius-lg);background:var(--ink-100);font:var(--text-small);color:var(--fg-3)`)}>
+              No photo has been taken yet.
+            </div>
+            {step === "selfieReview" ? <p style={css(SOON_NOTE)}>{COMING_SOON}</p> : null}
+          </div>
+        ) : null}
+      </div>
+
+      <div style={css(FOOT)}>
+        <Ix onClick={() => (back ? setStep(back) : onClose())} base={CANCEL_BTN} hover={CANCEL_HOVER}>
+          {VERIFY_BACK_LABEL[step]}
+        </Ix>
+        {step === "intro" ? (
+          <Ix onClick={() => setStep("doc")} base={primaryPill(true)} active="transform:scale(0.98)">
+            Continue
+            <Ico name="arrow-right" size={14} />
+          </Ix>
+        ) : null}
+        {step === "docReview" ? (
+          <Ix onClick={() => setStep("selfie")} base={primaryPill(true)} active="transform:scale(0.98)">
+            Use this photo
+            <Ico name="arrow-right" size={14} />
+          </Ix>
+        ) : null}
+        {step === "selfieReview" ? (
+          <Ix disabled base={primaryPill(false)}>
+            Submit
+            <Ico name="arrow-right" size={14} />
+          </Ix>
+        ) : null}
+      </div>
+    </Modal>
+  )
+}
+
+function primaryPill(enabled: boolean) {
+  return `height:44px;padding:0 22px;border:0;border-radius:999px;background:${enabled ? G : "var(--ink-300)"};color:var(--white);font:500 14px/1 var(--font-sans);cursor:${enabled ? "pointer" : "not-allowed"};display:inline-flex;align-items:center;gap:8px`
 }
 
 /* ───────────── Apply ───────────── */
