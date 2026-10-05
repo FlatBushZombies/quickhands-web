@@ -18,13 +18,14 @@ export function RoleLanding({ role, children }: { role: "client" | "freelancer";
 
   const onboarded = user?.unsafeMetadata?.completedOnboarding === true
   const appRole = user?.unsafeMetadata?.appRole
-  const isOtherRole = Boolean(user && onboarded && appRole && appRole !== role)
+  const viewingLanding = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("view") === "landing"
+  const isOtherRole = Boolean(user && onboarded && appRole && appRole !== role && !viewingLanding)
 
   useEffect(() => {
     if (isOtherRole) router.replace("/dashboard")
   }, [isOtherRole, router])
 
-  if (!isLoaded || !user) return <>{children}</>
+  if (!isLoaded || !user || viewingLanding) return <>{children}</>
   if (isOtherRole) return null
   if (!onboarded || appRole !== role) return <>{children}</>
 
