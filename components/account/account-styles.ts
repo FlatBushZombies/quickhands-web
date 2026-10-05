@@ -46,6 +46,7 @@ min-height:100vh;background:var(--paper);color:var(--fg-1);font:var(--text-body-
 .qh-account .qh-acc-row:hover{background:var(--ink-50)!important}
 .qh-account .qh-acc-green:hover{background:#0D6E00!important}
 .qh-account .qh-acc-ghost:hover{background:var(--ink-50)!important}
+.qh-account .qh-acc-inverse:hover{background:var(--ink-100)!important}
 .qh-account .qh-acc-decline:hover{background:var(--ink-100)!important;color:var(--fg-1)!important}
 .qh-account .qh-acc-icon:hover{background:var(--ink-100)!important}
 .qh-account .qh-acc-star:hover{background:var(--ink-50)!important}

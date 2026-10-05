@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment } from "react"
-import { Calendar, Check, CircleCheck, CircleDashed, MapPin, MessageSquare, MessagesSquare, Star, type LucideIcon } from "lucide-react"
+import { Calendar, Check, CircleCheck, CircleDashed, Lock, MapPin, MessageSquare, MessagesSquare, Star, type LucideIcon } from "lucide-react"
 import { timeAgo } from "@/components/app-shell/feed"
 import {
   EYEBROW,
@@ -67,6 +67,7 @@ export function AccountTaskDetail({
   hired,
   matrix,
   busyId,
+  verified,
   onHire,
   onDecline,
   onComplete,
@@ -78,6 +79,7 @@ export function AccountTaskDetail({
   hired: Application | null
   matrix: ReviewMatrix | null
   busyId: number | null
+  verified: boolean
   onHire: (app: Application) => void
   onDecline: (app: Application) => void
   onComplete: (app: Application) => void
@@ -219,8 +221,8 @@ export function AccountTaskDetail({
                   {pending ? (
                     <Fragment>
                       <button type="button" onClick={() => onHire(app)} disabled={busyId === app.id} className="qh-acc-green qh-acc-press" style={PILL_GREEN}>
-                        <Icon glyph={Check} />
-                        {app.quotation ? `Hire · ${app.quotation}` : "Hire"}
+                        <Icon glyph={verified ? Check : Lock} />
+                        {verified ? (app.quotation ? `Hire · ${app.quotation}` : "Hire") : "Verify to hire"}
                       </button>
                       <button type="button" onClick={() => onMessage(app)} className="qh-acc-ghost qh-acc-press" style={PILL_GHOST}>
                         <Icon glyph={MessageSquare} />
@@ -236,6 +238,12 @@ export function AccountTaskDetail({
               </div>
             )
           })}
+          {!verified && offers.some((app) => app.status === "pending") ? (
+            <div style={sx("display:flex;gap:10px;align-items:center;font:var(--text-small);color:var(--fg-3)")}>
+              <Icon glyph={Lock} size={14} />
+              Verify your identity to hire a specialist. It takes about two minutes.
+            </div>
+          ) : null}
         </div>
       ) : null}
 

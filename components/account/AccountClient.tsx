@@ -4,8 +4,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Link from "next/link"
 import { useAuth, useClerk, useUser } from "@clerk/nextjs"
 import {
+  ArrowRight,
+  BadgeCheck,
   Calendar,
   ClipboardList,
+  Hourglass,
   IdCard,
   Inbox,
   LayoutDashboard,
@@ -22,7 +25,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { authFontClassName } from "@/components/auth/fonts"
-import { AccountReviewModal, AccountThreadModal } from "@/components/account/AccountModals"
+import { AccountReviewModal, AccountThreadModal, AccountVerifyModal } from "@/components/account/AccountModals"
 import { AccountTaskDetail } from "@/components/account/AccountTaskDetail"
 import {
   ACCOUNT_CSS,
@@ -55,12 +58,14 @@ import {
 
 type View = "tasks" | "offers" | "verify"
 
+type VerificationStatus = "none" | "pending" | "verified"
+
 /**
- * Identity verification is not built yet: there is no verification storage or
- * upload on the backend, so no client is verified. The verification UI stays
- * visible, with its actions disabled.
+ * Identity verification status of this client. There is no verification store
+ * or upload yet, so every client is "none" (not started). The pending and
+ * verified looks stay in place for when a real status exists.
  */
-const IDENTITY_VERIFIED = false
+const VERIFICATION_STATUS = "none" as VerificationStatus
 
 /** Real destinations outside this page, linked from the client sidebar. */
 const SITE_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
@@ -143,6 +148,7 @@ export function AccountClient() {
   const [reviewAppId, setReviewAppId] = useState<number | null>(null)
   const [dismissedReviews, setDismissedReviews] = useState<Record<number, true>>({})
   const [matrices, setMatrices] = useState<Record<number, ReviewMatrix>>({})
+  const [verifyOpen, setVerifyOpen] = useState(false)
 
   const refresh = useCallback(async () => {
     const token = await getToken()
@@ -314,6 +320,8 @@ export function AccountClient() {
   const initials = initialsOf(displayName || "U")
   const accountEmail = user?.primaryEmailAddress?.emailAddress ?? ""
   const emailConfirmed = user?.primaryEmailAddress?.verification?.status === "verified"
+  const verified = VERIFICATION_STATUS === "verified"
+  const pending = VERIFICATION_STATUS === "pending"
 
   const navItems: { id: View; label: string; icon: LucideIcon; badge: number | string | null; badgeBg: string }[] = [
     { id: "tasks", label: "My tasks", icon: ClipboardList, badge: sortedJobs.length || null, badgeBg: "var(--ink-400)" },
@@ -322,16 +330,29 @@ export function AccountClient() {
       id: "verify",
       label: "Verification",
       icon: ShieldCheck,
-      badge: IDENTITY_VERIFIED ? null : "!",
-      badgeBg: "#C2410C",
+      badge: verified ? null : "!",
+      badgeBg: pending ? "#C98A1B" : "#C2410C",
     },
   ]
 
-  const verifyRows: { icon: LucideIcon; label: string; hint: string; status: string; ok: boolean }[] = [
-    { icon: Mail, label: "Email address", hint: accountEmail || "No email on this account", status: emailConfirmed ? "Done" : "Not confirmed", ok: emailConfirmed },
-    { icon: IdCard, label: "National ID or passport", hint: "Photo of the bio page", status: "Coming soon", ok: false },
-    { icon: ScanFace, label: "Live selfie", hint: "Matched to your document", status: "Coming soon", ok: false },
-  ]
+  const documentStatus = verified ? "Done" : pending ? "In review" : "Required"
+  const verifyRows = [
+    {
+      icon: Mail,
+      label: "Email address",
+      hint: accountEmail || "No email on this account",
+      status: emailConfirmed ? "Done" : "Required",
+      ok: emailConfirmed,
+      pend: false,
+    },
+    { icon: IdCard, label: "National ID or passport", hint: "Photo of the bio page", status: documentStatus, ok: verified, pend: pending },
+    { icon: ScanFace, label: "Live selfie", hint: "Matched to your document", status: documentStatus, ok: verified, pend: pending },
+  ].map((row) => ({
+    ...row,
+    iconBg: row.ok ? "#F1F8EF" : "var(--ink-100)",
+    iconColor: row.ok ? GREEN : "var(--fg-2)",
+    statusColor: row.ok ? GREEN : row.pend ? "#9A6A12" : "#C2410C",
+  }))
 
   return (
     <div className={`qh-account ${authFontClassName}`}>
@@ -352,8 +373,13 @@ export function AccountClient() {
               Post a task
             </Link>
             <div style={sx("display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--border-hairline)")}>
-              <span style={sx("width:32px;height:32px;border-radius:50%;background:var(--ink-950);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans)")}>
+              <span style={sx("position:relative;width:32px;height:32px;border-radius:50%;background:var(--ink-950);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans)")}>
                 {initials}
+                {verified ? (
+                  <span style={sx("position:absolute;right:-4px;bottom:-4px;display:inline-flex;color:#108600;background:var(--white);border-radius:50%")}>
+                    <Icon icon={BadgeCheck} size={14} />
+                  </span>
+                ) : null}
               </span>
               <span style={sx("font:500 14px/1 var(--font-sans)")}>{firstName}</span>
             </div>
@@ -410,20 +436,41 @@ export function AccountClient() {
         </nav>
 
         <main style={sx("flex:1 1 600px;min-width:0;display:flex;flex-direction:column;gap:32px")}>
-          {view !== "verify" && !IDENTITY_VERIFIED ? (
+          {view !== "verify" && !verified ? (
             <div style={sx("display:flex;flex-wrap:wrap;align-items:center;gap:20px;padding:24px;border-radius:var(--radius-xl);background:var(--ink-950);color:var(--white)")}>
               <span style={sx("width:52px;height:52px;border-radius:var(--radius-lg);background:rgba(255,255,255,.08);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;color:#7BD96B")}>
-                <ShieldAlert width={22} height={22} strokeWidth={1.5} aria-hidden="true" />
+                {pending ? (
+                  <Icon icon={Hourglass} size={22} />
+                ) : (
+                  <Icon icon={ShieldAlert} size={22} />
+                )}
               </span>
               <div style={sx("flex:1 1 320px")}>
-                <div style={sx("font:500 18px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>Verify your identity to hire specialists</div>
+                <div style={sx("font:500 18px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>
+                  {pending ? "We're reviewing your documents" : "Verify your identity to hire specialists"}
+                </div>
                 <div style={sx("font:var(--text-small);color:rgba(255,255,255,.62);margin-top:6px;text-wrap:pretty")}>
-                  For everyone&apos;s safety, we need a photo of your national ID or passport and a quick live selfie.
+                  {pending
+                    ? "This usually takes a few minutes. You can keep chatting with specialists in the meantime."
+                    : "For everyone's safety, we need a photo of your national ID or passport and a quick live selfie."}
                 </div>
               </div>
-              <span style={sx("display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,.08);font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase")}>
-                Coming soon
-              </span>
+              {pending ? (
+                <span style={sx("display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,.08);font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase")}>
+                  <span style={sx("width:6px;height:6px;border-radius:50%;background:#F5B544;animation:qhPulse 1.4s ease-in-out infinite")} />
+                  In review
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setVerifyOpen(true)}
+                  className="qh-acc-inverse qh-acc-press"
+                  style={sx("height:40px;padding:0 18px;border:0;border-radius:999px;background:var(--white);color:var(--fg-1);font:500 14px/1 var(--font-sans);cursor:pointer;display:inline-flex;align-items:center;gap:8px")}
+                >
+                  Verify now
+                  <Icon icon={ArrowRight} size={16} />
+                </button>
+              )}
             </div>
           ) : null}
 
@@ -562,6 +609,7 @@ export function AccountClient() {
                     hired={selectedHired}
                     matrix={selectedHired ? matrices[selectedHired.id] ?? null : null}
                     busyId={busyId}
+                    verified={verified}
                     onHire={(app) => setStatus(app, "accepted")}
                     onDecline={(app) => setStatus(app, "rejected")}
                     onComplete={(app) => confirmDone(app)}
@@ -626,29 +674,36 @@ export function AccountClient() {
                   Identity <em style={SERIF_EM}>verification</em>.
                 </h1>
                 <p style={sx("margin:12px 0 0;color:var(--fg-2);max-width:520px;text-wrap:pretty")}>
-                  Specialists know who they&apos;re working with. Identity verification is coming soon.
+                  Verified clients get faster offers, and specialists know who they&apos;re working with.{" "}
+                  <span style={sx("color:var(--fg-3)")}>Your documents are encrypted and never shown to specialists.</span>
                 </p>
               </div>
               <div style={LIST_CARD}>
                 {verifyRows.map((row) => (
                   <div key={row.label} style={sx("display:flex;align-items:center;gap:16px;padding:22px 24px;border-bottom:1px solid var(--border-hairline)")}>
-                    <span style={{ width: 44, height: 44, borderRadius: "var(--radius-md)", background: row.ok ? "#F1F8EF" : "var(--ink-100)", color: row.ok ? GREEN : "var(--fg-2)", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <span style={{ width: 44, height: 44, borderRadius: "var(--radius-md)", background: row.iconBg, color: row.iconColor, display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <Icon icon={row.icon} size={18} />
                     </span>
                     <div style={sx("flex:1;min-width:0")}>
                       <div style={sx("font:500 15px/1.3 var(--font-sans)")}>{row.label}</div>
                       <div style={sx("font:var(--text-small);color:var(--fg-3);margin-top:4px;overflow:hidden;text-overflow:ellipsis")}>{row.hint}</div>
                     </div>
-                    <span style={{ font: "var(--text-micro)", letterSpacing: "var(--ls-mono)", textTransform: "uppercase", color: row.ok ? GREEN : "var(--fg-3)" }}>
+                    <span style={{ font: "var(--text-micro)", letterSpacing: "var(--ls-mono)", textTransform: "uppercase", color: row.statusColor }}>
                       {row.status}
                     </span>
                   </div>
                 ))}
-                <div style={sx("padding:20px 24px;display:flex;justify-content:flex-end;align-items:center;gap:16px")}>
-                  <span style={sx("font:var(--text-small);color:var(--fg-3)")}>Coming soon</span>
-                  <button type="button" disabled aria-disabled="true" className="qh-acc-green" style={PILL_BUTTON_GREEN}>
-                    Start verification
-                  </button>
+                <div style={sx("padding:20px 24px;display:flex;justify-content:flex-end")}>
+                  {verified ? (
+                    <span style={sx("display:inline-flex;align-items:center;gap:8px;font:500 14px/1 var(--font-sans);color:#0D6E00")}>
+                      <Icon icon={BadgeCheck} size={16} />
+                      You&apos;re verified
+                    </span>
+                  ) : pending ? null : (
+                    <button type="button" onClick={() => setVerifyOpen(true)} className="qh-acc-green qh-acc-press" style={PILL_BUTTON_GREEN}>
+                      Start verification
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -661,11 +716,14 @@ export function AccountClient() {
           key={threadTarget.application.id}
           job={threadTarget.job}
           application={threadTarget.application}
+          verified={verified}
           hiring={busyId === threadTarget.application.id}
           onHire={() => setStatus(threadTarget.application, "accepted")}
           onClose={() => setThread(null)}
         />
       ) : null}
+
+      {verifyOpen ? <AccountVerifyModal onClose={() => setVerifyOpen(false)} /> : null}
 
       {reviewTarget ? (
         <AccountReviewModal

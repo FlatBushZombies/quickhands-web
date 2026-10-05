@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react"
 import { useAuth } from "@clerk/nextjs"
-import { Check, Send, X } from "lucide-react"
+import Link from "next/link"
+import { ArrowRight, BookOpen, Check, IdCard, Lock, Send, ShieldCheck, Sun, X, type LucideIcon } from "lucide-react"
 import { API_BASE_URL } from "@/lib/fetch-client"
 import { useMessagingSocket } from "@/hooks/useMessagingSocket"
 import { parseCard } from "@/lib/message-cards"
@@ -44,12 +45,14 @@ function clockLabel(iso: string) {
 export function AccountThreadModal({
   job,
   application,
+  verified,
   onHire,
   hiring,
   onClose,
 }: {
   job: ClientJobWithApplications
   application: Application
+  verified: boolean
   onHire: () => void
   hiring: boolean
   onClose: () => void
@@ -173,8 +176,12 @@ export function AccountThreadModal({
               className="qh-acc-green qh-acc-press"
               style={sx("height:36px;padding:0 16px;border:0;border-radius:999px;background:#108600;color:var(--white);font:500 13px/1 var(--font-sans);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap")}
             >
-              <Check width={13} height={13} strokeWidth={1.5} aria-hidden="true" />
-              {application.quotation ? `Hire · ${application.quotation}` : "Hire"}
+              {verified ? (
+                <Check width={13} height={13} strokeWidth={1.5} aria-hidden="true" />
+              ) : (
+                <Lock width={13} height={13} strokeWidth={1.5} aria-hidden="true" />
+              )}
+              {verified ? (application.quotation ? `Hire · ${application.quotation}` : "Hire") : "Verify to hire"}
             </button>
           </div>
         ) : null}
@@ -330,6 +337,281 @@ export function AccountReviewModal({
           >
             {saving ? "Saving…" : "Submit review"}
           </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+type FlowStep = "intro" | "doc" | "docReview" | "selfie" | "selfieReview" | "done"
+type DocType = "id" | "passport"
+
+const FLOW_STEPS: FlowStep[] = ["intro", "doc", "docReview", "selfie", "selfieReview", "done"]
+
+const FLOW_LABEL: Record<FlowStep, string> = {
+  intro: "Before you start",
+  doc: "Step 1 of 2 · Document",
+  docReview: "Step 1 of 2 · Document",
+  selfie: "Step 2 of 2 · Selfie",
+  selfieReview: "Step 2 of 2 · Selfie",
+  done: "All done",
+}
+
+const FLOW_BACK: Partial<Record<FlowStep, FlowStep>> = {
+  doc: "intro",
+  docReview: "doc",
+  selfie: "docReview",
+  selfieReview: "selfie",
+}
+
+const FLOW_PRIMARY_LABEL: Partial<Record<FlowStep, string>> = {
+  intro: "Continue",
+  docReview: "Use this photo",
+  selfieReview: "Submit",
+  done: "Done",
+}
+
+const DOC_OPTIONS: { id: DocType; label: string; hint: string; icon: LucideIcon }[] = [
+  { id: "id", label: "National ID", hint: "Front side of your ID card", icon: IdCard },
+  { id: "passport", label: "Passport", hint: "The photo / bio page", icon: BookOpen },
+]
+
+const FLOW_OVERLAY = sx(
+  "position:fixed;inset:0;z-index:50;background:rgba(10,10,11,.56);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;animation:qhFade 200ms var(--ease-out) both"
+)
+
+const SERIF_EM_GREEN = sx(
+  `font-family:var(--font-serif);font-style:italic;font-weight:400;letter-spacing:-0.02em;color:${GREEN}`
+)
+
+const FLOW_NOTE = sx("margin:14px 0 0;text-align:center;font:var(--text-small);color:var(--fg-3)")
+
+const FLOW_BACK_BUTTON = sx(
+  "height:44px;padding:0 18px;border:0;border-radius:999px;background:transparent;color:var(--fg-2);font:500 14px/1 var(--font-sans);cursor:pointer"
+)
+
+const FLOW_PRIMARY_BUTTON = sx(
+  "height:44px;padding:0 22px;border:0;border-radius:999px;color:var(--white);font:500 14px/1 var(--font-sans);cursor:pointer;display:inline-flex;align-items:center;gap:8px"
+)
+
+function FlowIcon({ icon: Glyph, size = 18, color }: { icon: LucideIcon; size?: number; color?: string }) {
+  return <Glyph width={size} height={size} strokeWidth={1.5} color={color} aria-hidden="true" style={{ flexShrink: 0 }} />
+}
+
+/**
+ * Identity verification steps as the design lays them out: intro, document
+ * capture, selfie capture and their reviews. No camera is opened, nothing is
+ * uploaded and nothing is sent. Capture and submit stay disabled until the
+ * verification service exists.
+ */
+export function AccountVerifyModal({ onClose }: { onClose: () => void }) {
+  useEscape(onClose)
+  const [step, setStep] = useState<FlowStep>("intro")
+  const [doc, setDoc] = useState<DocType>("id")
+
+  const docName = doc === "passport" ? "passport bio page" : "national ID"
+  const stepIndex = FLOW_STEPS.indexOf(step)
+  const isDoc = step === "doc"
+  const isSelfie = step === "selfie"
+  const isCapture = isDoc || isSelfie
+  const isReview = step === "docReview" || step === "selfieReview"
+  const primaryLabel = FLOW_PRIMARY_LABEL[step]
+  // Submitting is not possible yet, so the final step cannot be sent.
+  const primaryDisabled = step === "selfieReview"
+  const backLabel =
+    step === "intro" ? "Not now" : step === "done" ? "" : isReview ? "Retake" : "Back"
+
+  const goBack = () => {
+    if (step === "intro" || step === "done") {
+      onClose()
+      return
+    }
+    const previous = FLOW_BACK[step]
+    if (previous) setStep(previous)
+  }
+
+  const goNext = () => {
+    if (step === "intro") setStep("doc")
+    else if (step === "docReview") setStep("selfie")
+    else if (step === "selfieReview") setStep("done")
+    else if (step === "done") onClose()
+  }
+
+  return (
+    <div style={FLOW_OVERLAY}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Verify your identity"
+        style={sx(
+          "width:100%;max-width:520px;max-height:calc(100vh - 32px);overflow:auto;border-radius:var(--radius-xl);background:var(--white);box-shadow:var(--shadow-float)"
+        )}
+      >
+        <div style={sx("display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;border-bottom:1px solid var(--border-hairline)")}>
+          <span style={sx("font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:var(--fg-3)")}>
+            {FLOW_LABEL[step]}
+          </span>
+          <button type="button" onClick={onClose} aria-label="Close" className="qh-acc-icon" style={CLOSE_BUTTON}>
+            <FlowIcon icon={X} size={16} />
+          </button>
+        </div>
+        <div style={sx("height:2px;background:var(--ink-100)")}>
+          <div style={sx(`height:2px;width:${(stepIndex / 5) * 100}%;background:${GREEN};transition:width var(--dur-base) var(--ease-out)`)} />
+        </div>
+
+        <div style={sx("padding:28px")}>
+          {step === "intro" ? (
+            <div style={sx("animation:qhFade 220ms var(--ease-out) both")}>
+              <h2 style={sx("font:var(--text-h2);font-size:32px;letter-spacing:var(--ls-heading);margin:0")}>
+                Verify your <em style={SERIF_EM_GREEN}>identity</em>.
+              </h2>
+              <p style={sx("margin:10px 0 0;color:var(--fg-2);text-wrap:pretty")}>
+                Two quick photos: your ID, then a live selfie so we can match them.
+              </p>
+              <div style={sx("font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:var(--fg-3);margin:28px 0 12px")}>
+                Choose a document
+              </div>
+              <div style={sx("display:flex;flex-direction:column;gap:10px")}>
+                {DOC_OPTIONS.map((option) => {
+                  const on = doc === option.id
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setDoc(option.id)}
+                      aria-pressed={on}
+                      style={sx(
+                        `display:flex;align-items:center;gap:14px;padding:16px;border:0;border-radius:var(--radius-lg);background:${on ? "#F1F8EF" : "var(--white)"};box-shadow:${on ? `inset 0 0 0 1.5px ${GREEN}` : "inset 0 0 0 1px var(--border-default)"};text-align:left;cursor:pointer;color:var(--fg-1)`
+                      )}
+                    >
+                      <span style={sx("width:40px;height:40px;border-radius:var(--radius-md);background:var(--ink-100);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0")}>
+                        <FlowIcon icon={option.icon} />
+                      </span>
+                      <span style={sx("flex:1")}>
+                        <span style={sx("display:block;font:500 15px/1.3 var(--font-sans)")}>{option.label}</span>
+                        <span style={sx("display:block;font:var(--text-small);color:var(--fg-3);margin-top:3px")}>{option.hint}</span>
+                      </span>
+                      <span
+                        style={sx(
+                          `width:18px;height:18px;border-radius:50%;box-shadow:${on ? `inset 0 0 0 5px ${GREEN}` : "inset 0 0 0 1.5px var(--ink-300)"};flex-shrink:0`
+                        )}
+                      />
+                    </button>
+                  )
+                })}
+              </div>
+              <ul style={sx("list-style:none;margin:24px 0 0;padding:0;display:flex;flex-direction:column;gap:10px;font:var(--text-small);color:var(--fg-2)")}>
+                <li style={sx("display:flex;gap:10px;align-items:center")}>
+                  <FlowIcon icon={Sun} size={14} color="var(--fg-3)" />
+                  Find good light, avoid glare on the document
+                </li>
+                <li style={sx("display:flex;gap:10px;align-items:center")}>
+                  <FlowIcon icon={Lock} size={14} color="var(--fg-3)" />
+                  Encrypted and only used for verification
+                </li>
+              </ul>
+              <p style={sx("margin:20px 0 0;padding-top:16px;border-top:1px solid var(--border-hairline);font:var(--text-small);color:var(--fg-3);text-wrap:pretty")}>
+                By continuing, you consent to QuickHands processing your document and selfie, including biometric data, solely to verify your identity. Images are deleted within 30 days of a decision.{" "}
+                <Link href="/privacy-policy" style={sx("color:var(--fg-2)")}>
+                  Learn more
+                </Link>
+              </p>
+            </div>
+          ) : null}
+
+          {isCapture ? (
+            <div style={sx("animation:qhFade 220ms var(--ease-out) both")}>
+              <h2 style={sx("font:var(--text-h3);letter-spacing:var(--ls-heading);margin:0")}>
+                {isDoc ? `Photograph your ${docName}.` : "Take a live selfie."}
+              </h2>
+              <p style={sx("margin:8px 0 20px;color:var(--fg-2);text-wrap:pretty")}>
+                {isDoc
+                  ? "Place it flat inside the frame. All four corners should be visible."
+                  : "Centre your face in the oval and follow the prompts. We'll capture automatically."}
+              </p>
+              <div style={sx(`position:relative;aspect-ratio:${isDoc ? "16 / 11" : "4 / 5"};border-radius:var(--radius-lg);overflow:hidden;background:var(--ink-950)`)}>
+                {isDoc ? (
+                  <div style={sx("position:absolute;inset:12%;border-radius:12px;box-shadow:0 0 0 999px rgba(10,10,11,.45),inset 0 0 0 2px rgba(255,255,255,.9);pointer-events:none")} />
+                ) : (
+                  <div style={sx("position:absolute;left:50%;top:50%;width:58%;height:76%;transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 0 0 999px rgba(10,10,11,.5),inset 0 0 0 2px rgba(255,255,255,.9);pointer-events:none")} />
+                )}
+                <div style={sx("position:absolute;left:0;right:0;bottom:16px;display:flex;justify-content:center")}>
+                  <span style={sx("display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:999px;background:rgba(10,10,11,.7);color:var(--white);font:500 13px/1 var(--font-sans)")}>
+                    Camera capture is coming soon.
+                  </span>
+                </div>
+              </div>
+              <div style={sx("display:flex;justify-content:center;margin-top:20px")}>
+                <button
+                  type="button"
+                  disabled
+                  aria-label="Take photo"
+                  className="qh-acc-press"
+                  style={sx("width:64px;height:64px;border:0;border-radius:50%;background:var(--white);box-shadow:inset 0 0 0 4px var(--ink-950),0 0 0 1px var(--border-default);cursor:pointer;display:inline-flex;align-items:center;justify-content:center")}
+                >
+                  <span style={sx(`width:44px;height:44px;border-radius:50%;background:${GREEN}`)} />
+                </button>
+              </div>
+              <p style={FLOW_NOTE}>Verification is coming soon, so nothing is sent.</p>
+            </div>
+          ) : null}
+
+          {isReview ? (
+            <div style={sx("animation:qhFade 220ms var(--ease-out) both")}>
+              <h2 style={sx("font:var(--text-h3);letter-spacing:var(--ls-heading);margin:0")}>
+                {step === "docReview" ? `Is your ${docName} readable?` : "Happy with your selfie?"}
+              </h2>
+              <p style={sx("margin:8px 0 20px;color:var(--fg-2)")}>Make sure everything is sharp and readable, with no glare.</p>
+              <div
+                role="img"
+                aria-label="Captured photo"
+                style={sx(`aspect-ratio:${step === "docReview" ? "16 / 11" : "4 / 5"};border-radius:var(--radius-lg);background-color:var(--ink-100)`)}
+              />
+              <p style={FLOW_NOTE}>Verification is coming soon, so nothing is sent.</p>
+            </div>
+          ) : null}
+
+          {step === "done" ? (
+            <div style={sx("text-align:center;padding:16px 0;display:flex;flex-direction:column;align-items:center;animation:qhFade 260ms var(--ease-out) both")}>
+              <span style={sx("width:60px;height:60px;border-radius:50%;background:#F1F8EF;color:#108600;display:inline-flex;align-items:center;justify-content:center")}>
+                <FlowIcon icon={ShieldCheck} size={26} />
+              </span>
+              <h2 style={sx("font:var(--text-h2);font-size:30px;letter-spacing:var(--ls-heading);margin:22px 0 0")}>
+                Submitted for <em style={SERIF_EM_GREEN}>review</em>.
+              </h2>
+              <p style={sx("margin:10px 0 0;color:var(--fg-2);max-width:360px;text-wrap:pretty")}>
+                We&apos;re matching your selfie to your document. This usually takes a few minutes. We&apos;ll notify you when it&apos;s done.
+              </p>
+              <div style={sx("display:flex;gap:10px;margin-top:24px")}>
+                <div role="img" aria-label="Document" style={sx("width:96px;height:64px;border-radius:var(--radius-md);background-color:var(--ink-100)")} />
+                <div role="img" aria-label="Selfie" style={sx("width:64px;height:64px;border-radius:50%;background-color:var(--ink-100)")} />
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        <div style={sx("display:flex;justify-content:space-between;gap:10px;padding:16px 20px;border-top:1px solid var(--border-hairline)")}>
+          {backLabel ? (
+            <button type="button" onClick={goBack} className="qh-acc-decline" style={FLOW_BACK_BUTTON}>
+              {backLabel}
+            </button>
+          ) : (
+            <span />
+          )}
+          {!isCapture && primaryLabel ? (
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={primaryDisabled}
+              className="qh-acc-green qh-acc-press"
+              style={{ ...FLOW_PRIMARY_BUTTON, background: primaryDisabled ? "var(--ink-300)" : GREEN }}
+            >
+              {primaryLabel}
+              <FlowIcon icon={ArrowRight} size={14} />
+            </button>
+          ) : (
+            <span />
+          )}
         </div>
       </div>
     </div>
