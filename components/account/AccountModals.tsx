@@ -41,7 +41,7 @@ export function AccountChatModal({
   onClose: () => void
 }) {
   useEscape(onClose)
-  const quote = application.quotation ? ` · quote ${application.quotation}` : ""
+  const quote = application.quotation ? ` · offer ${application.quotation}` : ""
 
   return (
     <div style={OVERLAY}>

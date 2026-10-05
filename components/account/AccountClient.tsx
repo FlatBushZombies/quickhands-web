@@ -6,8 +6,15 @@ import { useAuth, useClerk, useUser } from "@clerk/nextjs"
 import {
   Calendar,
   Check,
+  CircleCheck,
+  CircleDashed,
   ClipboardList,
   Inbox,
+  LayoutDashboard,
+  MessageSquare,
+  Settings,
+  SquarePlus,
+  UserSearch,
   LogOut,
   MapPin,
   MessagesSquare,
@@ -35,6 +42,7 @@ import { timeAgo } from "@/components/app-shell/feed"
 import {
   getApplicationReviews,
   getClientApplications,
+  confirmApplicationCompletion,
   updateApplicationStatus,
   type Application,
   type ClientJobWithApplications,
@@ -44,6 +52,15 @@ import {
 
 type View = "tasks" | "offers"
 type TaskStatus = "open" | "in_progress" | "completed"
+
+/** Real destinations outside this page, linked from the client sidebar. */
+const siteLinks: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/specialists", label: "Browse specialists", icon: UserSearch },
+  { href: "/post-job", label: "Post a task", icon: SquarePlus },
+  { href: "/messages", label: "Messages", icon: MessageSquare },
+  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+]
 
 const TABS: { id: TaskStatus; label: string }[] = [
   { id: "open", label: "Open" },
@@ -102,6 +119,10 @@ function ratingOf(app: Application) {
   const summary = app.freelancerReviewSummary
   if (!summary || summary.reviewCount === 0) return "New"
   return summary.averageRating.toFixed(1)
+}
+
+function tasksLabel(count: number | undefined) {
+  return `${count ?? 0} tasks`
 }
 
 function starsOf(rating: number) {
@@ -286,30 +307,54 @@ export function AccountClient() {
     return null
   }, [reviewAppId, sortedJobs])
 
-  const setStatus = async (app: Application, status: "accepted" | "rejected" | "completed") => {
+  const mergeApplication = (updated: Application) =>
+    setJobs((current) =>
+      current.map((job) =>
+        job.id !== updated.jobId
+          ? job
+          : {
+              ...job,
+              applications: job.applications.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)),
+            }
+      )
+    )
+
+  const setStatus = async (app: Application, status: "accepted" | "rejected") => {
     setBusyId(app.id)
     setActionError(null)
     try {
       const token = await getToken()
       if (!token) return
       const updated = await updateApplicationStatus(app.id, status, token)
-      setJobs((current) =>
-        current.map((job) =>
-          job.id !== updated.jobId
-            ? job
-            : {
-                ...job,
-                applications: job.applications.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)),
-              }
-        )
-      )
-      // Hiring moves the task to In progress; completing moves it to Completed.
-      if (status === "accepted" || status === "completed") {
-        setFilter(status === "accepted" ? "in_progress" : "completed")
+      mergeApplication(updated)
+      // Hiring moves the task to In progress.
+      if (status === "accepted") {
+        setFilter("in_progress")
         setSelectedId(updated.jobId)
       }
     } catch (err) {
       setActionError(err instanceof Error ? err.message : "Could not update this offer")
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  // This side confirms the work is finished. The job completes only once the
+  // specialist has confirmed too, so a single confirmation may leave it In progress.
+  const confirmDone = async (app: Application) => {
+    setBusyId(app.id)
+    setActionError(null)
+    try {
+      const token = await getToken()
+      if (!token) return
+      const { application: updated, completedNow } = await confirmApplicationCompletion(app.id, token)
+      mergeApplication(updated)
+      if (completedNow) {
+        setFilter("completed")
+        setSelectedId(updated.jobId)
+      }
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Could not confirm completion")
     } finally {
       setBusyId(null)
     }
@@ -327,7 +372,7 @@ export function AccountClient() {
   const displayName = user?.fullName || user?.firstName || ""
   const initials = initialsOf(displayName || "U")
 
-  const navItems: { id: View; label: string; icon: LucideIcon; badge: number | null; badgeBg: string }[] = [
+  const navItems: { id: View; label: string; icon: LucideIcon; badge: number | string | null; badgeBg: string }[] = [
     { id: "tasks", label: "My tasks", icon: ClipboardList, badge: sortedJobs.length || null, badgeBg: "var(--ink-400)" },
     { id: "offers", label: "Offers", icon: Inbox, badge: pendingOffers || null, badgeBg: GREEN },
   ]
@@ -391,6 +436,19 @@ export function AccountClient() {
               </button>
             )
           })}
+          <div style={sx("height:1px;background:var(--border-hairline);margin:14px 0")} />
+          {siteLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={link.href === "/dashboard" ? "page" : undefined}
+              className="qh-acc-nav"
+              style={{ ...NAV_ITEM_BASE, color: "var(--fg-2)", textDecoration: "none" }}
+            >
+              <Icon icon={link.icon} />
+              <span style={sx("flex:1")}>{link.label}</span>
+            </Link>
+          ))}
           <div style={sx("height:1px;background:var(--border-hairline);margin:14px 0")} />
           <button
             type="button"
@@ -551,7 +609,7 @@ export function AccountClient() {
                     busyId={busyId}
                     onHire={(app) => setStatus(app, "accepted")}
                     onDecline={(app) => setStatus(app, "rejected")}
-                    onComplete={(app) => setStatus(app, "completed")}
+                    onComplete={(app) => confirmDone(app)}
                     onChat={(app) => openThread(app, selected)}
                     onReview={() => setReviewAppId(selectedHired?.id ?? null)}
                   />
@@ -698,6 +756,8 @@ function TaskDetail({
   const when = whenLabel(job.startDate, job.endDate)
   const details = job.additionalInfo?.trim() ?? ""
   const hiredFirst = hired ? firstNameOf(hired.freelancerName) : ""
+  const clientConfirmed = Boolean(hired?.clientConfirmedAt)
+  const freelancerConfirmed = Boolean(hired?.freelancerConfirmedAt)
   const offers = job.applications
     .slice()
     .sort(
@@ -784,7 +844,7 @@ function TaskDetail({
           {offers.length === 0 ? (
             <div style={sx("display:flex;align-items:center;gap:14px;padding:20px;border-radius:var(--radius-lg);box-shadow:inset 0 0 0 1px var(--border-default);color:var(--fg-2)")}>
               <span style={SPINNER} />
-              <span>Sent to specialists in {job.serviceType}. Offers will appear here as they come in.</span>
+              <span>Sent to specialists in {job.serviceType}. Offers usually arrive within the hour.</span>
             </div>
           ) : null}
           {offers.map((app) => {
@@ -807,7 +867,7 @@ function TaskDetail({
                         <Icon icon={Star} size={12} />
                         {ratingOf(app)}
                       </span>
-                      {reviews ? <span>{reviews} review{reviews === 1 ? "" : "s"}</span> : null}
+                      <span>{tasksLabel(app.freelancerCompletedCount)}</span>
                       <span>{timeAgo(app.createdAt)}</span>
                     </div>
                   </div>
@@ -866,6 +926,7 @@ function TaskDetail({
                   <Icon icon={Star} size={12} />
                   {ratingOf(hired)}
                 </span>
+                <span>{tasksLabel(hired.freelancerCompletedCount)}</span>
               </div>
             </div>
             <div style={sx("text-align:right")}>
@@ -884,18 +945,39 @@ function TaskDetail({
           <div style={sx("padding:18px;border-radius:var(--radius-lg);background:var(--ink-50)")}>
             <div style={sx("font:500 16px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>Is the job done?</div>
             <div style={sx("font:var(--text-small);color:var(--fg-2);margin-top:4px;text-wrap:pretty")}>
-              Mark the task as completed once the work is finished.
+              When you both confirm, the task moves to completed and payment is released.
             </div>
-            <button
-              type="button"
-              onClick={() => onComplete(hired)}
-              disabled={busyId === hired.id}
-              className="qh-acc-green qh-acc-press"
-              style={PILL_GREEN_LG}
-            >
-              <Icon icon={Check} size={15} />
-              {busyId === hired.id ? "Saving…" : "Mark as completed"}
-            </button>
+            <div style={sx("display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:14px")}>
+              {[
+                { label: "You", done: clientConfirmed },
+                { label: hiredFirst || "Specialist", done: freelancerConfirmed },
+              ].map((row) => (
+                <span
+                  key={row.label}
+                  style={{ display: "inline-flex", alignItems: "center", gap: 6, font: "500 14px/1 var(--font-sans)", color: row.done ? GREEN : "var(--fg-3)" }}
+                >
+                  <Icon icon={row.done ? CircleCheck : CircleDashed} size={15} />
+                  {row.label} · {row.done ? "Confirmed" : "Not yet"}
+                </span>
+              ))}
+            </div>
+            {!clientConfirmed ? (
+              <button
+                type="button"
+                onClick={() => onComplete(hired)}
+                disabled={busyId === hired.id}
+                className="qh-acc-green qh-acc-press"
+                style={PILL_GREEN_LG}
+              >
+                <Icon icon={Check} size={15} />
+                {busyId === hired.id ? "Saving…" : "Mark as completed"}
+              </button>
+            ) : (
+              <div style={sx("display:flex;align-items:center;gap:10px;margin-top:16px;font:var(--text-small);color:var(--fg-2)")}>
+                <span style={SPINNER} />
+                Waiting for {hiredFirst || "the specialist"} to confirm.
+              </div>
+            )}
           </div>
         </div>
       ) : null}
@@ -909,7 +991,7 @@ function TaskDetail({
             <div>
               <div style={sx("font:500 17px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>Task completed</div>
               <div style={sx("font:var(--text-small);color:var(--fg-3);margin-top:4px")}>
-                {fullDateLabel(hired.updatedAt)} · with {hired.freelancerName} · {hired.quotation || "No quote"}
+                {fullDateLabel(hired.completedAt ?? hired.updatedAt)} · with {hired.freelancerName} · {hired.quotation || "No quote"}
               </div>
             </div>
           </div>

@@ -15,6 +15,10 @@ export interface Application {
   updatedAt: string
   conversationId?: string
   freelancerReviewSummary?: { averageRating: number; reviewCount: number }
+  freelancerCompletedCount?: number
+  completedAt?: string | null
+  clientConfirmedAt?: string | null
+  freelancerConfirmedAt?: string | null
   job?: {
     serviceType: string | null
     maxPrice: number | null
@@ -159,3 +163,27 @@ export async function submitApplicationReview(
   }
   return data.data as ReviewEntry
 }
+
+/**
+ * Records this side's confirmation that an accepted job is finished. The job
+ * completes once both the client and the specialist have confirmed.
+ */
+export async function confirmApplicationCompletion(
+  id: number,
+  token: string
+): Promise<{ application: Application; completedNow: boolean }> {
+  const response = await fetchWithRetry(
+    getApiUrl(`/api/applications/${id}/confirm-completion`),
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    },
+    { retries: 0, timeoutMs: 45000 }
+  )
+  const data = await parseJsonSafely(response)
+  if (!response.ok || !data?.success) {
+    throw new Error(data?.message || "Failed to confirm completion")
+  }
+  return { application: data.data as Application, completedNow: Boolean(data.completedNow) }
+}
+

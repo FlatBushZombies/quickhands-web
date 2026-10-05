@@ -4,7 +4,6 @@ const isSignedInRequiredRoute = createRouteMatcher([
   '/onboarding(.*)',
   '/post-job(.*)',
   '/dashboard(.*)',
-  '/account(.*)',
   '/messages(.*)',
   // "Hire Now" — signed-out visitors are sent to sign in and land straight
   // back on this route, which then opens the conversation.
