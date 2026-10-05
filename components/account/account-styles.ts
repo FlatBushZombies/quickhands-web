@@ -100,11 +100,6 @@ export function firstNameOf(name: string | null | undefined) {
   return (name || "").split(" ").filter(Boolean)[0] || ""
 }
 
-export function shortNameOf(name: string) {
-  const parts = name.split(" ").filter(Boolean)
-  return (parts[0] || "") + (parts[1] ? " " + parts[1][0] + "." : "")
-}
-
 export function dayLabel(iso: string | null | undefined) {
   if (!iso) return ""
   const date = new Date(iso)
