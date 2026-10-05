@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import { ClientLanding } from "@/components/client-landing/ClientLanding"
-import { RoleLanding } from "@/components/dashboard/RoleLanding"
 
 export const metadata: Metadata = {
   title: "Find trusted local specialists",
@@ -8,9 +7,5 @@ export const metadata: Metadata = {
 }
 
 export default function Home() {
-  return (
-    <RoleLanding role="client">
-      <ClientLanding />
-    </RoleLanding>
-  )
+  return <ClientLanding />
 }

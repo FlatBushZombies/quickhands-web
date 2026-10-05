@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import { ProfessionalsLanding } from "@/components/professionals/ProfessionalsLanding"
-import { RoleLanding } from "@/components/dashboard/RoleLanding"
 
 export const metadata: Metadata = {
   title: "For Specialists",
@@ -9,9 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function ProfessionalsPage() {
-  return (
-    <RoleLanding role="freelancer">
-      <ProfessionalsLanding />
-    </RoleLanding>
-  )
+  return <ProfessionalsLanding />
 }
