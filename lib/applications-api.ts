@@ -2,6 +2,13 @@ import { fetchWithRetry, getApiUrl, parseJsonSafely } from "@/lib/fetch-client"
 
 export type ApplicationStatus = "pending" | "accepted" | "rejected" | "completed"
 
+export interface ApplicationCompletion {
+  freelancerConfirmed: boolean
+  clientConfirmed: boolean
+  freelancerConfirmedAt: string | null
+  clientConfirmedAt: string | null
+}
+
 export interface Application {
   id: number
   jobId: number
@@ -14,6 +21,7 @@ export interface Application {
   createdAt: string
   updatedAt: string
   conversationId?: string
+  completion?: ApplicationCompletion
   freelancerReviewSummary?: { averageRating: number; reviewCount: number }
   freelancerCompletedCount?: number
   completedAt?: string | null
