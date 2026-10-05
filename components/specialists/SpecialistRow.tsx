@@ -14,13 +14,11 @@ function formatHourlyRate(rate: number | string | null) {
   return `$${value % 1 === 0 ? value : value.toFixed(2)}/hr`
 }
 
-const actionBase =
-  "inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 font-sans text-sm font-semibold whitespace-nowrap transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-
 /**
  * One specialist in the search results. A row, not a card: the list sits in
  * a single bordered container and hairlines separate the people, so the
  * page scans like a directory instead of a wall of identical tiles.
+ * Styling lives in SPECIALISTS_CSS (components/specialists/specialists-design.ts).
  */
 export function SpecialistRow({ specialist }: { specialist: SpecialistSummary }) {
   const { name, imageUrl, skillList, experienceLevel, hourlyRate, location, tagline, reviewSummary, bioUsername, clerkId } =
@@ -32,35 +30,32 @@ export function SpecialistRow({ specialist }: { specialist: SpecialistSummary })
   const metaParts = [
     experienceLevel ? <span key="exp" className="capitalize">{experienceLevel}</span> : null,
     locationLabel ? (
-      <span key="loc" className="inline-flex items-center gap-1">
-        <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+      <span key="loc" className="qh-sp-meta-item">
+        <MapPin size={14} strokeWidth={1.5} aria-hidden="true" />
         {locationLabel}
       </span>
     ) : null,
-    rateLabel ? <span key="rate" className="font-semibold text-foreground">{rateLabel}</span> : null,
+    rateLabel ? <span key="rate" className="qh-sp-meta-rate">{rateLabel}</span> : null,
   ].filter(Boolean)
 
   return (
-    <li className="flex flex-col gap-5 p-5 sm:flex-row sm:items-start sm:gap-6 sm:p-6">
+    <li className="qh-sp-row">
       {imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={imageUrl} alt="" className="h-16 w-16 shrink-0 rounded-full object-cover" />
+        <img src={imageUrl} alt="" className="qh-sp-avatar" />
       ) : (
-        <div
-          aria-hidden="true"
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-light font-heading text-xl font-bold text-primary"
-        >
+        <div aria-hidden="true" className="qh-sp-initials">
           {initialsOf(name)}
         </div>
       )}
 
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <h2 className="font-heading text-xl font-bold tracking-tight text-foreground">{name}</h2>
+      <div className="qh-sp-body">
+        <div className="qh-sp-head">
+          <h2 className="qh-sp-name">{name}</h2>
           {reviewSummary.reviewCount > 0 ? (
-            <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
-              <Star className="h-4 w-4 fill-warning text-warning" aria-hidden="true" />
-              <span className="font-semibold text-foreground">{reviewSummary.averageRating.toFixed(1)}</span>
+            <span className="qh-sp-rating">
+              <Star size={14} strokeWidth={1.5} className="fill-warning text-warning" aria-hidden="true" />
+              <strong>{reviewSummary.averageRating.toFixed(1)}</strong>
               <span>
                 ({reviewSummary.reviewCount} {reviewSummary.reviewCount === 1 ? "review" : "reviews"})
               </span>
@@ -69,22 +64,22 @@ export function SpecialistRow({ specialist }: { specialist: SpecialistSummary })
         </div>
 
         {metaParts.length > 0 ? (
-          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
+          <p className="qh-sp-meta">
             {metaParts.map((part, index) => (
-              <span key={index} className="inline-flex items-center gap-2">
-                {index > 0 ? <span aria-hidden="true">·</span> : null}
+              <span key={index} className="qh-sp-meta-item">
+                {index > 0 ? <span className="qh-sp-meta-dot" aria-hidden="true">·</span> : null}
                 {part}
               </span>
             ))}
           </p>
         ) : null}
 
-        {tagline ? <p className="mt-3 max-w-[60ch] font-body text-base leading-relaxed text-foreground">{tagline}</p> : null}
+        {tagline ? <p className="qh-sp-tagline">{tagline}</p> : null}
 
         {skillList.length > 0 ? (
-          <ul className="mt-4 flex flex-wrap gap-2" aria-label={`${name}'s specialties`}>
+          <ul className="qh-sp-skills" aria-label={`${name}'s specialties`}>
             {skillList.map((skill) => (
-              <li key={skill} className="rounded-full bg-primary-light px-3 py-1 text-sm font-medium text-foreground">
+              <li key={skill} className="qh-sp-skill">
                 {skill}
               </li>
             ))}
@@ -92,25 +87,16 @@ export function SpecialistRow({ specialist }: { specialist: SpecialistSummary })
         ) : null}
       </div>
 
-      <div className="flex shrink-0 flex-col gap-2 sm:w-44">
+      <div className="qh-sp-actions">
         {bioUsername ? (
-          <Link
-            href={`/${bioUsername}`}
-            className={`${actionBase} border border-border bg-card text-foreground hover:bg-secondary`}
-          >
-            <Briefcase className="h-4 w-4" aria-hidden="true" />
+          <Link href={`/${bioUsername}`} className="qh-sp-btn qh-sp-btn-ghost">
+            <Briefcase className="qh-sp-btn-icon" aria-hidden="true" />
             View portfolio
           </Link>
         ) : null}
-        <Link
-          href={hireHref}
-          className={`${actionBase} group bg-primary text-primary-foreground hover:bg-primary-hover`}
-        >
+        <Link href={hireHref} className="qh-sp-btn qh-sp-btn-primary qh-sp-hire">
           Hire Now
-          <ArrowRight
-            className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-0.5"
-            aria-hidden="true"
-          />
+          <ArrowRight className="qh-sp-btn-icon qh-sp-arrow" aria-hidden="true" />
         </Link>
       </div>
     </li>
