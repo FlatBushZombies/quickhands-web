@@ -1,11 +1,9 @@
 "use client"
 
-import { createElement, useState, type ChangeEvent, type CSSProperties, type ElementType, type MouseEvent, type ReactNode } from "react"
+import { createElement, useState, type CSSProperties, type ElementType, type MouseEvent, type ReactNode } from "react"
 import {
   ArrowRight,
-  ArrowUpRight,
   Award,
-  BadgeCheck,
   Briefcase,
   Calendar,
   Check,
@@ -13,16 +11,20 @@ import {
   CircleDashed,
   GraduationCap,
   History,
+  Hourglass,
+  IdCard,
   Info,
   LayoutGrid,
+  Lock,
   LockOpen,
-  Mail,
+  LogOut,
   MapPin,
   MessageSquare,
-  Phone,
   Plus,
+  ScanFace,
   Scissors,
   Send,
+  ShieldCheck,
   Sparkles,
   Star,
   Trash2,
@@ -32,7 +34,6 @@ import {
   Users,
   Wrench,
   X,
-  LogOut,
   type LucideIcon,
 } from "lucide-react"
 
@@ -140,13 +141,11 @@ export function Box({ as = "div", style, children, ...rest }: { as?: ElementType
 }
 
 const ICONS: Record<string, LucideIcon> = {
-  "badge-check": BadgeCheck,
   "layout-grid": LayoutGrid,
   briefcase: Briefcase,
   send: Send,
   "user-round": UserRound,
   "log-out": LogOut,
-  "arrow-up-right": ArrowUpRight,
   "arrow-right": ArrowRight,
   "map-pin": MapPin,
   calendar: Calendar,
@@ -158,10 +157,9 @@ const ICONS: Record<string, LucideIcon> = {
   "trash-2": Trash2,
   x: X,
   "message-square": MessageSquare,
-  phone: Phone,
-  mail: Mail,
   star: Star,
   "lock-open": LockOpen,
+  lock: Lock,
   info: Info,
   users: Users,
   wrench: Wrench,
@@ -171,6 +169,10 @@ const ICONS: Record<string, LucideIcon> = {
   trees: Trees,
   "graduation-cap": GraduationCap,
   history: History,
+  "shield-check": ShieldCheck,
+  hourglass: Hourglass,
+  "id-card": IdCard,
+  "scan-face": ScanFace,
 }
 
 /** A design icon (`data-icon` in the source), sized and stroked as the design does. */
@@ -191,6 +193,7 @@ export function Eyebrow({ children, style = "" }: { children: ReactNode; style?:
   )
 }
 
+/** The design's modal shell: a dimmed, blurred backdrop with a centred card. */
 export function Modal({
   label,
   maxWidth,
@@ -228,15 +231,21 @@ export function ModalHeader({ eyebrow, onClose }: { eyebrow: string; onClose: ()
   return (
     <div style={css("display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--border-hairline)")}>
       <Eyebrow>{eyebrow}</Eyebrow>
-      <Ix
-        aria-label="Close"
-        onClick={onClose}
-        base="width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:var(--fg-2);display:inline-flex;align-items:center;justify-content:center;cursor:pointer"
-        hover="background:var(--ink-100)"
-      >
-        <Ico name="x" size={16} />
-      </Ix>
+      <CloseButton onClick={onClose} />
     </div>
+  )
+}
+
+export function CloseButton({ onClick }: { onClick: () => void }) {
+  return (
+    <Ix
+      aria-label="Close"
+      onClick={onClick}
+      base="width:32px;height:32px;border:0;border-radius:50%;background:transparent;color:var(--fg-2);display:inline-flex;align-items:center;justify-content:center;cursor:pointer"
+      hover="background:var(--ink-100)"
+    >
+      <Ico name="x" size={16} />
+    </Ix>
   )
 }
 
@@ -248,6 +257,7 @@ export const inputBase = css(
   `width:100%;box-sizing:border-box;height:44px;padding:0 14px;border:0;border-radius:var(--radius-md);background:var(--white);box-shadow:inset 0 0 0 1px var(--border-default);font:var(--text-body-md);font-size:15px;color:var(--fg-1);outline:none`
 )
 
+/** The design system's text input: label above a hairline-ringed field. */
 export function Field({
   label,
   value,
@@ -271,7 +281,7 @@ export function Field({
     value,
     placeholder,
     "aria-label": label,
-    onChange: (e: ChangeEvent<HTMLInputElement & HTMLTextAreaElement>) => onChange(e.target.value),
+    onChange: (e: { target: { value: string } }) => onChange(e.target.value),
     style: { ...inputBase, ...(multiline ? { height: "auto", padding: "12px 14px", resize: "vertical" as const, lineHeight: 1.5 } : {}) },
   }
   return (
@@ -279,6 +289,50 @@ export function Field({
       <FieldLabel>{label}</FieldLabel>
       {multiline ? <textarea rows={rows} {...shared} /> : <input type={type} min={min} {...shared} />}
     </div>
+  )
+}
+
+/** The design system's segmented control, used for years of experience. */
+export function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+  label,
+}: {
+  options: { value: T; label: string }[]
+  value: T
+  onChange: (v: T) => void
+  label: string
+}) {
+  return (
+    <div role="radiogroup" aria-label={label} style={css("display:flex;width:100%;max-width:320px;box-sizing:border-box;height:36px;padding:3px;border-radius:999px;background:var(--ink-100)")}>
+      {options.map((o) => {
+        const on = o.value === value
+        return (
+          <button
+            key={o.value}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            onClick={() => onChange(o.value)}
+            style={css(
+              `flex:1;border:0;border-radius:999px;padding:0 10px;background:${on ? "var(--white)" : "transparent"};box-shadow:${on ? "var(--shadow-sm)" : "none"};color:${on ? "var(--fg-1)" : "var(--fg-2)"};font:500 13px/1 ${SANS};cursor:pointer`
+            )}
+          >
+            {o.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+/** A skill chip (the design system's Tag). */
+export function Tag({ children }: { children: ReactNode }) {
+  return (
+    <span style={css("display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;background:var(--ink-50);box-shadow:inset 0 0 0 1px var(--border-default);font:500 13px/1 var(--font-sans);color:var(--fg-1)")}>
+      {children}
+    </span>
   )
 }
 

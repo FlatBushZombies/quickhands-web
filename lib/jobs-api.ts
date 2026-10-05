@@ -158,6 +158,8 @@ export interface RecommendedJob {
   clientReviewSummary: ClientReviewSummary
   applicantCount: number
   skillMatch: boolean
+  /** Set when the request asked for includeApplied=true. */
+  alreadyApplied?: boolean
 }
 
 export interface RecommendedJobsResult {
@@ -171,9 +173,15 @@ export interface RecommendedJobsResult {
  * (unlike the public GETs above) this follows lib/applications-api.ts's
  * client-fetch shape: fetchWithRetry + parseJsonSafely.
  */
-export async function getRecommendedJobsForMe(token: string, limit = 10): Promise<RecommendedJobsResult> {
+export async function getRecommendedJobsForMe(
+  token: string,
+  options: { limit?: number; services?: string[]; includeApplied?: boolean } = {}
+): Promise<RecommendedJobsResult> {
+  const params = new URLSearchParams({ limit: String(options.limit ?? 10) })
+  if (options.services?.length) params.set("services", options.services.join(","))
+  if (options.includeApplied) params.set("includeApplied", "true")
   try {
-    const response = await fetchWithRetry(getApiUrl(`/api/jobs/recommended-for-me?limit=${limit}`), {
+    const response = await fetchWithRetry(getApiUrl(`/api/jobs/recommended-for-me?${params.toString()}`), {
       headers: { Authorization: `Bearer ${token}` },
     })
     const data = await parseJsonSafely(response)

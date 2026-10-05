@@ -25,10 +25,8 @@ import {
 } from "@/components/pro-account/ProAccountViews"
 import {
   CATEGORIES,
-  YEAR_OPTIONS,
   deriveCategory,
   firstName,
-  formatRange,
   initials,
   parseSkills,
   skillsForCategory,
@@ -45,7 +43,7 @@ import {
   type Application,
   type ReviewMatrix,
 } from "@/lib/applications-api"
-import { getRecommendedJobsForMe, jobBudget, type RecommendedJob } from "@/lib/jobs-api"
+import { getRecommendedJobsForMe, type RecommendedJob } from "@/lib/jobs-api"
 import {
   getBackendUser,
   getMyExperience,
@@ -67,7 +65,18 @@ type Modal =
   | null
 
 const SIGN_IN_PRO = "/sign-in#pro"
+const TOTAL_SETUP_STEPS = 3
+/** A stable empty list, so the jobs effect does not re-run on every render. */
+const NO_SERVICES: string[] = []
+/** Whether the optional experience step was skipped; a per-browser convenience only. */
+const SKIPPED_KEY = (clerkId: string) => `qh_pro_exp_skipped:${clerkId}`
 
+/**
+ * The specialist's account page (/dashboard for freelancers). Overview, Jobs
+ * for you (open jobs for the registered profession), My jobs and Profile, with
+ * the same modals as the design. Verification is not available yet, so its
+ * actions are disabled. Contact details are never shared; messaging is in-app.
+ */
 export function ProAccountView() {
   const { user, isLoaded } = useUser()
   const { getToken } = useAuth()
@@ -84,6 +93,7 @@ export function ProAccountView() {
   const [busy, setBusy] = useState(false)
   const [modalError, setModalError] = useState<string | null>(null)
   const [dismissedReviews, setDismissedReviews] = useState<Record<number, true>>({})
+  const [expSkipped, setExpSkipped] = useState(false)
 
   const [profile, setProfile] = useState<BackendUser | null>(null)
   const [experience, setExperience] = useState<ExperienceEntry[]>([])
@@ -91,6 +101,26 @@ export function ProAccountView() {
   const [jobs, setJobs] = useState<RecommendedJob[]>([])
   const [matrices, setMatrices] = useState<Record<number, ReviewMatrix | null>>({})
   const [loaded, setLoaded] = useState(false)
+  const [confirmingId, setConfirmingId] = useState<number | null>(null)
+  const [confirmError, setConfirmError] = useState<string | null>(null)
+
+  const skills = useMemo(() => parseSkills(profile?.skills), [profile?.skills])
+  const category: ProfessionCategory | null = useMemo(() => deriveCategory(skills), [skills])
+  const hasProfession = category !== null
+  const categoryId = category?.id ?? null
+  const categoryServices = category?.subs ?? NO_SERVICES
+  const area = profile?.location?.label ?? ""
+  const name = user?.fullName || user?.firstName || ""
+  const first = firstName(name) || "there"
+
+  useEffect(() => {
+    if (!clerkId) return
+    try {
+      setExpSkipped(window.localStorage.getItem(SKIPPED_KEY(clerkId)) === "1")
+    } catch {
+      setExpSkipped(false)
+    }
+  }, [clerkId])
 
   const refreshApplications = useCallback(async () => {
     const token = await getToken()
@@ -98,25 +128,43 @@ export function ProAccountView() {
     setApplications(await getMyApplications(token))
   }, [getToken])
 
+  const loadJobs = useCallback(async () => {
+    const token = await getToken()
+    if (!token || !categoryId) {
+      setJobs([])
+      return
+    }
+    // The feed is the specialist's profession: every open job for the services
+    // in their category, applied-to jobs included so the feed can show them.
+    const result = await getRecommendedJobsForMe(token, {
+      limit: 50,
+      services: categoryServices,
+      includeApplied: true,
+    })
+    setJobs(result.jobs)
+  }, [categoryId, categoryServices, getToken])
+
   const loadAll = useCallback(async () => {
     const token = await getToken()
     if (!token || !clerkId) return
-    const [backend, exp, apps, recommended] = await Promise.all([
+    const [backend, exp, apps] = await Promise.all([
       getBackendUser(clerkId),
       getMyExperience(token).catch(() => [] as ExperienceEntry[]),
       getMyApplications(token),
-      getRecommendedJobsForMe(token, 50),
     ])
     setProfile(backend)
     setExperience(exp)
     setApplications(apps)
-    setJobs(recommended.jobs)
     setLoaded(true)
   }, [clerkId, getToken])
 
   useEffect(() => {
     if (ready) void loadAll()
   }, [ready, loadAll])
+
+  useEffect(() => {
+    if (ready) void loadJobs()
+  }, [ready, loadJobs])
 
   // Review matrices are needed only for completed jobs (the "Completed" list
   // and the review prompt), so they are fetched for those alone.
@@ -143,25 +191,14 @@ export function ProAccountView() {
     }
   }, [ready, applications, matrices, getToken])
 
-  const skills = useMemo(() => parseSkills(profile?.skills), [profile?.skills])
-  const category: ProfessionCategory | null = useMemo(() => deriveCategory(skills), [skills])
-  const hasProfession = skills.length > 0
-  const area = profile?.location?.label ?? ""
-  const name = user?.fullName || user?.firstName || ""
-  const first = firstName(name) || "there"
-
   const appliedByJob = useMemo(() => {
     const map = new Map<number, Application>()
     applications.forEach((a) => map.set(a.jobId, a))
     return map
   }, [applications])
-  const openJobs = jobs.filter((j) => !appliedByJob.has(j.id))
+  const appliedJobIds = useMemo(() => new Set(appliedByJob.keys()), [appliedByJob])
+  const openJobs = jobs.filter((j) => !appliedJobIds.has(j.id))
   const active = applications.filter(isInProgress)
-
-  const setupDone = (hasProfession ? 1 : 0) + (experience.length > 0 ? 1 : 0)
-  const setupTotal = 2
-
-  // Prompt for the first completed job that has no review from this specialist yet.
   const pendingReview = applications.find(
     (a) =>
       isJobDone(a) &&
@@ -169,34 +206,54 @@ export function ProAccountView() {
       !matrices[a.id]?.freelancerToClient &&
       !dismissedReviews[a.id]
   )
+
+  // Prompt for the first completed job that has no review from this specialist yet.
   useEffect(() => {
     if (!modal && pendingReview) setModal({ kind: "review", app: pendingReview })
   }, [modal, pendingReview])
 
+  const hasExperience = experience.length > 0
   const setupSteps: SetupStep[] = [
     {
+      key: "verify",
+      icon: "shield-check",
+      label: "Verify your identity",
+      hint: "Coming soon. Identity verification is not available yet.",
+      done: false,
+      doneLabel: "",
+      doneIcon: "check",
+      doneColor: G,
+      cta: "Coming soon",
+      disabled: true,
+      act: () => {},
+    },
+    {
+      key: "profession",
       icon: "briefcase",
       label: "Add your profession",
       hint: "Your trade and skills decide which tasks you receive.",
       done: hasProfession,
       doneLabel: category ? category.role : "Added",
+      doneIcon: "check",
+      doneColor: G,
       cta: "Add profession",
       act: () => openProfession(),
     },
     {
+      key: "experience",
       icon: "history",
       label: "Add past work experience",
       hint: "Previous jobs or regular clients. Helps you win your first tasks.",
-      done: experience.length > 0,
-      doneLabel: `${experience.length} added`,
+      done: hasExperience || expSkipped,
+      doneLabel: hasExperience ? `${experience.length} added` : "Skipped",
+      doneIcon: "check",
+      doneColor: hasExperience ? G : "var(--fg-3)",
       cta: "Add experience",
       optional: true,
-      act: () => setModal({ kind: "experience" }),
+      act: () => openExperience(),
     },
   ]
-
-  const [confirmingId, setConfirmingId] = useState<number | null>(null)
-  const [confirmError, setConfirmError] = useState<string | null>(null)
+  const doneCount = setupSteps.filter((s) => s.done).length
 
   const confirmCompletion = async (app: Application) => {
     setConfirmingId(app.id)
@@ -218,6 +275,11 @@ export function ProAccountView() {
     setModal({ kind: "profession" })
   }
 
+  const openExperience = () => {
+    setModalError(null)
+    setModal({ kind: "experience" })
+  }
+
   const saveProfession = async (draft: ProfessionDraft) => {
     setBusy(true)
     setModalError(null)
@@ -225,7 +287,7 @@ export function ProAccountView() {
       const token = await getToken()
       if (!token) throw new Error("Not signed in")
       const cat = CATEGORIES.find((c) => c.id === draft.categoryId)
-      const chosen = cat ? draft.skills.filter((s) => skillsForCategory([s], cat.id).length) : draft.skills
+      const chosen = cat ? skillsForCategory(draft.skills, cat.id) : draft.skills
       const updated = await updateOnboarding({
         clerkId,
         skills: chosen.join(", "),
@@ -263,6 +325,18 @@ export function ProAccountView() {
     }
   }
 
+  const skipExperience = () => {
+    if (!hasExperience) {
+      setExpSkipped(true)
+      try {
+        window.localStorage.setItem(SKIPPED_KEY(clerkId), "1")
+      } catch {
+        // Storage can be blocked; the step then simply shows as not added.
+      }
+    }
+    setModal(null)
+  }
+
   const removeExperience = async (index: number) => {
     const token = await getToken()
     if (!token) return
@@ -273,11 +347,7 @@ export function ProAccountView() {
   const openJob = (job: RecommendedJob) => {
     const existing = appliedByJob.get(job.id)
     setModalError(null)
-    if (existing) {
-      setModal({ kind: "thread", app: existing })
-    } else {
-      setModal({ kind: "apply", job })
-    }
+    setModal(existing ? { kind: "thread", app: existing } : { kind: "apply", job })
   }
 
   const sendOffer = async (job: RecommendedJob, price: number, message: string) => {
@@ -299,6 +369,7 @@ export function ProAccountView() {
       )
       if (result.status === "error") throw new Error(result.message)
       await refreshApplications()
+      await loadJobs()
       setModal(null)
     } catch (error) {
       setModalError(error instanceof Error ? error.message : "Could not send your offer")
@@ -339,14 +410,18 @@ export function ProAccountView() {
     )
   }
 
-  const navItems: { id: View; label: string; icon: string; badge: string | number | null; badgeBg: string }[] = [
-    { id: "home", label: "Overview", icon: "layout-grid", badge: setupDone < setupTotal ? setupTotal - setupDone : null, badgeBg: "#C2410C" },
+  const navItems: { id: View; label: string; icon: string; badge: number | null; badgeBg: string }[] = [
+    { id: "home", label: "Overview", icon: "layout-grid", badge: TOTAL_SETUP_STEPS - doneCount > 0 ? TOTAL_SETUP_STEPS - doneCount : null, badgeBg: "#C2410C" },
     { id: "jobs", label: "Jobs for you", icon: "briefcase", badge: hasProfession && openJobs.length ? openJobs.length : null, badgeBg: G },
     { id: "mine", label: "My jobs", icon: "send", badge: active.length || null, badgeBg: "var(--ink-950)" },
     { id: "profile", label: "Profile", icon: "user-round", badge: null, badgeBg: G },
   ]
 
-  const threadApp = modal?.kind === "thread" ? modal.app : null
+  const previewJobs = openJobs.slice(0, 3)
+  const activeTitle =
+    active.length === 1
+      ? `You've been hired for ${(active[0].job?.serviceType || "a job").toLowerCase()}`
+      : `You have ${active.length} jobs in progress`
 
   return (
     <AppRoleProvider value={{ appRole: "freelancer", clerkId }}>
@@ -362,7 +437,7 @@ export function ProAccountView() {
               <span style={css(`font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:${G}`)}>Pro</span>
             </a>
             <div style={css("display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--border-hairline)")}>
-              <span style={css(`position:relative;width:32px;height:32px;border-radius:50%;background:${G};color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans)`)}>
+              <span style={css(`width:32px;height:32px;border-radius:50%;background:${G};color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans)`)}>
                 {initials(name || "U")}
               </span>
               <span style={css("display:flex;flex-direction:column;gap:3px")}>
@@ -414,30 +489,26 @@ export function ProAccountView() {
             ) : view === "home" ? (
               <OverviewView
                 firstName={first}
-                setupSteps={setupSteps}
-                setupDone={setupDone}
-                setupTotal={setupTotal}
-                activeCount={active.length}
-                activeTitle={active.length === 1 ? `You've been hired for ${(active[0].job?.serviceType || "a job").toLowerCase()}` : `You have ${active.length} jobs in progress`}
-                activeSub="Open My jobs to message the client or see the job."
-                previewJobs={openJobs.slice(0, 3).map((job) => ({ job, applied: false }))}
-                newJobCount={openJobs.length}
+                steps={setupSteps}
+                doneCount={doneCount}
+                totalSteps={TOTAL_SETUP_STEPS}
                 hasProfession={hasProfession}
+                activeCount={active.length}
+                activeTitle={activeTitle}
+                previewJobs={previewJobs}
+                newJobCount={openJobs.length}
                 onGoJobs={() => setView("jobs")}
                 onGoMine={() => setView("mine")}
                 onOpenJob={openJob}
-                onAddProfession={openProfession}
               />
             ) : view === "jobs" ? (
               <JobsView
                 hasProfession={hasProfession}
                 category={category}
-                skills={skills}
                 filter={jobFilter}
                 onFilter={setJobFilter}
                 jobs={jobs}
-                appliedJobIds={new Set(appliedByJob.keys())}
-                loaded={loaded}
+                appliedJobIds={appliedJobIds}
                 onOpenJob={openJob}
                 onAddProfession={openProfession}
               />
@@ -445,7 +516,11 @@ export function ProAccountView() {
               <MyJobsView
                 applications={applications}
                 matrices={matrices}
-                onOpenThread={(app) => setModal({ kind: "thread", app })}
+                firstName={first}
+                onMessage={(app) => {
+                  setModalError(null)
+                  setModal({ kind: "thread", app })
+                }}
                 onReview={(app) => {
                   setModalError(null)
                   setModal({ kind: "review", app })
@@ -457,14 +532,14 @@ export function ProAccountView() {
               />
             ) : (
               <ProfileView
-                hasProfession={hasProfession}
-                roleTitle={category ? category.role : ""}
+                category={category}
                 skills={skills}
-                yearsLabel={YEAR_OPTIONS.find((o) => o.value === yearsFromStored(profile?.experienceLevel))?.long ?? "1–3 years"}
+                years={yearsFromStored(profile?.experienceLevel)}
                 area={area}
                 experience={experience}
+                skipped={expSkipped}
                 onEditProfession={openProfession}
-                onAddExperience={() => setModal({ kind: "experience" })}
+                onAddExperience={openExperience}
                 onRemoveExperience={removeExperience}
               />
             )}
@@ -474,7 +549,7 @@ export function ProAccountView() {
         {modal?.kind === "profession" ? (
           <ProfessionModal
             initial={{
-              categoryId: category?.id ?? null,
+              categoryId,
               skills,
               years: yearsFromStored(profile?.experienceLevel),
               area,
@@ -487,32 +562,25 @@ export function ProAccountView() {
         ) : null}
 
         {modal?.kind === "experience" ? (
-          <ExperienceModal saving={busy} error={modalError} onSave={saveExperienceEntry} onClose={() => setModal(null)} />
-        ) : null}
-
-        {modal?.kind === "apply" ? (
-          <ApplyModal
-            job={{
-              skill: modal.job.selectedServices?.[0] || "Job",
-              area: modal.job.location?.label || modal.job.location?.city || "Location not set",
-              title: modal.job.serviceType,
-              when: formatRange(modal.job.startDate, modal.job.endDate),
-              budgetText: jobBudget(modal.job.maxPrice) ? `Budget $${jobBudget(modal.job.maxPrice)}` : "No budget set",
-              maxPrice: jobBudget(modal.job.maxPrice) ?? 0,
-            }}
+          <ExperienceModal
+            hasExisting={hasExperience}
             saving={busy}
             error={modalError}
-            onSend={(price, message) => sendOffer(modal.job, price, message)}
+            onSave={saveExperienceEntry}
+            onSkip={skipExperience}
             onClose={() => setModal(null)}
           />
         ) : null}
 
-        {threadApp ? <ThreadModal conversationId={threadApp.conversationId ?? null} onClose={() => setModal(null)} /> : null}
+        {modal?.kind === "apply" ? (
+          <ApplyModal job={modal.job} saving={busy} error={modalError} onSend={(price, message) => sendOffer(modal.job, price, message)} onClose={() => setModal(null)} />
+        ) : null}
+
+        {modal?.kind === "thread" ? <ThreadModal app={modal.app} onClose={() => setModal(null)} /> : null}
 
         {modal?.kind === "review" ? (
           <ReviewModal
-            name={modal.app.job?.clientName || "Client"}
-            sub={`Rate ${modal.app.job?.clientName || "the client"} as a client.`}
+            name={modal.app.job?.clientName || "the client"}
             saving={busy}
             error={modalError}
             onSubmit={(rating, text) => submitReview(modal.app, rating, text)}
@@ -523,4 +591,3 @@ export function ProAccountView() {
     </AppRoleProvider>
   )
 }
-
