@@ -12,6 +12,7 @@ import {
   ProfessionModal,
   ReviewModal,
   ThreadModal,
+  VerifyModal,
   type ProfessionDraft,
 } from "@/components/pro-account/ProAccountModals"
 import {
@@ -22,6 +23,7 @@ import {
   isInProgress,
   isJobDone,
   type SetupStep,
+  type VerificationStatus,
 } from "@/components/pro-account/ProAccountViews"
 import {
   CATEGORIES,
@@ -62,10 +64,17 @@ type Modal =
   | { kind: "apply"; job: RecommendedJob }
   | { kind: "thread"; app: Application }
   | { kind: "review"; app: Application }
+  | { kind: "verify" }
   | null
 
 const SIGN_IN_PRO = "/sign-in#pro"
 const TOTAL_SETUP_STEPS = 3
+/**
+ * Identity verification status. No verification record exists in the backend
+ * yet, so every specialist is "not started"; the verified and pending states
+ * are wired in the UI for when that record exists.
+ */
+const VERIFICATION_STATUS = "none" as VerificationStatus
 /** A stable empty list, so the jobs effect does not re-run on every render. */
 const NO_SERVICES: string[] = []
 /** Whether the optional experience step was skipped; a per-browser convenience only. */
@@ -74,8 +83,9 @@ const SKIPPED_KEY = (clerkId: string) => `qh_pro_exp_skipped:${clerkId}`
 /**
  * The specialist's account page (/dashboard for freelancers). Overview, Jobs
  * for you (open jobs for the registered profession), My jobs and Profile, with
- * the same modals as the design. Verification is not available yet, so its
- * actions are disabled. Contact details are never shared; messaging is in-app.
+ * the same modals as the design. Identity verification shows the design's
+ * screens, but nothing is captured, uploaded or sent yet. Contact details are
+ * never shared; messaging is in-app.
  */
 export function ProAccountView() {
   const { user, isLoaded } = useUser()
@@ -213,19 +223,21 @@ export function ProAccountView() {
   }, [modal, pendingReview])
 
   const hasExperience = experience.length > 0
+  const verification = VERIFICATION_STATUS
+  const verified = verification === "verified"
+  const pending = verification === "pending"
   const setupSteps: SetupStep[] = [
     {
       key: "verify",
       icon: "shield-check",
       label: "Verify your identity",
-      hint: "Coming soon. Identity verification is not available yet.",
-      done: false,
-      doneLabel: "",
-      doneIcon: "check",
-      doneColor: G,
-      cta: "Coming soon",
-      disabled: true,
-      act: () => {},
+      hint: pending ? "We're reviewing your documents. Usually a few minutes." : "Photo of your national ID or passport bio page, then a live selfie.",
+      done: verified || pending,
+      doneLabel: verified ? "Verified" : "In review",
+      doneIcon: verified ? "check" : "hourglass",
+      doneColor: verified ? G : "#9A6A12",
+      cta: "Verify now",
+      act: () => openVerify(),
     },
     {
       key: "profession",
@@ -278,6 +290,11 @@ export function ProAccountView() {
   const openExperience = () => {
     setModalError(null)
     setModal({ kind: "experience" })
+  }
+
+  const openVerify = () => {
+    setModalError(null)
+    setModal({ kind: "verify" })
   }
 
   const saveProfession = async (draft: ProfessionDraft) => {
@@ -437,8 +454,13 @@ export function ProAccountView() {
               <span style={css(`font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:${G}`)}>Pro</span>
             </a>
             <div style={css("display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--border-hairline)")}>
-              <span style={css(`width:32px;height:32px;border-radius:50%;background:${G};color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans)`)}>
+              <span style={css(`position:relative;width:32px;height:32px;border-radius:50%;background:${G};color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans)`)}>
                 {initials(name || "U")}
+                {verified ? (
+                  <span style={css(`position:absolute;right:-4px;bottom:-4px;display:inline-flex;color:${G};background:var(--white);border-radius:50%`)}>
+                    <Ico name="badge-check" size={14} />
+                  </span>
+                ) : null}
               </span>
               <span style={css("display:flex;flex-direction:column;gap:3px")}>
                 <span style={css("font:500 14px/1 var(--font-sans)")}>{first}</span>
@@ -493,6 +515,7 @@ export function ProAccountView() {
                 doneCount={doneCount}
                 totalSteps={TOTAL_SETUP_STEPS}
                 hasProfession={hasProfession}
+                verified={verified}
                 activeCount={active.length}
                 activeTitle={activeTitle}
                 previewJobs={previewJobs}
@@ -541,6 +564,8 @@ export function ProAccountView() {
                 onEditProfession={openProfession}
                 onAddExperience={openExperience}
                 onRemoveExperience={removeExperience}
+                verification={verification}
+                onStartVerification={openVerify}
               />
             )}
           </main>
@@ -577,6 +602,8 @@ export function ProAccountView() {
         ) : null}
 
         {modal?.kind === "thread" ? <ThreadModal app={modal.app} onClose={() => setModal(null)} /> : null}
+
+        {modal?.kind === "verify" ? <VerifyModal onClose={() => setModal(null)} /> : null}
 
         {modal?.kind === "review" ? (
           <ReviewModal

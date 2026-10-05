@@ -26,11 +26,12 @@ export interface SetupStep {
   doneIcon: string
   doneColor: string
   cta: string
-  /** Steps whose action is not available yet show a disabled button. */
-  disabled?: boolean
   optional?: boolean
   act: () => void
 }
+
+/** The design's identity verification states. Only "none" is reachable today. */
+export type VerificationStatus = "none" | "pending" | "verified"
 
 /** A job is in progress once hired, until the specialist has confirmed it done. */
 export function isInProgress(a: Application) {
@@ -60,6 +61,19 @@ function jobArea(job: RecommendedJob) {
 
 function offersText(count: number) {
   return count ? `${count} ${count === 1 ? "offer" : "offers"}` : "Be the first to apply"
+}
+
+/** The two identity checks and their state, as the design's profile rows show them. */
+export function verificationRows(status: VerificationStatus) {
+  const verified = status === "verified"
+  const label = verified ? "Done" : status === "pending" ? "In review" : "Required"
+  const statusColor = verified ? G : status === "pending" ? "#9A6A12" : "#C2410C"
+  const iconBg = verified ? G_TINT : "var(--ink-100)"
+  const iconColor = verified ? G : "var(--fg-2)"
+  return [
+    { icon: "id-card", label: "National ID or passport", hint: "Photo of the bio page", status: label, statusColor, iconBg, iconColor },
+    { icon: "scan-face", label: "Live selfie", hint: "Matched to your document", status: label, statusColor, iconBg, iconColor },
+  ]
 }
 
 /** Stars drawn in the design's ink tones: filled ink for each rated star. */
@@ -110,6 +124,7 @@ export function OverviewView({
   doneCount,
   totalSteps,
   hasProfession,
+  verified,
   activeCount,
   activeTitle,
   previewJobs,
@@ -123,6 +138,7 @@ export function OverviewView({
   doneCount: number
   totalSteps: number
   hasProfession: boolean
+  verified: boolean
   activeCount: number
   activeTitle: string
   previewJobs: RecommendedJob[]
@@ -131,15 +147,16 @@ export function OverviewView({
   onGoMine: () => void
   onOpenJob: (job: RecommendedJob) => void
 }) {
-  const setupIncomplete = doneCount < totalSteps
-  const firstTodo = steps.findIndex((s) => !s.done && !s.disabled)
+  const allStepsDone = doneCount >= totalSteps
+  const setupIncomplete = !allStepsDone || !verified
+  const firstTodo = steps.findIndex((s) => !s.done)
 
   return (
     <div style={css("display:flex;flex-direction:column;gap:32px")}>
       <div>
         <span style={css(CAPTION)}>Welcome, {first}</span>
         <h1 style={css(`${H1};font-size:clamp(36px,4.4vw,52px)`)}>
-          {setupIncomplete ? "Let's finish your" : "You're all"} <em style={css(EM)}>{setupIncomplete ? "account" : "set"}</em>.
+          {allStepsDone ? "You're all" : "Let's finish your"} <em style={css(EM)}>{allStepsDone ? "set" : "account"}</em>.
         </h1>
       </div>
 
@@ -149,7 +166,7 @@ export function OverviewView({
             <div>
               <div style={css("font:500 17px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>Finish setting up your account</div>
               <div style={css("font:var(--text-small);color:var(--fg-3);margin-top:4px")}>
-                Complete these steps to start receiving and applying for tasks.
+                {allStepsDone ? "Waiting for verification to finish." : "Complete these steps to start receiving and applying for tasks."}
               </div>
             </div>
             <div style={css("display:flex;align-items:center;gap:12px")}>
@@ -190,9 +207,8 @@ export function OverviewView({
                   <button
                     type="button"
                     onClick={s.act}
-                    disabled={s.disabled}
                     style={css(
-                      `height:38px;padding:0 16px;border:0;border-radius:999px;background:${s.disabled ? "var(--ink-100)" : primary ? G : "var(--white)"};color:${s.disabled ? "var(--fg-3)" : primary ? "var(--white)" : "var(--fg-1)"};box-shadow:${primary && !s.disabled ? "none" : "inset 0 0 0 1px var(--border-default)"};font:500 14px/1 var(--font-sans);cursor:${s.disabled ? "not-allowed" : "pointer"};white-space:nowrap`
+                      `height:38px;padding:0 16px;border:0;border-radius:999px;background:${primary ? G : "var(--white)"};color:${primary ? "var(--white)" : "var(--fg-1)"};box-shadow:${primary ? "none" : "inset 0 0 0 1px var(--border-default)"};font:500 14px/1 var(--font-sans);cursor:pointer;white-space:nowrap`
                     )}
                   >
                     {s.cta}
@@ -699,6 +715,8 @@ export function ProfileView({
   onEditProfession,
   onAddExperience,
   onRemoveExperience,
+  verification,
+  onStartVerification,
 }: {
   category: ProfessionCategory | null
   skills: string[]
@@ -709,6 +727,8 @@ export function ProfileView({
   onEditProfession: () => void
   onAddExperience: () => void
   onRemoveExperience: (index: number) => void
+  verification: VerificationStatus
+  onStartVerification: () => void
 }) {
   const yearsText = YEAR_OPTIONS.find((o) => o.value === years)?.long ?? ""
 
@@ -791,27 +811,29 @@ export function ProfileView({
 
       <div style={css("border-radius:var(--radius-xl);background:var(--white);box-shadow:var(--shadow-hairline);overflow:hidden")}>
         <div style={css(`padding:22px 24px 6px;${CAPTION}`)}>Identity verification</div>
-        {[
-          { icon: "id-card", label: "National ID or passport", hint: "Photo of the bio page" },
-          { icon: "scan-face", label: "Live selfie", hint: "Matched to your document" },
-        ].map((r) => (
+        {verificationRows(verification).map((r) => (
           <div key={r.label} style={css("display:flex;align-items:center;gap:16px;padding:18px 24px;border-bottom:1px solid var(--border-hairline)")}>
-            <span style={css("width:40px;height:40px;border-radius:var(--radius-md);background:var(--ink-100);color:var(--fg-2);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0")}>
+            <span style={css(`width:40px;height:40px;border-radius:var(--radius-md);background:${r.iconBg};color:${r.iconColor};display:inline-flex;align-items:center;justify-content:center;flex-shrink:0`)}>
               <Ico name={r.icon} size={18} />
             </span>
             <div style={css("flex:1")}>
               <div style={css("font:500 15px/1.3 var(--font-sans)")}>{r.label}</div>
               <div style={css("font:var(--text-small);color:var(--fg-3);margin-top:4px")}>{r.hint}</div>
             </div>
-            <span style={css(`${CAPTION};color:var(--fg-3)`)}>Coming soon</span>
+            <span style={css(`${CAPTION};color:${r.statusColor}`)}>{r.status}</span>
           </div>
         ))}
-        <div style={css("padding:16px 24px;display:flex;justify-content:flex-end;align-items:center;gap:16px")}>
-          <span style={css("font:var(--text-small);color:var(--fg-3)")}>Identity verification is coming soon.</span>
-          <button type="button" disabled style={css("height:40px;padding:0 18px;border:0;border-radius:999px;background:var(--ink-300);color:var(--white);font:500 14px/1 var(--font-sans);cursor:not-allowed")}>
-            Start verification
-          </button>
-        </div>
+        {verification === "none" ? (
+          <div style={css("padding:16px 24px;display:flex;justify-content:flex-end")}>
+            <button
+              type="button"
+              onClick={onStartVerification}
+              style={css(`height:40px;padding:0 18px;border:0;border-radius:999px;background:${G};color:var(--white);font:500 14px/1 var(--font-sans);cursor:pointer`)}
+            >
+              Start verification
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   )
