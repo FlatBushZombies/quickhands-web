@@ -20,12 +20,18 @@ function formatHourlyRate(rate: number | string | null) {
  * page scans like a directory instead of a wall of identical tiles.
  * Styling lives in SPECIALISTS_CSS (components/specialists/specialists-design.ts).
  */
+function formatDistance(distanceKm: number | null) {
+  if (distanceKm === null) return null
+  return distanceKm < 1 ? "Less than 1 km away" : `${distanceKm} km away`
+}
+
 export function SpecialistRow({ specialist }: { specialist: SpecialistSummary }) {
-  const { name, imageUrl, skillList, experienceLevel, hourlyRate, location, tagline, reviewSummary, bioUsername, clerkId } =
+  const { name, imageUrl, skillList, experienceLevel, hourlyRate, location, distanceKm, tagline, reviewSummary, bioUsername, clerkId } =
     specialist
 
   const rateLabel = formatHourlyRate(hourlyRate)
-  const locationLabel = location?.label || location?.city || null
+  const distanceLabel = formatDistance(distanceKm)
+  const locationLabel = distanceLabel || location?.label || location?.city || null
   const hireHref = `/hire/${bioUsername ?? clerkId}`
   const metaParts = [
     experienceLevel ? <span key="exp" className="capitalize">{experienceLevel}</span> : null,

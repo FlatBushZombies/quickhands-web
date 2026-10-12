@@ -1,6 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
+import { AvailabilityCard } from "@/components/pro-account/AvailabilityCard"
 import { Eyebrow, G, G_TINT, Ico, Ix, Tag, css } from "@/components/pro-account/ui"
 import { formatRange, firstName, initials, shortName, YEAR_OPTIONS, type ProfessionCategory, type YearValue } from "@/components/pro-account/professions"
 import { timeAgo } from "@/components/app-shell/feed"
@@ -766,6 +767,8 @@ export function ProfileView({
           <p style={css("margin:14px 0 0;color:var(--fg-3)")}>Not added yet.</p>
         )}
       </div>
+
+      {category ? <AvailabilityCard /> : null}
 
       <div style={css("padding:28px;border-radius:var(--radius-xl);background:var(--white);box-shadow:var(--shadow-hairline)")}>
         <div style={css("display:flex;justify-content:space-between;align-items:center;gap:12px")}>

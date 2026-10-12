@@ -1,10 +1,14 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { HireRedirect } from "@/components/specialists/HireRedirect"
+import { LandingNav } from "@/components/client-landing/LandingNav"
+import { Footer } from "@/components/Footer"
+import { HireFlow } from "@/components/hire/HireFlow"
+import { HIRE_CSS, HIRE_ROOT_CLASS } from "@/components/hire/hire-design"
 import { getPublicBioProfile } from "@/lib/bio-api"
+import { getPublicSpecialist } from "@/lib/specialists-api"
 
 export const metadata: Metadata = {
-  title: "Opening your conversation",
+  title: "Book a specialist",
   robots: { index: false, follow: false },
 }
 
@@ -19,16 +23,27 @@ interface PageProps {
 const CLERK_ID_PATTERN = /^user_[A-Za-z0-9]+$/
 
 export default async function HirePage({ params }: PageProps) {
-  const { specialist } = await params
+  const { specialist: identifier } = await params
 
-  if (CLERK_ID_PATTERN.test(specialist)) {
-    return <HireRedirect clerkId={specialist} name={null} />
-  }
+  const clerkId = CLERK_ID_PATTERN.test(identifier)
+    ? identifier
+    : (await getPublicBioProfile(identifier))?.clerkId ?? null
 
-  const profile = await getPublicBioProfile(specialist)
-  if (!profile) {
+  const specialist = clerkId ? await getPublicSpecialist(clerkId) : null
+  if (!specialist) {
     notFound()
   }
 
-  return <HireRedirect clerkId={profile.clerkId ?? null} name={profile.name} />
+  return (
+    <div className={HIRE_ROOT_CLASS}>
+      <style>{HIRE_CSS}</style>
+      <LandingNav />
+      <main className="qh-hire-main">
+        <div className="qh-hire-wrap">
+          <HireFlow specialist={specialist} />
+        </div>
+      </main>
+      <Footer />
+    </div>
+  )
 }

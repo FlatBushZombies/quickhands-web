@@ -1,19 +1,30 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { Suspense } from "react"
 import { Search, SearchX } from "lucide-react"
 import { LandingNav } from "@/components/client-landing/LandingNav"
 import { Footer } from "@/components/Footer"
 import { SpecialistRow } from "@/components/specialists/SpecialistRow"
+import { UseNearestFirst } from "@/components/specialists/UseNearestFirst"
 import { SPECIALISTS_CSS, SPECIALISTS_ROOT_CLASS } from "@/components/specialists/specialists-design"
-import { searchSpecialists } from "@/lib/specialists-api"
+import { searchSpecialists, type ViewerLocation } from "@/lib/specialists-api"
 
 interface PageProps {
-  searchParams: Promise<{ q?: string | string[] }>
+  searchParams: Promise<{ q?: string | string[]; lat?: string | string[]; lng?: string | string[] }>
 }
 
 function readQuery(raw: string | string[] | undefined) {
   const value = Array.isArray(raw) ? raw[0] : raw
   return (value ?? "").trim().slice(0, 100)
+}
+
+function readViewerLocation(
+  rawLat: string | string[] | undefined,
+  rawLng: string | string[] | undefined
+): ViewerLocation | null {
+  const lat = Number(Array.isArray(rawLat) ? rawLat[0] : rawLat)
+  const lng = Number(Array.isArray(rawLng) ? rawLng[0] : rawLng)
+  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null
 }
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
@@ -36,13 +47,15 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 }
 
 export default async function SpecialistsPage({ searchParams }: PageProps) {
-  const query = readQuery((await searchParams).q)
-  const { specialists, unavailable } = await searchSpecialists(query)
+  const resolvedParams = await searchParams
+  const query = readQuery(resolvedParams.q)
+  const viewerLocation = readViewerLocation(resolvedParams.lat, resolvedParams.lng)
+  const { specialists, unavailable } = await searchSpecialists(query, 24, viewerLocation)
 
   // With so few specialists on the platform early on, a search that finds
   // nobody shouldn't be a dead end — show who *is* here alongside the next step.
   const showFallback = Boolean(query) && !unavailable && specialists.length === 0
-  const fallback = showFallback ? (await searchSpecialists("", 6)).specialists : []
+  const fallback = showFallback ? (await searchSpecialists("", 6, viewerLocation)).specialists : []
 
   const resultLabel = query
     ? `${specialists.length} ${specialists.length === 1 ? "specialist" : "specialists"} for “${query}”`
@@ -51,6 +64,9 @@ export default async function SpecialistsPage({ searchParams }: PageProps) {
   return (
     <div className={SPECIALISTS_ROOT_CLASS}>
       <style>{SPECIALISTS_CSS}</style>
+      <Suspense fallback={null}>
+        <UseNearestFirst />
+      </Suspense>
       <LandingNav />
       <main className="qh-sp-main">
         <div className="qh-sp-wrap">
