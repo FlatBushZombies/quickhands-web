@@ -25,6 +25,7 @@ import {
   type SetupStep,
   type VerificationStatus,
 } from "@/components/pro-account/ProAccountViews"
+import { PortfolioView } from "@/components/pro-account/PortfolioView"
 import {
   CATEGORIES,
   deriveCategory,
@@ -56,7 +57,7 @@ import {
   type ExperienceEntry,
 } from "@/lib/user-api"
 
-type View = "home" | "jobs" | "mine" | "profile"
+type View = "home" | "jobs" | "mine" | "portfolio" | "profile"
 
 type Modal =
   | { kind: "profession" }
@@ -431,6 +432,7 @@ export function ProAccountView() {
     { id: "home", label: "Overview", icon: "layout-grid", badge: TOTAL_SETUP_STEPS - doneCount > 0 ? TOTAL_SETUP_STEPS - doneCount : null, badgeBg: "#C2410C" },
     { id: "jobs", label: "Jobs for you", icon: "briefcase", badge: hasProfession && openJobs.length ? openJobs.length : null, badgeBg: G },
     { id: "mine", label: "My jobs", icon: "send", badge: active.length || null, badgeBg: "var(--ink-950)" },
+    { id: "portfolio", label: "Portfolio", icon: "image", badge: null, badgeBg: G },
     { id: "profile", label: "Profile", icon: "user-round", badge: null, badgeBg: G },
   ]
 
@@ -553,6 +555,8 @@ export function ProAccountView() {
                 confirmingId={confirmingId}
                 confirmError={confirmError}
               />
+            ) : view === "portfolio" ? (
+              <PortfolioView />
             ) : (
               <ProfileView
                 category={category}

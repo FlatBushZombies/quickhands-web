@@ -90,7 +90,7 @@ function Stars({ rating }: { rating: number }) {
   )
 }
 
-function PageTitle({ eyebrow, title, em, after = "" }: { eyebrow: string; title: ReactNode; em?: string; after?: string }) {
+export function PageTitle({ eyebrow, title, em, after = "" }: { eyebrow: string; title: ReactNode; em?: string; after?: string }) {
   return (
     <div>
       <Eyebrow>{eyebrow}</Eyebrow>
