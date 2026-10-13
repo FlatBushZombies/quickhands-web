@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useAuth, useClerk, useUser } from "@clerk/nextjs"
 import { AppRoleProvider } from "@/components/app/AppRoleContext"
+import { ConversationList } from "@/components/messaging/ConversationList"
+import SettingsClient from "@/app/(app)/settings/SettingsClient"
 import "@/components/pro-account/pro-account.css"
 import { authFontClassName } from "@/components/auth/fonts"
 import { Ico, Ix, css, G } from "@/components/pro-account/ui"
@@ -57,7 +59,7 @@ import {
   type ExperienceEntry,
 } from "@/lib/user-api"
 
-type View = "home" | "jobs" | "mine" | "portfolio" | "profile"
+type View = "home" | "jobs" | "mine" | "portfolio" | "messages" | "settings" | "profile"
 
 type Modal =
   | { kind: "profession" }
@@ -433,6 +435,8 @@ export function ProAccountView() {
     { id: "jobs", label: "Jobs for you", icon: "briefcase", badge: hasProfession && openJobs.length ? openJobs.length : null, badgeBg: G },
     { id: "mine", label: "My jobs", icon: "send", badge: active.length || null, badgeBg: "var(--ink-950)" },
     { id: "portfolio", label: "Portfolio", icon: "image", badge: null, badgeBg: G },
+    { id: "messages", label: "Messages", icon: "message-square", badge: null, badgeBg: G },
+    { id: "settings", label: "Settings", icon: "gear", badge: null, badgeBg: G },
     { id: "profile", label: "Profile", icon: "user-round", badge: null, badgeBg: G },
   ]
 
@@ -557,6 +561,10 @@ export function ProAccountView() {
               />
             ) : view === "portfolio" ? (
               <PortfolioView />
+            ) : view === "messages" ? (
+              <ConversationList />
+            ) : view === "settings" ? (
+              <SettingsClient />
             ) : (
               <ProfileView
                 category={category}

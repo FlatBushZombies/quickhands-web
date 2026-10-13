@@ -13,6 +13,7 @@ import {
   Inbox,
   LogOut,
   Mail,
+  MessageCircle,
   Plus,
   ScanFace,
   ShieldAlert,
@@ -20,6 +21,8 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { authFontClassName } from "@/components/auth/fonts"
+import { AppRoleProvider } from "@/components/app/AppRoleContext"
+import { ConversationList } from "@/components/messaging/ConversationList"
 import { AccountReviewModal, AccountThreadModal, AccountVerifyModal } from "@/components/account/AccountModals"
 import { AccountTaskDetail } from "@/components/account/AccountTaskDetail"
 import {
@@ -51,7 +54,7 @@ import {
   type ReviewMatrix,
 } from "@/lib/applications-api"
 
-type View = "tasks" | "offers" | "verify"
+type View = "tasks" | "offers" | "messages" | "verify"
 
 type VerificationStatus = "none" | "pending" | "verified"
 
@@ -312,6 +315,7 @@ export function AccountClient() {
   const navItems: { id: View; label: string; icon: LucideIcon; badge: number | string | null; badgeBg: string }[] = [
     { id: "tasks", label: "My tasks", icon: ClipboardList, badge: sortedJobs.length || null, badgeBg: "var(--ink-400)" },
     { id: "offers", label: "Offers", icon: Inbox, badge: pendingOffers || null, badgeBg: GREEN },
+    { id: "messages", label: "Messages", icon: MessageCircle, badge: null, badgeBg: GREEN },
     {
       id: "verify",
       label: "Verification",
@@ -638,6 +642,12 @@ export function AccountClient() {
                 {allOffers.length === 0 ? <div style={sx("padding:40px;text-align:center;color:var(--fg-3)")}>No offers yet.</div> : null}
               </div>
             </div>
+          ) : null}
+
+          {loaded && view === "messages" ? (
+            <AppRoleProvider value={{ appRole: "client", clerkId: user?.id ?? "" }}>
+              <ConversationList />
+            </AppRoleProvider>
           ) : null}
 
           {loaded && view === "verify" ? (

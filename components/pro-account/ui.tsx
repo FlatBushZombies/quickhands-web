@@ -34,6 +34,7 @@ import {
   ScanFace,
   Scissors,
   Send,
+  Settings,
   ShieldCheck,
   Sparkles,
   Star,
@@ -197,6 +198,7 @@ const ICONS: Record<string, LucideIcon> = {
   image: ImageIcon,
   loader: Loader2,
   pencil: Pencil,
+  gear: Settings,
 }
 
 /** A design icon (`data-icon` in the source), sized and stroked as the design does. */
