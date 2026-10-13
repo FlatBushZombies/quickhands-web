@@ -180,6 +180,10 @@ export function LandingNav() {
   const signedIn = isLoaded && !!isSignedIn
   const signedOut = isLoaded && !isSignedIn
   const isSpecialistAccount = user?.unsafeMetadata?.appRole === "freelancer"
+  // This nav is the client-facing surface (/, /specialists) — a specialist
+  // account browsing here shouldn't see their own avatar, since the signed-in
+  // state here means "signed in as a client", not "signed in at all".
+  const isClientAccount = signedIn && !isSpecialistAccount
   const specialistHref = signedIn && isSpecialistAccount ? "/dashboard" : "/professionals"
   const accountName = user?.fullName || user?.firstName || user?.primaryEmailAddress?.emailAddress || ""
   const userFirst = user?.firstName || accountName.split(/[ @]/)[0] || ""
@@ -408,7 +412,7 @@ export function LandingNav() {
                 </nav>
                 <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
                   {signedOut ? <Button href="/sign-in" variant="ghost" size="md">Sign in</Button> : null}
-                  {signedIn ? (
+                  {isClientAccount ? (
                     <Link
                       href="/dashboard"
                       className="qh-acct"

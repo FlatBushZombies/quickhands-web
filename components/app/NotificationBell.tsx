@@ -23,8 +23,8 @@ const FALLBACK_POLL_INTERVAL_MS = 20000
 function iconFor(notification: AppNotification) {
   const message = notification.message.toLowerCase()
   if (notification.type === "new_application" || message.includes("applied")) return Briefcase
-  if (message.includes("accepted")) return CheckCircle2
-  if (message.includes("rejected") || message.includes("declined")) return XCircle
+  if (message.includes("accepted") || message.includes("hired") || message.includes("booked")) return CheckCircle2
+  if (message.includes("rejected") || message.includes("declined") || message.includes("cancelled")) return XCircle
   if (message.includes("review")) return Star
   if (notification.conversationId) return MessageCircle
   return Bell

@@ -686,7 +686,10 @@ export function ProfessionalsLanding() {
                       Sign in
                     </ButtonLink>
                   ) : null}
-                  {isLoaded && isSignedIn ? (
+                  {/* This nav is the specialist-facing surface — a client account
+                      browsing here shouldn't see their own avatar, since the
+                      signed-in state here means "signed in as a specialist". */}
+                  {isLoaded && isPro ? (
                     <Link href={DASHBOARD_HREF} className="qh-pro-account">
                       <span
                         style={{
