@@ -532,14 +532,6 @@ export function MyJobsView({
                     <div style={css("font:500 15px/1.3 var(--font-sans)")}>{clientName}</div>
                     <div style={css("font:var(--text-small);color:var(--fg-3)")}>Client</div>
                   </div>
-                  <Ix
-                    onClick={() => onMessage(app)}
-                    base="height:40px;padding:0 16px;border:0;border-radius:999px;background:var(--white);box-shadow:inset 0 0 0 1px var(--border-default);color:var(--fg-1);font:500 14px/1 var(--font-sans);cursor:pointer;display:inline-flex;align-items:center;gap:8px"
-                    hover="background:var(--ink-50)"
-                  >
-                    <Ico name="message-square" size={14} />
-                    Message
-                  </Ix>
                 </div>
 
                 <div style={css("display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px")}>
