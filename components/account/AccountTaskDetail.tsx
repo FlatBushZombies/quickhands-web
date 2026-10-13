@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment } from "react"
-import { Calendar, Check, CircleCheck, CircleDashed, Lock, MapPin, MessageSquare, MessagesSquare, Star, type LucideIcon } from "lucide-react"
+import { Calendar, Check, CircleCheck, CircleDashed, Lock, MapPin, MessageSquare, Star, type LucideIcon } from "lucide-react"
 import { timeAgo } from "@/components/app-shell/feed"
 import {
   EYEBROW,
@@ -278,7 +278,7 @@ export function AccountTaskDetail({
           </div>
           <div style={sx("display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px")}>
             <div style={sx("display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--radius-lg);background:var(--ink-50);color:var(--fg-1)")}>
-              <Icon glyph={MessagesSquare} size={16} color="var(--fg-2)" />
+              <Icon glyph={MessageSquare} size={16} color="var(--fg-2)" />
               <span style={sx("display:flex;flex-direction:column;gap:4px;min-width:0")}>
                 <span style={MICRO}>Contact</span>
                 <span style={sx("font:500 15px/1.2 var(--font-sans)")}>In-app messages only</span>
@@ -287,7 +287,7 @@ export function AccountTaskDetail({
           </div>
           <div>
             <button type="button" onClick={() => onMessage(hired)} className="qh-acc-ghost qh-acc-press" style={PILL_GHOST}>
-              <Icon glyph={MessagesSquare} />
+              <Icon glyph={MessageSquare} />
               Message {hiredFirst}
             </button>
           </div>

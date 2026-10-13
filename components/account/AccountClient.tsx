@@ -11,17 +11,12 @@ import {
   Hourglass,
   IdCard,
   Inbox,
-  LayoutDashboard,
   LogOut,
   Mail,
-  MessageSquare,
   Plus,
   ScanFace,
-  Settings,
   ShieldAlert,
   ShieldCheck,
-  SquarePlus,
-  UserSearch,
   type LucideIcon,
 } from "lucide-react"
 import { authFontClassName } from "@/components/auth/fonts"
@@ -66,15 +61,6 @@ type VerificationStatus = "none" | "pending" | "verified"
  * verified looks stay in place for when a real status exists.
  */
 const VERIFICATION_STATUS = "none" as VerificationStatus
-
-/** Real destinations outside this page, linked from the client sidebar. */
-const SITE_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
-  { href: "/specialists", label: "Browse specialists", icon: UserSearch },
-  { href: "/post-job", label: "Post a task", icon: SquarePlus },
-  { href: "/messages", label: "Messages", icon: MessageSquare },
-  { href: "/settings", label: "Settings", icon: Settings },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-]
 
 const TABS: { id: TaskStatus; label: string }[] = [
   { id: "open", label: "Open" },
@@ -410,19 +396,6 @@ export function AccountClient() {
               </button>
             )
           })}
-          <div style={DIVIDER} />
-          {SITE_LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              aria-current={link.href === "/dashboard" ? "page" : undefined}
-              className="qh-acc-nav"
-              style={{ ...NAV_ITEM_BASE, color: "var(--fg-2)", textDecoration: "none" }}
-            >
-              <Icon icon={link.icon} />
-              <span style={sx("flex:1")}>{link.label}</span>
-            </Link>
-          ))}
           <div style={DIVIDER} />
           <button
             type="button"
