@@ -560,7 +560,7 @@ export function ProAccountView() {
                 confirmError={confirmError}
               />
             ) : view === "portfolio" ? (
-              <PortfolioView />
+              <PortfolioView onGoSettings={() => setView("settings")} />
             ) : view === "messages" ? (
               <ConversationList />
             ) : view === "settings" ? (

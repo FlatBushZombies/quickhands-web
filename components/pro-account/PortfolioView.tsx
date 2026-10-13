@@ -46,7 +46,7 @@ function splitSkills(skills: string | null) {
  * endpoints the public bio page (/[username]) already renders from — so
  * anything saved here shows up on that real, shareable public link.
  */
-export function PortfolioView() {
+export function PortfolioView({ onGoSettings }: { onGoSettings?: () => void }) {
   const { getToken } = useAuth()
 
   const [projects, setProjects] = useState<PortfolioProject[] | null>(null)
@@ -262,9 +262,19 @@ export function PortfolioView() {
         ) : (
           <div style={css("display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:14px;flex-wrap:wrap")}>
             <p style={css("margin:0;color:var(--fg-2)")}>Set a public username in Settings to get a shareable link to this portfolio.</p>
-            <a href="/settings" style={css(`font:500 14px/1 var(--font-sans);color:${G};text-decoration:none;white-space:nowrap`)}>
-              Go to Settings →
-            </a>
+            {onGoSettings ? (
+              <button
+                type="button"
+                onClick={onGoSettings}
+                style={css(`border:0;background:transparent;padding:0;font:500 14px/1 var(--font-sans);color:${G};cursor:pointer;white-space:nowrap`)}
+              >
+                Go to Settings →
+              </button>
+            ) : (
+              <a href="/settings" style={css(`font:500 14px/1 var(--font-sans);color:${G};text-decoration:none;white-space:nowrap`)}>
+                Go to Settings →
+              </a>
+            )}
           </div>
         )}
       </div>
