@@ -485,8 +485,13 @@ export function ThreadModal({ app, onClose }: { app: Application; onClose: () =>
   return (
     <Modal label="Conversation" maxWidth={540} boxStyle="height:min(680px, calc(100vh - 32px))">
       <div style={css("display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border-hairline)")}>
-        <div role="img" aria-label={clientName} style={css("width:40px;height:40px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans);flex-shrink:0")}>
-          {initials(clientName)}
+        <div role="img" aria-label={clientName} style={css("width:40px;height:40px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans);flex-shrink:0;overflow:hidden")}>
+          {app.job?.clientImageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={app.job.clientImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          ) : (
+            initials(clientName)
+          )}
         </div>
         <div style={css("flex:1;min-width:0")}>
           <div style={css("font:500 15px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>{clientName}</div>
@@ -513,12 +518,14 @@ const RATING_LABELS = ["Tap a star to rate", "Poor", "Fair", "Good", "Very good"
 
 export function ReviewModal({
   name,
+  imageUrl = null,
   saving,
   error,
   onSubmit,
   onLater,
 }: {
   name: string
+  imageUrl?: string | null
   saving: boolean
   error: string | null
   onSubmit: (rating: number, text: string) => void
@@ -536,8 +543,13 @@ export function ReviewModal({
       </div>
       <div style={css("padding:28px;overflow:auto;display:flex;flex-direction:column;gap:20px")}>
         <div style={css("display:flex;align-items:center;gap:14px")}>
-          <div role="img" aria-label={name} style={css("width:52px;height:52px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 16px/1 var(--font-sans);flex-shrink:0")}>
-            {initials(name)}
+          <div role="img" aria-label={name} style={css("width:52px;height:52px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 16px/1 var(--font-sans);flex-shrink:0;overflow:hidden")}>
+            {imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              initials(name)
+            )}
           </div>
           <div style={css("min-width:0")}>
             <h2 style={css("font:var(--text-h3);letter-spacing:var(--ls-heading);margin:0")}>

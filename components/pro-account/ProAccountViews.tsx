@@ -278,6 +278,7 @@ function OverviewJobCard({ job, onOpen }: { job: RecommendedJob; onOpen: () => v
           <span>·</span>
           <span>{timeAgo(job.createdAt)}</span>
           {job.skillMatch ? <MatchTag /> : null}
+          <JobStatusTag status={job.status} />
         </div>
         <div style={css("font:500 17px/1.3 var(--font-sans);letter-spacing:var(--ls-tight);margin-top:8px")}>{job.serviceType}</div>
         <div style={css("display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:8px;font:var(--text-small);color:var(--fg-2)")}>
@@ -305,6 +306,15 @@ function OverviewJobCard({ job, onOpen }: { job: RecommendedJob; onOpen: () => v
 
 function MatchTag() {
   return <span style={css(`display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:${G_TINT};color:${G}`)}>Matches your skills</span>
+}
+
+// Only shown once a job is no longer open — an "open" badge on every card
+// would just be noise, but a specialist should see at a glance when a job
+// they're browsing has already been filled or finished.
+function JobStatusTag({ status }: { status: RecommendedJob["status"] }) {
+  if (status === "open") return null
+  const label = status === "completed" ? "Completed" : "Already hired"
+  return <span style={css("display:inline-flex;align-items:center;height:20px;padding:0 8px;border-radius:999px;background:var(--ink-100);color:var(--fg-2)")}>{label}</span>
 }
 
 /* ───────────── Jobs for you ───────────── */
@@ -394,6 +404,7 @@ function JobFeedCard({ job, applied, onOpen }: { job: RecommendedJob; applied: b
             <span>·</span>
             <span>{timeAgo(job.createdAt)}</span>
             {job.skillMatch ? <MatchTag /> : null}
+            <JobStatusTag status={job.status} />
           </div>
           <div style={css("font:500 18px/1.3 var(--font-sans);letter-spacing:var(--ls-tight);margin-top:8px")}>{job.serviceType}</div>
         </div>
@@ -525,8 +536,13 @@ export function MyJobsView({
                 </div>
 
                 <div style={css("display:flex;align-items:center;gap:12px;padding-top:18px;border-top:1px solid var(--border-hairline)")}>
-                  <span style={css("width:40px;height:40px;border-radius:50%;background:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans);flex-shrink:0")}>
-                    {initials(clientName)}
+                  <span style={css("width:40px;height:40px;border-radius:50%;background:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans);flex-shrink:0;overflow:hidden")}>
+                    {app.job?.clientImageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={app.job.clientImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      initials(clientName)
+                    )}
                   </span>
                   <div style={css("flex:1;min-width:0")}>
                     <div style={css("font:500 15px/1.3 var(--font-sans)")}>{clientName}</div>

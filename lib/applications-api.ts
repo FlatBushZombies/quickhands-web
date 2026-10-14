@@ -15,6 +15,8 @@ export interface Application {
   freelancerClerkId: string
   freelancerName: string
   freelancerEmail: string | null
+  /** The specialist's real Clerk profile photo, not a stored/stale snapshot. */
+  freelancerImageUrl?: string | null
   quotation: string | null
   conditions: string | null
   status: ApplicationStatus
@@ -34,6 +36,8 @@ export interface Application {
     endDate: string | null
     clientName: string | null
     clientClerkId: string | null
+    /** The client's real Clerk profile photo, not a stored/stale snapshot. */
+    clientImageUrl?: string | null
   }
 }
 
