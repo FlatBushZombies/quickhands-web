@@ -20,7 +20,7 @@ const CLOSE_BUTTON = sx(
 )
 
 const AVATAR = sx(
-  "width:40px;height:40px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans);flex-shrink:0"
+  "width:40px;height:40px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans);flex-shrink:0;overflow:hidden"
 )
 
 /** Escape closes whichever modal is open. */
@@ -45,17 +45,13 @@ function clockLabel(iso: string) {
 export function AccountThreadModal({
   job,
   application,
-  verified,
   onHire,
-  onVerify,
   hiring,
   onClose,
 }: {
   job: ClientJobWithApplications
   application: Application
-  verified: boolean
   onHire: () => void
-  onVerify: () => void
   hiring: boolean
   onClose: () => void
 }) {
@@ -110,7 +106,12 @@ export function AccountThreadModal({
       >
         <div style={sx("display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border-hairline)")}>
           <div role="img" aria-label={application.freelancerName} style={AVATAR}>
-            {initialsOf(application.freelancerName)}
+            {application.freelancerImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={application.freelancerImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            ) : (
+              initialsOf(application.freelancerName)
+            )}
           </div>
           <div style={sx("flex:1;min-width:0")}>
             <div style={sx("font:500 15px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>{application.freelancerName}</div>
@@ -173,17 +174,13 @@ export function AccountThreadModal({
             <span style={sx("font:var(--text-small);color:var(--fg-2)")}>Happy with {firstName}&apos;s offer?</span>
             <button
               type="button"
-              onClick={verified ? onHire : onVerify}
+              onClick={onHire}
               disabled={hiring}
               className="qh-acc-green qh-acc-press"
               style={sx("height:36px;padding:0 16px;border:0;border-radius:999px;background:#108600;color:var(--white);font:500 13px/1 var(--font-sans);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap")}
             >
-              {verified ? (
-                <Check width={13} height={13} strokeWidth={1.5} aria-hidden="true" />
-              ) : (
-                <Lock width={13} height={13} strokeWidth={1.5} aria-hidden="true" />
-              )}
-              {verified ? (application.quotation ? `Hire · ${application.quotation}` : "Hire") : "Verify to hire"}
+              <Check width={13} height={13} strokeWidth={1.5} aria-hidden="true" />
+              {application.quotation ? `Hire · ${application.quotation}` : "Hire"}
             </button>
           </div>
         ) : null}
@@ -275,8 +272,13 @@ export function AccountReviewModal({
         </div>
         <div style={sx("padding:28px;overflow:auto;display:flex;flex-direction:column;gap:20px")}>
           <div style={sx("display:flex;align-items:center;gap:14px")}>
-            <div role="img" aria-label={application.freelancerName} style={sx("width:52px;height:52px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 16px/1 var(--font-sans);flex-shrink:0")}>
-              {initialsOf(application.freelancerName)}
+            <div role="img" aria-label={application.freelancerName} style={sx("width:52px;height:52px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 16px/1 var(--font-sans);flex-shrink:0;overflow:hidden")}>
+              {application.freelancerImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={application.freelancerImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                initialsOf(application.freelancerName)
+              )}
             </div>
             <div style={sx("min-width:0")}>
               <h2 style={sx("font:var(--text-h3);letter-spacing:var(--ls-heading);margin:0")}>

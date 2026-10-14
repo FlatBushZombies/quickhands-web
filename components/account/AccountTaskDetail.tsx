@@ -1,7 +1,7 @@
 "use client"
 
 import { Fragment } from "react"
-import { Calendar, Check, CircleCheck, CircleDashed, Lock, MapPin, MessageSquare, Star, type LucideIcon } from "lucide-react"
+import { Calendar, Check, CircleCheck, CircleDashed, MapPin, MessageSquare, Star, type LucideIcon } from "lucide-react"
 import { timeAgo } from "@/components/app-shell/feed"
 import {
   EYEBROW,
@@ -67,9 +67,7 @@ export function AccountTaskDetail({
   hired,
   matrix,
   busyId,
-  verified,
   onHire,
-  onVerify,
   onDecline,
   onComplete,
   onMessage,
@@ -80,9 +78,7 @@ export function AccountTaskDetail({
   hired: Application | null
   matrix: ReviewMatrix | null
   busyId: number | null
-  verified: boolean
   onHire: (app: Application) => void
-  onVerify: () => void
   onDecline: (app: Application) => void
   onComplete: (app: Application) => void
   onMessage: (app: Application) => void
@@ -197,8 +193,13 @@ export function AccountTaskDetail({
                 style={sx(`display:flex;flex-direction:column;gap:16px;padding:22px;border-radius:var(--radius-lg);background:var(--white);box-shadow:var(--shadow-hairline);opacity:${declined ? 0.5 : 1};transition:opacity var(--dur-base) var(--ease-out)`)}
               >
                 <div style={sx("display:flex;align-items:center;gap:14px")}>
-                  <div role="img" aria-label={app.freelancerName} style={sx("width:48px;height:48px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 15px/1 var(--font-sans);flex-shrink:0")}>
-                    {initialsOf(app.freelancerName)}
+                  <div role="img" aria-label={app.freelancerName} style={sx("width:48px;height:48px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 15px/1 var(--font-sans);flex-shrink:0;overflow:hidden")}>
+                    {app.freelancerImageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={app.freelancerImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      initialsOf(app.freelancerName)
+                    )}
                   </div>
                   <div style={sx("flex:1;min-width:0")}>
                     <div style={sx("font:500 16px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>{app.freelancerName}</div>
@@ -222,9 +223,9 @@ export function AccountTaskDetail({
                 <div style={sx("display:flex;flex-wrap:wrap;align-items:center;gap:8px")}>
                   {pending ? (
                     <Fragment>
-                      <button type="button" onClick={() => (verified ? onHire(app) : onVerify())} disabled={busyId === app.id} className="qh-acc-green qh-acc-press" style={PILL_GREEN}>
-                        <Icon glyph={verified ? Check : Lock} />
-                        {verified ? (app.quotation ? `Hire · ${app.quotation}` : "Hire") : "Verify to hire"}
+                      <button type="button" onClick={() => onHire(app)} disabled={busyId === app.id} className="qh-acc-green qh-acc-press" style={PILL_GREEN}>
+                        <Icon glyph={Check} />
+                        {app.quotation ? `Hire · ${app.quotation}` : "Hire"}
                       </button>
                       <button type="button" onClick={() => onMessage(app)} className="qh-acc-ghost qh-acc-press" style={PILL_GHOST}>
                         <Icon glyph={MessageSquare} />
@@ -240,12 +241,6 @@ export function AccountTaskDetail({
               </div>
             )
           })}
-          {!verified && offers.some((app) => app.status === "pending") ? (
-            <div style={sx("display:flex;gap:10px;align-items:center;font:var(--text-small);color:var(--fg-3)")}>
-              <Icon glyph={Lock} size={14} />
-              Verify your identity to hire a specialist. It takes about two minutes.
-            </div>
-          ) : null}
         </div>
       ) : null}
 
@@ -256,8 +251,13 @@ export function AccountTaskDetail({
             Your specialist
           </div>
           <div style={sx("display:flex;align-items:center;gap:14px")}>
-            <div role="img" aria-label={hired.freelancerName} style={sx("width:52px;height:52px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 16px/1 var(--font-sans);flex-shrink:0")}>
-              {initialsOf(hired.freelancerName)}
+            <div role="img" aria-label={hired.freelancerName} style={sx("width:52px;height:52px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 16px/1 var(--font-sans);flex-shrink:0;overflow:hidden")}>
+              {hired.freelancerImageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={hired.freelancerImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                initialsOf(hired.freelancerName)
+              )}
             </div>
             <div style={sx("flex:1;min-width:0")}>
               <div style={sx("font:500 17px/1.3 var(--font-sans);letter-spacing:var(--ls-tight)")}>{hired.freelancerName}</div>

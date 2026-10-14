@@ -363,8 +363,13 @@ export function AccountClient() {
               Post a task
             </Link>
             <div style={sx("display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--border-hairline)")}>
-              <span style={sx("position:relative;width:32px;height:32px;border-radius:50%;background:var(--ink-950);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans)")}>
-                {initials}
+              <span style={sx("position:relative;width:32px;height:32px;border-radius:50%;background:var(--ink-950);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans);overflow:hidden")}>
+                {user?.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={user.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  initials
+                )}
                 {verified ? (
                   <span style={sx("position:absolute;right:-4px;bottom:-4px;display:inline-flex;color:#108600;background:var(--white);border-radius:50%")}>
                     <Icon icon={BadgeCheck} size={14} />
@@ -586,9 +591,7 @@ export function AccountClient() {
                     hired={selectedHired}
                     matrix={selectedHired ? matrices[selectedHired.id] ?? null : null}
                     busyId={busyId}
-                    verified={verified}
                     onHire={(app) => setStatus(app, "accepted")}
-                    onVerify={() => setVerifyOpen(true)}
                     onDecline={(app) => setStatus(app, "rejected")}
                     onComplete={(app) => confirmDone(app)}
                     onMessage={(app) => setThread({ jobId: selected.id, applicationId: app.id })}
@@ -620,8 +623,13 @@ export function AccountClient() {
                     className="qh-acc-row"
                     style={sx("width:100%;display:flex;align-items:center;gap:16px;padding:18px 22px;border:0;border-bottom:1px solid var(--border-hairline);background:transparent;text-align:left;cursor:pointer;color:var(--fg-1)")}
                   >
-                    <div role="img" aria-label={app.freelancerName} style={sx("width:44px;height:44px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 14px/1 var(--font-sans);flex-shrink:0")}>
-                      {initialsOf(app.freelancerName)}
+                    <div role="img" aria-label={app.freelancerName} style={sx("width:44px;height:44px;border-radius:50%;background-color:var(--ink-900);color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 14px/1 var(--font-sans);flex-shrink:0;overflow:hidden")}>
+                      {app.freelancerImageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={app.freelancerImageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                      ) : (
+                        initialsOf(app.freelancerName)
+                      )}
                     </div>
                     <div style={sx("flex:1;min-width:0")}>
                       <div style={sx("font:500 15px/1.3 var(--font-sans)")}>
@@ -700,10 +708,8 @@ export function AccountClient() {
           key={threadTarget.application.id}
           job={threadTarget.job}
           application={threadTarget.application}
-          verified={verified}
           hiring={busyId === threadTarget.application.id}
           onHire={() => setStatus(threadTarget.application, "accepted")}
-          onVerify={() => setVerifyOpen(true)}
           onClose={() => setThread(null)}
         />
       ) : null}
