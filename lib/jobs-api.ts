@@ -18,6 +18,8 @@ export interface ClientReviewSummary {
   latestReview: { rating: number; comment: string | null; reviewerName: string; createdAt: string } | null
 }
 
+export type JobStatus = "open" | "in_progress" | "completed"
+
 export interface Job {
   id: number
   serviceType: string
@@ -40,6 +42,8 @@ export interface Job {
   proximity: JobProximity | null
   clientReviewSummary: ClientReviewSummary
   applicantCount: number
+  /** Derived from the job's own applications — jobs have no status column of their own. */
+  status: JobStatus
 }
 
 export type PreferredTime = "morning" | "afternoon" | "evening" | "any"
@@ -157,6 +161,8 @@ export interface RecommendedJob {
   proximity: RecommendedJobProximity | null
   clientReviewSummary: ClientReviewSummary
   applicantCount: number
+  /** Derived from the job's own applications — jobs have no status column of their own. */
+  status: JobStatus
   skillMatch: boolean
   /** Set when the request asked for includeApplied=true. */
   alreadyApplied?: boolean
