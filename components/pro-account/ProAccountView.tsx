@@ -460,8 +460,13 @@ export function ProAccountView() {
               <span style={css(`font:var(--text-micro);letter-spacing:var(--ls-mono);text-transform:uppercase;color:${G}`)}>Pro</span>
             </a>
             <div style={css("display:flex;align-items:center;gap:10px;padding:4px 12px 4px 4px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--border-hairline)")}>
-              <span style={css(`position:relative;width:32px;height:32px;border-radius:50%;background:${G};color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans)`)}>
-                {initials(name || "U")}
+              <span style={css(`position:relative;width:32px;height:32px;border-radius:50%;background:${G};color:var(--white);display:inline-flex;align-items:center;justify-content:center;font:500 13px/1 var(--font-sans);overflow:hidden`)}>
+                {user?.imageUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={user.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  initials(name || "U")
+                )}
                 {verified ? (
                   <span style={css(`position:absolute;right:-4px;bottom:-4px;display:inline-flex;color:${G};background:var(--white);border-radius:50%`)}>
                     <Ico name="badge-check" size={14} />
@@ -620,6 +625,7 @@ export function ProAccountView() {
         {modal?.kind === "review" ? (
           <ReviewModal
             name={modal.app.job?.clientName || "the client"}
+            imageUrl={modal.app.job?.clientImageUrl ?? null}
             saving={busy}
             error={modalError}
             onSubmit={(rating, text) => submitReview(modal.app, rating, text)}

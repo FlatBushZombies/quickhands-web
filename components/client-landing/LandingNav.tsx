@@ -440,9 +440,15 @@ export function LandingNav() {
                           alignItems: "center",
                           justifyContent: "center",
                           font: "500 12px/1 var(--font-sans)",
+                          overflow: "hidden",
                         }}
                       >
-                        {userInitials}
+                        {user?.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={user.imageUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                          userInitials
+                        )}
                       </span>
                       {userFirst}
                     </Link>
